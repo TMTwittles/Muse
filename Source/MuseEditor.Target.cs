@@ -11,5 +11,6 @@ public class MuseEditorTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
 		ExtraModuleNames.Add("Muse");
+    ExtraModuleNames.Add("MuseGAS");
 	}
 }
