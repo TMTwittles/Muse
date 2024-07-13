@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "AbilitySystemInterface.h"
+#include "PlayerGameplayAbilitiesDataAsset.h"
 #include "MuseCharacterGameplayAbilitySystemComponent.generated.h"
+
+class UEnhancedInputComponent;
 
 UENUM(BlueprintType)
 enum class ECharacterAbilityInput : uint8
@@ -21,12 +24,12 @@ class MUSEGAS_API UMuseCharacterGameplayAbilitySystemComponent : public UActorCo
 	GENERATED_BODY()
 
   //** Ability system */
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilties, meta = (AllowPrivateAccess = "true"))
-  class UAbilitySystemComponent* AbilitySystem;
+  UPROPERTY()
+  TObjectPtr<UAbilitySystemComponent> AbilitySystem;
 
-  //** Ability */
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Abilities, meta=(AllowPrivateAccess="true"))
-  TSubclassOf<class UGameplayAbility> Ability;
+  //** Player abilities */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=PlayerAbilties, meta=(AllowPrivateAccess="true"))
+  TObjectPtr<UPlayerGameplayAbilitiesDataAsset> PlayerAbilities;
 
 public:	
 	// Sets default values for this component's properties
@@ -40,9 +43,15 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+private:
+  // Called on begin play, initializes and configures character's abilities.
+  void InitAbilitySystem();
+  void AbilityInputPressed(int32 InputId);
+  void AbilityInputReleased(int32 InputId);
+
 public:
   // Bind character abilities to input component
-  void BindAbilitySystemInputs(UInputComponent* PlayerInputComponent);
+  void BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent);
 
   // Called whenever character/actor changes, i.e during possession.
   void RefreshAbilitySystem();
