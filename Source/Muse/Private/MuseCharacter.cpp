@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "MuseCharacterGameplayAbilitySystemComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -50,8 +51,17 @@ AMuseCharacter::AMuseCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	// Create ability system component.
+  CharacterGameplayAbilities = CreateDefaultSubobject<UMuseCharacterGameplayAbilitySystemComponent>(TEXT("CharacterGameplayAbilities"));
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+}
+
+void AMuseCharacter::PossessedBy(AController* NewController)
+{
+  Super::PossessedBy(NewController);
+  CharacterGameplayAbilities->RefreshAbilitySystem();
 }
 
 void AMuseCharacter::BeginPlay()
@@ -86,6 +96,9 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Look);
+
+    // Ability system inputs.
+    CharacterGameplayAbilities->BindAbilitySystemInputs(EnhancedInputComponent);
 	}
 	else
 	{
