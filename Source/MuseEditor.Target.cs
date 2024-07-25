@@ -12,5 +12,6 @@ public class MuseEditorTarget : TargetRules
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
 		ExtraModuleNames.Add("Muse");
     ExtraModuleNames.Add("MuseGAS");
+    ExtraModuleNames.Add("MuseMeleeAttacks");
 	}
 }
