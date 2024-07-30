@@ -10,7 +10,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-#include "MuseCharacterGameplayAbilitySystemComponent.h"
+
+#include "AbilitySystemComponent.h"
+#include "GameplayAbilityInputInfo.h"
+#include "PlayerGameplayAbilitiesDataAsset.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,7 +55,7 @@ AMuseCharacter::AMuseCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Create ability system component.
-  CharacterGameplayAbilities = CreateDefaultSubobject<UMuseCharacterGameplayAbilitySystemComponent>(TEXT("CharacterGameplayAbilities"));
+  AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("CharacterGameplayAbilities"));
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -61,13 +64,78 @@ AMuseCharacter::AMuseCharacter()
 void AMuseCharacter::PossessedBy(AController* NewController)
 {
   Super::PossessedBy(NewController);
-  CharacterGameplayAbilities->RefreshAbilitySystem();
+
+  // Notify server actor has changed. 
+  AbilitySystem->RefreshAbilityActorInfo();
 }
 
 void AMuseCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+  // Initialize ability system, granting character available abilities.
+  InitAbilitySystem();
+}
+
+void AMuseCharacter::InitAbilitySystem()
+{
+  check(AbilitySystem);
+  check(PlayerAbilities);
+
+  const auto& InputAbilities = PlayerAbilities->GetInputAbilities();
+  for (const auto& InputAbility : InputAbilities)
+  {
+    check(InputAbility.IsValid() == true);
+
+    // Only give abilities on the server.
+    if (HasAuthority())
+    {
+      constexpr int32 AbilityLevel = 1;
+      const int32 InputId = InputAbility.InputId;
+      const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(InputAbility.GameplayAbilityClass, AbilityLevel, InputId);
+      AbilitySystem->GiveAbility(AbilitySpec);
+    }
+  }
+
+  // Actor responsible/owns the ability system.
+  AActor* OwningActor = this;
+  // Actor through which the ability system acts, uses abilities etc.
+  AActor* Avatar = this;
+  // Tell ability system of owner and avatar.
+  AbilitySystem->InitAbilityActorInfo(OwningActor, Avatar);
+}
+
+void AMuseCharacter::BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent)
+{
+  check(AbilitySystem != nullptr);
+  check(PlayerAbilities != nullptr);
+  const auto& InputAbilities = PlayerAbilities->GetInputAbilities();
+  for (const auto& InputAbility : InputAbilities)
+  {
+    check(InputAbility.IsValid() == true);
+    const UInputAction* InputAction = InputAbility.InputAction;
+    const int32 InputId = InputAbility.InputId;
+    EnhancedInputComponent->BindAction(InputAction, ETriggerEvent::Started, this, &AMuseCharacter::AbilityInputPressed, InputId);
+    EnhancedInputComponent->BindAction(InputAction, ETriggerEvent::Completed, this, &AMuseCharacter::AbilityInputReleased, InputId);
+  }
+}
+
+void AMuseCharacter::AbilityInputPressed(int32 InputId)
+{
+  check(AbilitySystem);
+  AbilitySystem->AbilityLocalInputPressed(InputId);
+}
+
+void AMuseCharacter::AbilityInputReleased(int32 InputId)
+{
+  check(AbilitySystem);
+  AbilitySystem->AbilityLocalInputReleased(InputId);
+}
+
+UAbilitySystemComponent* AMuseCharacter::GetAbilitySystemComponent() const
+{
+  return AbilitySystem;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,7 +166,7 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Look);
 
     // Ability system inputs.
-    CharacterGameplayAbilities->BindAbilitySystemInputs(EnhancedInputComponent);
+    BindAbilitySystemInputs(EnhancedInputComponent);
 	}
 	else
 	{
