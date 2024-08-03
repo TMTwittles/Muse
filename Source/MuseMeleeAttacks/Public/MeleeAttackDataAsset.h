@@ -17,11 +17,15 @@ class MUSEMELEEATTACKS_API UMeleeAttackDataAsset : public UDataAsset
 
 private:
   UPROPERTY(EditAnywhere, Category="Animation", meta=(AllowPrivateAccess="true"))
-  TObjectPtr<UAnimSequence> MeleeAnimation;
+  TObjectPtr<UAnimMontage> MeleeMontage;
 
   UPROPERTY(EditAnywhere, Category="Animation", meta=(AllowPrivateAccess="true"))
   float BlendInTime;
 
   UPROPERTY(EditAnywhere, Category = "Animation", meta=(AllowPrivateAccess="true"))
   float BlendOutTime;
+
+public:
+  UFUNCTION()
+  inline UAnimMontage* GetMontage() const { return MeleeMontage; };
 };
