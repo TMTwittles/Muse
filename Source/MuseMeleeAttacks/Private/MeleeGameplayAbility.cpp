@@ -26,5 +26,11 @@ void UMeleeGameplayAbility::ActivateAbility(
     }
 
     UAbilityTask_PlayMeleeMontage* PlayMeleeMontage = UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(this, FName(TEXT("Play melee montage")), ComboData->GetMeleeAttack(0));
+    PlayMeleeMontage->AllMeleeMontagesCompleted.AddDynamic(this, &UMeleeGameplayAbility::OnAllMeleeMontagesCompleted);
     PlayMeleeMontage->Activate();
+}
+
+void UMeleeGameplayAbility::OnAllMeleeMontagesCompleted()
+{
+  EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }

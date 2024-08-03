@@ -6,7 +6,7 @@
 
 void UAbilityTask_PlayMeleeMontage::QueueMontage(UAnimMontage* NextMontage)
 {
-  MontageComboStack.Add(NextMontage);
+  MontageComboStack.EmplaceAt(0, NextMontage);
 }
 
 UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility, FName TaskInstanceName, const UMeleeAttackDataAsset* InMeleeData)
@@ -16,9 +16,27 @@ UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMon
   return PlayMeleeMontageTask;
 }
 
-void UAbilityTask_PlayMeleeMontage::Activate()
+void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-  if (Ability == nullptr)
+  if (MontageComboStack.Num() == 0)
+  {
+    if (AllMeleeMontagesCompleted.IsBound())
+    {
+      AllMeleeMontagesCompleted.Broadcast();
+    }
+    EndTask();
+  }
+  else
+  {
+    PlayNextMeleeMontage();
+  }
+}
+
+void UAbilityTask_PlayMeleeMontage::PlayNextMeleeMontage()
+{
+  const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
+  UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
+  if (!AnimInstance)
   {
     return;
   }
@@ -29,36 +47,33 @@ void UAbilityTask_PlayMeleeMontage::Activate()
     return;
   }
 
-  const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
-  UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
-  if (!AnimInstance)
+  UAnimMontage* NextMeleeMontage = MontageComboStack.Pop();
+  if (ASC->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), NextMeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
+  {
+    MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
+    AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, NextMeleeMontage);
+
+    ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
+  }
+}
+
+void UAbilityTask_PlayMeleeMontage::Activate()
+{
+  if (Ability == nullptr)
   {
     return;
   }
 
-  if (ASC->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MontageComboStack.Pop(), 1.0f, FName(TEXT("")), 0.0f) > 0.f)
+  MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
+
+  ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
+  if (Character && (Character->GetLocalRole() == ROLE_Authority ||
+    (Character->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
   {
-    // Playing a montage could potentially fire off a callback into game code which could kill this ability! Early out if we are  pending kill.
-    if (ShouldBroadcastAbilityTaskDelegates() == false)
-    {
-      return;
-    }
-
-    //InterruptedHandle = Ability->OnGameplayAbilityCancelled.AddUObject(this, &UAbilityTask_PlayMontageAndWait::OnGameplayAbilityCancelled);
-
-    //BlendingOutDelegate.BindUObject(this, &UAbilityTask_PlayMontageAndWait::OnMontageBlendingOut);
-    //AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, MontageToPlay);
-
-    //MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMontageAndWait::OnMontageEnded);
-    //AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
-
-    ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
-    if (Character && (Character->GetLocalRole() == ROLE_Authority ||
-      (Character->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
-    {
-      Character->SetAnimRootMotionTranslationScale(1.0f);
-    }
+    Character->SetAnimRootMotionTranslationScale(1.0f);
   }
+
+  PlayNextMeleeMontage();
 }
 
 void UAbilityTask_PlayMeleeMontage::ExternalCancel()
@@ -70,6 +85,6 @@ FString UAbilityTask_PlayMeleeMontage::GetDebugString() const
   return FString();
 }
 
-void UAbilityTask_PlayMeleeMontage::OnDestroy(bool AbilityEnded)
+void UAbilityTask_PlayMeleeMontage::OnDestroy(bool bAbilityEnded)
 {
 }

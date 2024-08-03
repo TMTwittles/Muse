@@ -25,6 +25,9 @@ public:
   virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
 private:
+  UFUNCTION()
+  void OnAllMeleeMontagesCompleted();
+
   uint32 ActiveMeleeAttack;
   TObjectPtr<UAbilityTask_PlayMontageAndWait> PlayMeleeMontageTask;
 };
