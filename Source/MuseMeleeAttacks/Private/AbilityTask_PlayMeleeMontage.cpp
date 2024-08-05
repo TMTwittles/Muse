@@ -4,21 +4,16 @@
 #include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
 
-void UAbilityTask_PlayMeleeMontage::QueueMontage(UAnimMontage* NextMontage)
-{
-  MontageComboStack.EmplaceAt(0, NextMontage);
-}
-
-UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility, FName TaskInstanceName, const UMeleeAttackDataAsset* InMeleeData)
+UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility, FName TaskInstanceName, UMeleeComboDataAsset* InMeleeComboData)
 {
   UAbilityTask_PlayMeleeMontage* PlayMeleeMontageTask = NewAbilityTask<UAbilityTask_PlayMeleeMontage>(OwningAbility, TaskInstanceName);
-  PlayMeleeMontageTask->QueueMontage(InMeleeData->GetMontage());
+  PlayMeleeMontageTask->MeleeComboData = InMeleeComboData;
   return PlayMeleeMontageTask;
 }
 
 void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-  if (MontageComboStack.Num() == 0)
+  if (!bPlayNextMeleeCombo)
   {
     if (AllMeleeMontagesCompleted.IsBound())
     {
@@ -28,11 +23,18 @@ void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, b
   }
   else
   {
-    PlayNextMeleeMontage();
+    CurrentComboIndex += 1;
+    bPlayNextMeleeCombo = false;
+    PlayCurrentComboMeleeMontage();
   }
 }
 
-void UAbilityTask_PlayMeleeMontage::PlayNextMeleeMontage()
+void UAbilityTask_PlayMeleeMontage::QueueNextComboAttack()
+{
+  bPlayNextMeleeCombo = !MeleeComboData->EndOfCombo(CurrentComboIndex);
+}
+
+void UAbilityTask_PlayMeleeMontage::PlayCurrentComboMeleeMontage()
 {
   const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
   UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
@@ -47,7 +49,8 @@ void UAbilityTask_PlayMeleeMontage::PlayNextMeleeMontage()
     return;
   }
 
-  UAnimMontage* NextMeleeMontage = MontageComboStack.Pop();
+  bPlayNextMeleeCombo = false;
+  UAnimMontage* NextMeleeMontage = MeleeComboData->GetMeleeAttack(CurrentComboIndex)->GetMontage();
   if (ASC->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), NextMeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
   {
     MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
@@ -65,7 +68,7 @@ void UAbilityTask_PlayMeleeMontage::Activate()
   }
 
   MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
-
+  CurrentComboIndex = 0;
   ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
   if (Character && (Character->GetLocalRole() == ROLE_Authority ||
     (Character->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
@@ -73,18 +76,5 @@ void UAbilityTask_PlayMeleeMontage::Activate()
     Character->SetAnimRootMotionTranslationScale(1.0f);
   }
 
-  PlayNextMeleeMontage();
-}
-
-void UAbilityTask_PlayMeleeMontage::ExternalCancel()
-{
-}
-
-FString UAbilityTask_PlayMeleeMontage::GetDebugString() const
-{
-  return FString();
-}
-
-void UAbilityTask_PlayMeleeMontage::OnDestroy(bool bAbilityEnded)
-{
+  PlayCurrentComboMeleeMontage();
 }

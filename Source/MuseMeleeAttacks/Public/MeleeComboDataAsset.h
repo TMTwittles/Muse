@@ -19,5 +19,6 @@ class MUSEMELEEATTACKS_API UMeleeComboDataAsset : public UDataAsset
   TArray<TObjectPtr<UMeleeAttackDataAsset>> MeleeAttacks;
 
 public:
-  inline const UMeleeAttackDataAsset* GetMeleeAttack(const int32 ComboIndex) const { return MeleeAttacks[ComboIndex]; };
+  inline const bool EndOfCombo(const int32 ComboIndex) const { return ComboIndex >= MeleeAttacks.Num() - 1; }
+  inline UMeleeAttackDataAsset* GetMeleeAttack(const int32 ComboIndex) const { return MeleeAttacks[ComboIndex]; };
 };

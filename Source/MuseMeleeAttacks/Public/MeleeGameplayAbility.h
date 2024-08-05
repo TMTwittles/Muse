@@ -7,7 +7,7 @@
 #include "MeleeComboDataAsset.h"
 #include "MeleeGameplayAbility.generated.h"
 
-class UAbilityTask_PlayMontageAndWait;
+class UAbilityTask_PlayMeleeMontage;
 
 /**
  * 
@@ -29,5 +29,5 @@ private:
   void OnAllMeleeMontagesCompleted();
 
   uint32 ActiveMeleeAttack;
-  TObjectPtr<UAbilityTask_PlayMontageAndWait> PlayMeleeMontageTask;
+  TObjectPtr<UAbilityTask_PlayMeleeMontage> PlayMeleeMontageTask;
 };

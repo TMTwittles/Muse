@@ -9,7 +9,8 @@ void UMeleeGameplayAbility::InputPressed(
   const FGameplayAbilityActorInfo* ActorInfo,
   const FGameplayAbilityActivationInfo ActivationInfo)
 {
-  
+  check(PlayMeleeMontageTask);
+  PlayMeleeMontageTask->QueueNextComboAttack();
 }
 
 void UMeleeGameplayAbility::ActivateAbility(
@@ -25,9 +26,9 @@ void UMeleeGameplayAbility::ActivateAbility(
       EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
     }
 
-    UAbilityTask_PlayMeleeMontage* PlayMeleeMontage = UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(this, FName(TEXT("Play melee montage")), ComboData->GetMeleeAttack(0));
-    PlayMeleeMontage->AllMeleeMontagesCompleted.AddDynamic(this, &UMeleeGameplayAbility::OnAllMeleeMontagesCompleted);
-    PlayMeleeMontage->Activate();
+    PlayMeleeMontageTask = UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(this, FName(TEXT("Play melee montage")), ComboData);
+    PlayMeleeMontageTask->AllMeleeMontagesCompleted.AddDynamic(this, &UMeleeGameplayAbility::OnAllMeleeMontagesCompleted);
+    PlayMeleeMontageTask->Activate();
 }
 
 void UMeleeGameplayAbility::OnAllMeleeMontagesCompleted()
