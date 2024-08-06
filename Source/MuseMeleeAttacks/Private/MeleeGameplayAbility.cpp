@@ -33,5 +33,10 @@ void UMeleeGameplayAbility::ActivateAbility(
 
 void UMeleeGameplayAbility::OnAllMeleeMontagesCompleted()
 {
+  check(PlayMeleeMontageTask && PlayMeleeMontageTask->AllMeleeMontagesCompleted.IsBound());
+  if (PlayMeleeMontageTask && PlayMeleeMontageTask->AllMeleeMontagesCompleted.IsBound())
+  {
+    PlayMeleeMontageTask->AllMeleeMontagesCompleted.RemoveDynamic(this, &UMeleeGameplayAbility::OnAllMeleeMontagesCompleted);
+  }
   EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }

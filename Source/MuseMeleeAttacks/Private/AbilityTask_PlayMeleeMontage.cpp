@@ -36,45 +36,94 @@ void UAbilityTask_PlayMeleeMontage::QueueNextComboAttack()
 
 void UAbilityTask_PlayMeleeMontage::PlayCurrentComboMeleeMontage()
 {
-  const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
-  UAnimInstance* AnimInstance = ActorInfo->GetAnimInstance();
-  if (!AnimInstance)
-  {
-    return;
-  }
-
-  UAbilitySystemComponent* ASC = AbilitySystemComponent.Get();
-  if (!ASC)
-  {
-    return;
-  }
-
-  bPlayNextMeleeCombo = false;
   UAnimMontage* NextMeleeMontage = MeleeComboData->GetMeleeAttack(CurrentComboIndex)->GetMontage();
   if (ASC->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), NextMeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
   {
     MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
     AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, NextMeleeMontage);
-
-    ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
   }
+}
+
+bool UAbilityTask_PlayMeleeMontage::TrySetAvatarCharacterRootMotionScale(const float InRootMotionScale)
+{
+  bool bRootMotionScaleSet = false;
+  check(AvatarCharacter)
+  if (AvatarCharacter && (AvatarCharacter->GetLocalRole() == ROLE_Authority ||
+    (AvatarCharacter->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
+  {
+    AvatarCharacter->SetAnimRootMotionTranslationScale(InitialRootMotionTranslationScale);
+    bRootMotionScaleSet = true;
+  }
+  return bRootMotionScaleSet;
+}
+
+void UAbilityTask_PlayMeleeMontage::OnDestroy(bool bInOwnerFinished)
+{
+  if (AllMeleeMontagesCompleted.IsBound())
+  {
+    AllMeleeMontagesCompleted.Clear();
+  }
+
+  if (MontageEndedDelegate.IsBoundToObject(this))
+  {
+    MontageEndedDelegate.Unbind();
+  }
+
+  CurrentComboIndex = 0;
+  bPlayNextMeleeCombo = false;
+  MeleeComboData = nullptr;
+  ASC = nullptr;
+
+  if (AvatarCharacter)
+  {
+    TrySetAvatarCharacterRootMotionScale(InitialRootMotionTranslationScale);
+    AvatarCharacter = nullptr;
+  }
+
+  Super::OnDestroy(bInOwnerFinished);
 }
 
 void UAbilityTask_PlayMeleeMontage::Activate()
 {
+  check(Ability != nullptr);
   if (Ability == nullptr)
+  {
+    return;
+  }
+
+  const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
+  AnimInstance = ActorInfo->GetAnimInstance();
+  check(AnimInstance != nullptr);
+  if (!AnimInstance)
+  {
+    return;
+  }
+
+  ASC = AbilitySystemComponent.Get();
+  check(ASC != nullptr);
+  if (!ASC)
+  {
+    return;
+  }
+
+  AvatarCharacter = Cast<ACharacter>(GetAvatarActor());
+  check(AvatarCharacter != nullptr);
+  if (!AvatarCharacter)
+  {
+    return;
+  }
+
+  InitialRootMotionTranslationScale = AvatarCharacter->GetAnimRootMotionTranslationScale();
+  bool bSetRootMotionTranslationScale = TrySetAvatarCharacterRootMotionScale(1.0f);
+  check(bSetRootMotionTranslationScale);
+  if (!bSetRootMotionTranslationScale)
   {
     return;
   }
 
   MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
   CurrentComboIndex = 0;
-  ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
-  if (Character && (Character->GetLocalRole() == ROLE_Authority ||
-    (Character->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
-  {
-    Character->SetAnimRootMotionTranslationScale(1.0f);
-  }
-
+  bPlayNextMeleeCombo = false;
+  
   PlayCurrentComboMeleeMontage();
 }
