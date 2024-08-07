@@ -20,6 +20,6 @@ class MUSEMELEEATTACKS_API UMeleeComboDataAsset : public UDataAsset
 
 public:
   inline const bool EndOfCombo(const int32 ComboIndex) const { return ComboIndex >= MeleeAttacks.Num() - 1; }
-  inline const float GetNumComboAttack() const { MeleeAttacks.Num(); }
+  inline const uint32 GetNumComboAttacks() const { return MeleeAttacks.Num(); }
   inline UMeleeAttackDataAsset* GetMeleeAttack(const int32 ComboIndex) const { return MeleeAttacks[ComboIndex]; };
 };

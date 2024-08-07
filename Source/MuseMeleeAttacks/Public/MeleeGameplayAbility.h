@@ -28,6 +28,9 @@ private:
   UFUNCTION()
   void OnAllMeleeMontagesCompleted();
 
-  uint32 ActiveMeleeAttack;
-  TObjectPtr<UAbilityTask_PlayMeleeMontage> PlayMeleeMontageTask;
+  UPROPERTY()
+  uint32 ActiveMeleeMontageTask;
+
+  UPROPERTY() 
+  TArray<TObjectPtr<UAbilityTask_PlayMeleeMontage>> PlayMeleeMontageTasks;
 };

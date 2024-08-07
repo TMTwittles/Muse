@@ -4,7 +4,7 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 #include "Abilities/Tasks/AbilityTask.h"
-#include "MeleeComboDataAsset.h"
+#include "MeleeAttackDataAsset.h"
 #include "Animation/AnimMontage.h"
 #include "AbilityTask_PlayMeleeMontage.generated.h"
 
@@ -25,7 +25,7 @@ class MUSEMELEEATTACKS_API UAbilityTask_PlayMeleeMontage : public UAbilityTask
 
 public:
   UPROPERTY(BlueprintAssignable)
-  FMeleeMontageDelegate AllMeleeMontagesCompleted;
+  FMeleeMontageDelegate MeleeMontageTaskEnded;
 
 private:
   virtual void OnDestroy(bool bInOwnerFinished) override;
@@ -36,33 +36,23 @@ public:
   UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "PlayMeleeMontage",
     HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
   static UAbilityTask_PlayMeleeMontage* CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility,
-    FName TaskInstanceName, UMeleeComboDataAsset* InMeleeComboData);
+    FName TaskInstanceName, UMeleeAttackDataAsset* InMeleeAttackData);
 
 private:
+  void PlayMeleeMontage();
+  void EndMeleeMontageTask();
   void OnMeleeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-  void PlayCurrentComboMeleeMontage();
   bool TrySetAvatarCharacterRootMotionScale(const float InRootMotionScale);
-  void SafeIncrementComboIndex();
-
-public:
-  void QueueNextComboAttack();
 
 private:
   FOnMontageEnded MontageEndedDelegate;
-
-  // Determines which combo from the melee combo data to play.
-  uint32 CurrentComboIndex;
-
-  // Whether the task should play the next melee combo once the current one has finished.
-  bool bPlayNextMeleeCombo;
-
   float InitialRootMotionTranslationScale;
 
   UPROPERTY()
-  TObjectPtr<UMeleeComboDataAsset> MeleeComboData;
+  TObjectPtr<UMeleeAttackDataAsset> MeleeAttackData;
 
   UPROPERTY()
-  TObjectPtr<UAbilitySystemComponent> ASC;
+  TObjectPtr<UAbilitySystemComponent> AbilitySystemComp;
 
   UPROPERTY()
   TObjectPtr<UAnimInstance> AnimInstance;

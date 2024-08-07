@@ -4,55 +4,42 @@
 #include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
 
-UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility, FName TaskInstanceName, UMeleeComboDataAsset* InMeleeComboData)
+UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility, FName TaskInstanceName, UMeleeAttackDataAsset* InMeleeAttackData)
 {
   UAbilityTask_PlayMeleeMontage* PlayMeleeMontageTask = NewAbilityTask<UAbilityTask_PlayMeleeMontage>(OwningAbility, TaskInstanceName);
-  PlayMeleeMontageTask->MeleeComboData = InMeleeComboData;
+  PlayMeleeMontageTask->MeleeAttackData = InMeleeAttackData;
+  const FGameplayAbilityActorInfo* ActorInfo = PlayMeleeMontageTask->Ability->GetCurrentActorInfo();
+  if (ActorInfo)
+  {
+    PlayMeleeMontageTask->AnimInstance = ActorInfo->GetAnimInstance();
+  }
+  PlayMeleeMontageTask->AbilitySystemComp = PlayMeleeMontageTask->AbilitySystemComponent.Get();
+  PlayMeleeMontageTask->AvatarCharacter = Cast<ACharacter>(PlayMeleeMontageTask->GetAvatarActor());
   return PlayMeleeMontageTask;
 }
 
 void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-  if (!bPlayNextMeleeCombo || MeleeComboData->EndOfCombo(CurrentComboIndex))
-  {
-    if (AllMeleeMontagesCompleted.IsBound())
-    {
-      AllMeleeMontagesCompleted.Broadcast();
-    }
-    EndTask();
-  }
-  else
-  {
-    SafeIncrementComboIndex();
-    bPlayNextMeleeCombo = false;
-    PlayCurrentComboMeleeMontage();
-  }
+  EndMeleeMontageTask();
 }
 
-void UAbilityTask_PlayMeleeMontage::QueueNextComboAttack()
+void UAbilityTask_PlayMeleeMontage::PlayMeleeMontage()
 {
-  bPlayNextMeleeCombo = !MeleeComboData->EndOfCombo(CurrentComboIndex);
-}
-
-void UAbilityTask_PlayMeleeMontage::PlayCurrentComboMeleeMontage()
-{
-  // TODO: This code should not happen but will due to timing of inputs,
-  // consider alternative approaches to ending tasks. 
-  if (MeleeComboData->EndOfCombo(CurrentComboIndex))
-  {
-    if (AllMeleeMontagesCompleted.IsBound())
-    {
-      AllMeleeMontagesCompleted.Broadcast();
-    }
-    EndTask();
-  }
-
-  UAnimMontage* NextMeleeMontage = MeleeComboData->GetMeleeAttack(CurrentComboIndex)->GetMontage();
-  if (ASC->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), NextMeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
+  UAnimMontage* MeleeMontage = MeleeAttackData->GetMontage();
+  if (AbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
   {
     MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
-    AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, NextMeleeMontage);
+    AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MeleeMontage);
   }
+}
+
+void UAbilityTask_PlayMeleeMontage::EndMeleeMontageTask()
+{
+  if (MeleeMontageTaskEnded.IsBound())
+  {
+    MeleeMontageTaskEnded.Broadcast();
+  }
+  EndTask();
 }
 
 bool UAbilityTask_PlayMeleeMontage::TrySetAvatarCharacterRootMotionScale(const float InRootMotionScale)
@@ -68,18 +55,11 @@ bool UAbilityTask_PlayMeleeMontage::TrySetAvatarCharacterRootMotionScale(const f
   return bRootMotionScaleSet;
 }
 
-void UAbilityTask_PlayMeleeMontage::SafeIncrementComboIndex()
-{
-  CurrentComboIndex = CurrentComboIndex < MeleeComboData->GetNumComboAttack() - 1 ?
-    CurrentComboIndex + 1 :
-    CurrentComboIndex;
-}
-
 void UAbilityTask_PlayMeleeMontage::OnDestroy(bool bInOwnerFinished)
 {
-  if (AllMeleeMontagesCompleted.IsBound())
+  if (MeleeMontageTaskEnded.IsBound())
   {
-    AllMeleeMontagesCompleted.Clear();
+    MeleeMontageTaskEnded.Clear();
   }
 
   if (MontageEndedDelegate.IsBoundToObject(this))
@@ -87,10 +67,8 @@ void UAbilityTask_PlayMeleeMontage::OnDestroy(bool bInOwnerFinished)
     MontageEndedDelegate.Unbind();
   }
 
-  CurrentComboIndex = 0;
-  bPlayNextMeleeCombo = false;
-  MeleeComboData = nullptr;
-  ASC = nullptr;
+  AnimInstance = nullptr;
+  AbilitySystemComp = nullptr;
 
   if (AvatarCharacter)
   {
@@ -103,31 +81,33 @@ void UAbilityTask_PlayMeleeMontage::OnDestroy(bool bInOwnerFinished)
 
 void UAbilityTask_PlayMeleeMontage::Activate()
 {
+  UE_LOG(LogTemp, Log, TEXT("%s Activating task"), *this->GetName());
+
   check(Ability != nullptr);
   if (Ability == nullptr)
   {
+    EndTask();
     return;
   }
 
-  const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
-  AnimInstance = ActorInfo->GetAnimInstance();
   check(AnimInstance != nullptr);
   if (!AnimInstance)
   {
+    EndTask();
     return;
   }
 
-  ASC = AbilitySystemComponent.Get();
-  check(ASC != nullptr);
-  if (!ASC)
+  check(AbilitySystemComp != nullptr);
+  if (!AbilitySystemComp)
   {
+    EndTask();
     return;
   }
 
-  AvatarCharacter = Cast<ACharacter>(GetAvatarActor());
   check(AvatarCharacter != nullptr);
   if (!AvatarCharacter)
   {
+    EndTask();
     return;
   }
 
@@ -136,12 +116,10 @@ void UAbilityTask_PlayMeleeMontage::Activate()
   check(bSetRootMotionTranslationScale);
   if (!bSetRootMotionTranslationScale)
   {
+    EndTask();
     return;
   }
 
   MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
-  CurrentComboIndex = 0;
-  bPlayNextMeleeCombo = false;
-  
-  PlayCurrentComboMeleeMontage();
+  PlayMeleeMontage();
 }
