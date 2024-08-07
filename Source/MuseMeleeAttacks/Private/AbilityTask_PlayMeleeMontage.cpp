@@ -13,7 +13,7 @@ UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMon
 
 void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-  if (!bPlayNextMeleeCombo)
+  if (!bPlayNextMeleeCombo || MeleeComboData->EndOfCombo(CurrentComboIndex))
   {
     if (AllMeleeMontagesCompleted.IsBound())
     {
@@ -23,7 +23,7 @@ void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, b
   }
   else
   {
-    CurrentComboIndex += 1;
+    SafeIncrementComboIndex();
     bPlayNextMeleeCombo = false;
     PlayCurrentComboMeleeMontage();
   }
@@ -36,6 +36,17 @@ void UAbilityTask_PlayMeleeMontage::QueueNextComboAttack()
 
 void UAbilityTask_PlayMeleeMontage::PlayCurrentComboMeleeMontage()
 {
+  // TODO: This code should not happen but will due to timing of inputs,
+  // consider alternative approaches to ending tasks. 
+  if (MeleeComboData->EndOfCombo(CurrentComboIndex))
+  {
+    if (AllMeleeMontagesCompleted.IsBound())
+    {
+      AllMeleeMontagesCompleted.Broadcast();
+    }
+    EndTask();
+  }
+
   UAnimMontage* NextMeleeMontage = MeleeComboData->GetMeleeAttack(CurrentComboIndex)->GetMontage();
   if (ASC->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), NextMeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
   {
@@ -55,6 +66,13 @@ bool UAbilityTask_PlayMeleeMontage::TrySetAvatarCharacterRootMotionScale(const f
     bRootMotionScaleSet = true;
   }
   return bRootMotionScaleSet;
+}
+
+void UAbilityTask_PlayMeleeMontage::SafeIncrementComboIndex()
+{
+  CurrentComboIndex = CurrentComboIndex < MeleeComboData->GetNumComboAttack() - 1 ?
+    CurrentComboIndex + 1 :
+    CurrentComboIndex;
 }
 
 void UAbilityTask_PlayMeleeMontage::OnDestroy(bool bInOwnerFinished)

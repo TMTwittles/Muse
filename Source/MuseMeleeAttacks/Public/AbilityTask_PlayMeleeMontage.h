@@ -42,6 +42,7 @@ private:
   void OnMeleeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
   void PlayCurrentComboMeleeMontage();
   bool TrySetAvatarCharacterRootMotionScale(const float InRootMotionScale);
+  void SafeIncrementComboIndex();
 
 public:
   void QueueNextComboAttack();
