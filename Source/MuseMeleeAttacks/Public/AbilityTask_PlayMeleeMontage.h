@@ -15,8 +15,7 @@ class ACharacter;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMeleeMontageDelegate);
 
 /**
- * Plays a melee montage, different to PlayMontageAndWait because it allows for montages to qued to play one after the after
- * based off the data provided in the MeleeComboData.
+ * Plays a melee montage based of input MeleeAttackData. 
  */
 UCLASS()
 class MUSEMELEEATTACKS_API UAbilityTask_PlayMeleeMontage : public UAbilityTask

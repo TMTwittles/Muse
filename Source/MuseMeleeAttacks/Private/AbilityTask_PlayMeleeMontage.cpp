@@ -81,8 +81,6 @@ void UAbilityTask_PlayMeleeMontage::OnDestroy(bool bInOwnerFinished)
 
 void UAbilityTask_PlayMeleeMontage::Activate()
 {
-  UE_LOG(LogTemp, Log, TEXT("%s Activating task"), *this->GetName());
-
   check(Ability != nullptr);
   if (Ability == nullptr)
   {

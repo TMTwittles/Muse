@@ -1,8 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MeleeGameplayAbility.h"
-#include "MeleeAttackDataAsset.h"
 #include "AbilityTask_PlayMeleeMontage.h"
 
 void UMeleeGameplayAbility::InputPressed(
@@ -10,9 +7,7 @@ void UMeleeGameplayAbility::InputPressed(
   const FGameplayAbilityActorInfo* ActorInfo,
   const FGameplayAbilityActivationInfo ActivationInfo)
 {
-  UE_LOG(LogTemp, Log, TEXT("%s Queing next combo for %s"), *this->GetName(), *PlayMeleeMontageTask->GetName());
-  check(PlayMeleeMontageTask);
-  PlayMeleeMontageTask->QueueNextComboAttack();
+  bPlayerTriggeredNextMeleeMontageTask = true;
 }
 
 void UMeleeGameplayAbility::ActivateAbility(
@@ -21,7 +16,6 @@ void UMeleeGameplayAbility::ActivateAbility(
   const FGameplayAbilityActivationInfo ActivationInfo,
   const FGameplayEventData* TriggerEventData)
 {
-  UE_LOG(LogTemp, Log, TEXT("%s Activating ability."), *this->GetName());
   if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
   {
     constexpr bool bReplicateEndAbility = true;
@@ -29,24 +23,61 @@ void UMeleeGameplayAbility::ActivateAbility(
     EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
   }
 
-  for (int ComboIndex = 0; ComboIndex < ComboData->GetNumComboAttacks(); ComboIndex++)
+  for (uint32 ComboIndex = 0; ComboIndex < ComboData->GetNumComboAttacks(); ComboIndex++)
   {
-    UMeleeAttackDataAsset* MeleeAttackData = ComboData->GetMeleeAttack[ComboIndex];
-    FName MeleeMontageTaskName = FName(FString::Printf(TEXT("PlayMeleeMontage")))
-    PlayMeleeMontageTasks.Add(UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(this, FName(TEXT("Play melee montage")), ComboData->GetMeleeAttack[ComboIndex]));
+    const UMeleeAttackDataAsset* MeleeAttackData = ComboData->GetMeleeAttack(ComboIndex);
+    FName MeleeMontageTaskName = FName(FString::Printf(TEXT("PlayMeleeMontageTask_%d_%s"), ComboIndex, *MeleeAttackData->GetMontage()->GetName()));
+    PlayMeleeMontageTasks.Add(UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(this, MeleeMontageTaskName, ComboData->GetMeleeAttack(ComboIndex)));
   }
 
-  PlayMeleeMontageTask = UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(this, FName(TEXT("Play melee montage")), ComboData);
-  PlayMeleeMontageTask->AllMeleeMontagesCompleted.AddDynamic(this, &UMeleeGameplayAbility::OnAllMeleeMontagesCompleted);
-  PlayMeleeMontageTask->Activate();
+  check(PlayMeleeMontageTasks.Num() > 0);
+  if (PlayMeleeMontageTasks.Num() > 0)
+  {
+    bPlayerTriggeredNextMeleeMontageTask = false;
+    ActiveMeleeMontageTaskIndex = 0;
+    PlayNextMeleeMontageTask();
+  }
+  else
+  {
+    constexpr bool bReplicateEndAbility = true;
+    constexpr bool bWasCancelled = true;
+    EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+  }
 }
 
-void UMeleeGameplayAbility::OnAllMeleeMontagesCompleted()
+void UMeleeGameplayAbility::PlayNextMeleeMontageTask()
 {
-  check(PlayMeleeMontageTask && PlayMeleeMontageTask->AllMeleeMontagesCompleted.IsBound());
-  if (PlayMeleeMontageTask && PlayMeleeMontageTask->AllMeleeMontagesCompleted.IsBound())
+  UAbilityTask_PlayMeleeMontage* NextMeleeMontage = PlayMeleeMontageTasks[ActiveMeleeMontageTaskIndex];
+  check(NextMeleeMontage);
+  if (NextMeleeMontage)
   {
-    PlayMeleeMontageTask->AllMeleeMontagesCompleted.RemoveDynamic(this, &UMeleeGameplayAbility::OnAllMeleeMontagesCompleted);
+    NextMeleeMontage->MeleeMontageTaskEnded.AddDynamic(this, &UMeleeGameplayAbility::OnMeleeMontageTaskCompleted);
+    NextMeleeMontage->Activate();
   }
-  EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+}
+
+void UMeleeGameplayAbility::OnMeleeMontageTaskCompleted()
+{
+  UAbilityTask_PlayMeleeMontage* CompletedMeleeMontage = PlayMeleeMontageTasks[ActiveMeleeMontageTaskIndex];
+  check(CompletedMeleeMontage);
+  check(CompletedMeleeMontage->MeleeMontageTaskEnded.IsBound());
+  if (CompletedMeleeMontage && CompletedMeleeMontage->MeleeMontageTaskEnded.IsBound())
+  {
+    CompletedMeleeMontage->MeleeMontageTaskEnded.RemoveDynamic(this, &UMeleeGameplayAbility::OnMeleeMontageTaskCompleted);
+  }
+  // Play the next melee montage task if it was triggered by the player and there still montages left to play. 
+  bool bPlayNextMeleeMontageTask = bPlayerTriggeredNextMeleeMontageTask &&
+    !ComboData->EndOfCombo(ActiveMeleeMontageTaskIndex);
+
+  bPlayerTriggeredNextMeleeMontageTask = false;
+  if (bPlayNextMeleeMontageTask)
+  {
+    ActiveMeleeMontageTaskIndex += ActiveMeleeMontageTaskIndex + 1 <= ComboData->GetNumComboAttacks() - 1;
+    PlayNextMeleeMontageTask();
+  }
+  // End ability if the player did not trigger another montage to play.
+  else
+  {
+    EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+  }
 }
