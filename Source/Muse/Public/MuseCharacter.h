@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "AbilitySystemInterface.h"
 #include "MuseCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
-class UMuseCharacterGameplayAbilitySystemComponent;
+
+class UAbilitySystemComponent;
+class UPlayerGameplayAbilitiesDataAsset;
 
 class UInputMappingContext;
 class UInputAction;
@@ -18,7 +21,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AMuseCharacter : public ACharacter
+class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -31,8 +34,12 @@ class AMuseCharacter : public ACharacter
 	TObjectPtr<UCameraComponent> FollowCamera;
 
   /** Character GAS component */
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = GameplayAbilities, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UMuseCharacterGameplayAbilitySystemComponent> CharacterGameplayAbilities;
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilitySystem, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UAbilitySystemComponent> AbilitySystem;
+
+  //** Player abilities */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AbilitySystem, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UPlayerGameplayAbilitiesDataAsset> PlayerAbilities;
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -71,6 +78,16 @@ protected:
 protected:
 	// To add mapping context
 	virtual void BeginPlay();
+
+private:
+  
+  void InitAbilitySystem();
+  void BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent);
+  void AbilityInputPressed(int32 InputId);
+  void AbilityInputReleased(int32 InputId);
+
+public:
+  virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 public:
 	/** Returns CameraBoom subobject **/
