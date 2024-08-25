@@ -8,6 +8,8 @@
 #include "AbilitySystemInterface.h"
 #include "MuseCharacter.generated.h"
 
+class UMuseCharacterMovementComponent;
+
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -24,6 +26,10 @@ UCLASS(config=Game)
 class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
+
+  /** Muse character movement component */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UMuseCharacterMovementComponent> MuseCharacterMovement;
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -58,12 +64,11 @@ class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 	TObjectPtr<UInputAction> LookAction;
 
 public:
-	AMuseCharacter();
+	AMuseCharacter(const FObjectInitializer& ObjectInitializer);
 
   virtual void PossessedBy(AController* NewController) override;
 
 protected:
-
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 

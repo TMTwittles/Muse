@@ -13,5 +13,6 @@ public class MuseTarget : TargetRules
 		ExtraModuleNames.Add("Muse");
     ExtraModuleNames.Add("MuseGAS");
     ExtraModuleNames.Add("MuseMeleeAttacks");
+    ExtraModuleNames.Add("MuseMovement");
 	}
 }
