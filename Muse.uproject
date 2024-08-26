@@ -39,6 +39,16 @@
 				"Engine",
 				"CoreUObject"
 			]
+		},
+		{
+			"Name": "MuseAI",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject",
+				"AIModule"
+			]
 		}
 	],
 	"Plugins": [
