@@ -13,7 +13,7 @@ class MUSEAI_API AAIManager : public AActor
 {
 	GENERATED_BODY()
 
-  UPROPERTY(BlueprintReadWrite, Category="Positioning", meta=(AllowPrivateAccess="true"))
+  UPROPERTY(EditAnywhere, Category="Positioning", meta=(AllowPrivateAccess="true"))
   TObjectPtr<UMeleeSlotPositioningComponent> MeleeSlotPositioning;
 
 public:	

@@ -18,7 +18,7 @@ void AAIManager::BeginPlay()
 	Super::BeginPlay();
 
   // Set target slot actor for melee position slot manager.
-  MeleeSlotPositioning->SetTargetSlotActor(Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetCharacter()));
+  MeleeSlotPositioning->ConfigureForActor(Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetCharacter()));
 }
 
 // Called every frame

@@ -16,13 +16,11 @@ class MUSEAI_API UMeleePositioningSlotService : public UBTService
 {
 	GENERATED_BODY()
 
-  virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+  UPROPERTY(EditAnywhere, Category = "Runtime")
+  FGuid MeleePositionSlotToken = FGuid::NewGuid();
 
   UPROPERTY(EditAnywhere, Category = "Config")
-  FBlackboardKeySelector TargetActor;
+  FBlackboardKeySelector TargetPosition;
 
-  UPROPERTY(EditAnywhere, Category="Config")
-  TObjectPtr<UMeleePositioningSlotConfig> Config;
-
-
+  virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 };

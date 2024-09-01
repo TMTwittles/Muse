@@ -17,4 +17,7 @@ void UMeleePositioningSlotService::TickNode(UBehaviorTreeComponent& OwnerComp, u
   check(FoundActors.Num() == 1);
   AAIManager* AIManager = Cast<AAIManager>(FoundActors[0]);
   UMeleeSlotPositioningComponent* MeleeSlotPositioning = AIManager->GetMeleeSlotPositioningComponent();
+  OwnerComp.GetBlackboardComponent()->SetValueAsVector(
+    TargetPosition.SelectedKeyName,
+    MeleeSlotPositioning->GetMeleePosition(FName(*OwnerComp.GetOwner()->GetName())));
 }
