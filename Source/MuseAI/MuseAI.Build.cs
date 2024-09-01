@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class Muse : ModuleRules
+public class MuseAI : ModuleRules
 {
-	public Muse(ReadOnlyTargetRules Target) : base(Target)
+	public MuseAI(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
