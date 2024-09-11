@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "MeleeHitRegisterComponent.h"
 #include "MuseAICharacter.generated.h"
 
 class UMuseAICharacterMovementComponent;
@@ -17,6 +18,10 @@ private:
   /** Muse AI character movement component */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UMuseAICharacterMovementComponent> MuseAIMovement;
+
+  /** Muse AI character movement component */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MeleeHitRegistration, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UMeleeHitRegisterComponent> MeleeHitRegister;
 
 public:
 	// Sets default values for this character's properties

@@ -6,6 +6,7 @@ AMuseAICharacter::AMuseAICharacter(const FObjectInitializer& ObjectInitializer) 
   Super(ObjectInitializer.SetDefaultSubobjectClass<UMuseAICharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
   MuseAIMovement = Cast<UMuseAICharacterMovementComponent>(GetCharacterMovement());
+  MeleeHitRegister = CreateDefaultSubobject<UMeleeHitRegisterComponent>("Melee Hit Register");
 }
 
 // Called when the game starts or when spawned

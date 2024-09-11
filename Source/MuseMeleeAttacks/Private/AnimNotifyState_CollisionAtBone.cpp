@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "AnimNotifyState_CollisionAtBone.h"
 #include "Kismet/GameplayStatics.h"
+#include "MeleeHitRegisterComponent.h"
 
 DEFINE_LOG_CATEGORY(AnimNotifyState_CollisionAtBone);
 
@@ -50,18 +51,17 @@ void UAnimNotifyState_CollisionAtBone::PerformSphereTrace(UWorld* InWorld, const
   
   if (bHit)
   {
-    FName HitActorName = FName(*Result.GetActor()->GetName());
+    AActor* HitActor = Result.GetActor();
+    FName HitActorName = FName(*HitActor->GetName());
     if (!HitActors.Contains(HitActorName))
     {
       DrawDebugSphere(InWorld, Result.ImpactPoint, CollisionSphereRadius, 10, FColor::Blue, true, 10.0f);
       HitActors.Add(HitActorName);
-      UGameplayStatics::ApplyDamage(
-        Result.GetActor(),
-        10.0f, 
-        nullptr, 
-        nullptr,
-        UDamageType::StaticClass()  
-        );
+
+      if (UMeleeHitRegisterComponent* MeleeHitRegister = HitActor->GetComponentByClass<UMeleeHitRegisterComponent>())
+      {
+        MeleeHitRegister->RegisterMeleeHit(HitType);
+      }
     }
   }
 }

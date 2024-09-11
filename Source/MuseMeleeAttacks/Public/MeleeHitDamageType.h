@@ -13,5 +13,5 @@ UCLASS()
 class MUSEMELEEATTACKS_API UMeleeHitDamageType : public UDamageType
 {
 	GENERATED_BODY()
-	
+
 };
