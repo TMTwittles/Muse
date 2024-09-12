@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "MeleeHitType.h"
 #include "AnimNotifyState_CollisionAtBone.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(AnimNotifyState_CollisionAtBone, Log, All);
@@ -25,6 +26,8 @@ class MUSEMELEEATTACKS_API UAnimNotifyState_CollisionAtBone : public UAnimNotify
 
 public:
 
+  UPROPERTY(EditAnywhere)
+  EMeleeHitType HitType;
   UPROPERTY(EditAnywhere, Category="Bone information")
   FName BoneName;
 
