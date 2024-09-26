@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
+#include "GameFramework/Pawn.h"
 
 UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility, FName TaskInstanceName, UMeleeAttackDataAsset* InMeleeAttackData)
 {
@@ -15,8 +16,8 @@ UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMon
   }
   PlayMeleeMontageTask->AbilitySystemComp = PlayMeleeMontageTask->AbilitySystemComponent.Get();
   ACharacter* AvatarCharacter = Cast<ACharacter>(PlayMeleeMontageTask->GetAvatarActor());
-  UMuseCharacterMovementComponent* AvatarMovementComponent = AvatarCharacter != nullptr ?
-    AvatarCharacter->FindComponentByClass<UMuseCharacterMovementComponent>() : nullptr;
+  UMuse0CharacterMovementComponent* AvatarMovementComponent = AvatarCharacter != nullptr ?
+    AvatarCharacter->FindComponentByClass<UMuse0CharacterMovementComponent>() : nullptr;
   PlayMeleeMontageTask->AvatarCharacter = AvatarCharacter;
   PlayMeleeMontageTask->AvatarMovementComponent = AvatarMovementComponent;
   return PlayMeleeMontageTask;
@@ -40,7 +41,7 @@ void UAbilityTask_PlayMeleeMontage::PlayMeleeMontage()
 
 void UAbilityTask_PlayMeleeMontage::EndMeleeMontageTask()
 {
-  AvatarMovementComponent->EnterMeleeAttack();
+  AvatarMovementComponent->EndMeleeAttack();
   if (MeleeMontageTaskEnded.IsBound())
   {
     MeleeMontageTaskEnded.Broadcast();

@@ -4,7 +4,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "MuseMovement/Public/MuseCharacterMovementComponent.h"
+#include "MuseCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
@@ -24,6 +24,8 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 {
   // Cast movement component to character movement component.
   MuseCharacterMovement = Cast<UMuseCharacterMovementComponent>(GetCharacterMovement());
+  // Add custom movement modes.
+  MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);

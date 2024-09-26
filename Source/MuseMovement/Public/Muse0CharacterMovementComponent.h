@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MuseCharacter.h"
-#include "MuseCharacterMovementComponent.generated.h"
+#include "Muse0CharacterMovementComponent.generated.h"
 
 UENUM(BlueprintType)
 enum EMuseMovementMode
@@ -18,7 +18,7 @@ enum EMuseMovementMode
  * 
  */
 UCLASS()
-class MUSEMOVEMENT_API UMuseCharacterMovementComponent : public UCharacterMovementComponent
+class MUSEMOVEMENT_API UMuse0CharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
 
@@ -43,6 +43,8 @@ class MUSEMOVEMENT_API UMuseCharacterMovementComponent : public UCharacterMoveme
     virtual FSavedMovePtr AllocateNewMove() override;
   };
 
+  AActor* TargetActor;
+  FVector TargetAttackPosition;
   bool bInMeleeAttack;
   bool Safe_bInMeleeAttack;
 
@@ -58,10 +60,15 @@ protected:
 public:
   UFUNCTION(BlueprintCallable)
   void EnterMeleeAttack();
+  UFUNCTION(BlueprintCallable)
+  void EndMeleeAttack();
 
 private:
   void ExitMeleeAttack();
   void PhysMeleeAttack(float DeltaTime, int32 Iterations);
+  bool TrySetMeleeTargetActor();
+  void UpdateTargetMeleePosition();
+  inline bool TargetActorFound() const { return TargetActor != nullptr; }
 
 public:
 
