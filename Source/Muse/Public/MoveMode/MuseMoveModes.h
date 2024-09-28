@@ -2,11 +2,10 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "MuseMoveModes.generated.h"
 
 UENUM(BlueprintType)
-enum EMuseMoveMode
+enum EMuseMoveMode : uint8
 {
   MMOVE_NONE UMETA(Hidden),
   MMOVE_MELEE_SUCK_TO_TARGET UMETA(DisplayName = "Melee suck to target")

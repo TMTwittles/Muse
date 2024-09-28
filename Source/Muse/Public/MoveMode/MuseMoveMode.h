@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
-#include "../MuseCharacterMovementComponent.h"
 #include "MuseMoveMode.generated.h"
+
+class UMuseCharacterMovementComponent;
 
 /**
  * 
@@ -15,8 +15,12 @@ class MUSE_API UMuseMoveMode : public UObject
 {
 	GENERATED_BODY()
 
+protected:
+  TObjectPtr<UMuseCharacterMovementComponent> MovementComp;
+
 public:
-  virtual void TickMoveMode(const float DeltaTime, UMuseCharacterMovementComponent& MovementComponent);
+  void SetMovementComponent(UMuseCharacterMovementComponent* MovementComponent);
+  virtual void TickMoveMode(const float DeltaTime);
   virtual void EnterMoveMode();
   virtual void ExitMoveMode();
 };

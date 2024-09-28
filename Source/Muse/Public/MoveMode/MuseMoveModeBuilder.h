@@ -8,6 +8,7 @@
 #include "MuseMoveModeBuilder.generated.h"
 
 class UMuseMoveMode;
+class UMuseCharacterMovementComponent;
 
 /**
  * 
@@ -17,5 +18,5 @@ class MUSE_API UMuseMoveModeBuilder : public UObject
 {
 	GENERATED_BODY()
 public:
-  static UMuseMoveMode* BuildMoveMode(const EMuseMoveMode InMoveMode);
+  static UMuseMoveMode* BuildMoveMode(UMuseCharacterMovementComponent* InMovementComp, const EMuseMoveMode& InMoveMode);
 };

@@ -22,7 +22,7 @@ private:
   FVector TargetSuckPosition;
 
 public:
-  virtual void TickMoveMode(const float DeltaTime, UMuseCharacterMovementComponent& MovementComponent) override;
+  virtual void TickMoveMode(const float DeltaTime) override;
   virtual void EnterMoveMode() override;
   virtual void ExitMoveMode() override;
 

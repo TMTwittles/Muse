@@ -6,10 +6,11 @@
 #include "Abilities/Tasks/AbilityTask.h"
 #include "MeleeAttackDataAsset.h"
 #include "Animation/AnimMontage.h"
-#include "MuseMovement/Public/Muse0CharacterMovementComponent.h"
 #include "AbilityTask_PlayMeleeMontage.generated.h"
 
 class UAbilitySystemComponent;
+class UMuseMovementComponent;
+class UMuseCharacterMovementComponent;
 class UAnimInstance;
 class ACharacter;
 
@@ -49,7 +50,7 @@ private:
   float InitialRootMotionTranslationScale;
 
   UPROPERTY()
-  TObjectPtr<UMuse0CharacterMovementComponent> AvatarMovementComponent;
+  TObjectPtr<UMuseCharacterMovementComponent> AvatarMovementComponent;
 
   UPROPERTY()
   TObjectPtr<UMeleeAttackDataAsset> MeleeAttackData;

@@ -206,15 +206,12 @@ bool UMuse0CharacterMovementComponent::TrySetMeleeTargetActor()
     CollisionParams
   );
 
-  //DrawDebugSphere(GetWorld(), GetOwner()->GetActorLocation(), 1000.0f, 12, FColor::Red, false, 2.0f);
-
   float ClosestDistance = MAX_flt;
   for (const FOverlapResult& Result : OverlapResults)
   {
     if (APawn* Pawn = Cast<APawn>(Result.GetActor()))
     {
-      //DrawDebugSphere(GetWorld(), Pawn->GetActorLocation(), 10.0f, 12, FColor::Red, false, 2.0f);
-      float Distance = FVector::Dist(GetOwner()->GetActorLocation(), Pawn->GetActorLocation());
+      float Distance = FVector::DistSquared(GetOwner()->GetActorLocation(), Pawn->GetActorLocation());
       if (Distance < ClosestDistance)
       {
         ClosestDistance = Distance;

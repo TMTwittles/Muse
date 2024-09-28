@@ -3,7 +3,12 @@
 
 #include "MoveMode/MuseMoveMode.h"
 
-void UMuseMoveMode::TickMoveMode(const float DeltaTime, UMuseCharacterMovementComponent& MovementComponent)
+void UMuseMoveMode::SetMovementComponent(UMuseCharacterMovementComponent* MovementComponent)
+{
+  MovementComp = MovementComponent;
+}
+
+void UMuseMoveMode::TickMoveMode(const float DeltaTime)
 {
 }
 

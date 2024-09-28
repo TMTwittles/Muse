@@ -2,8 +2,22 @@
 
 
 #include "MoveMode/MuseMoveModeBuilder.h"
+#include "MoveMode/MuseMoveModes.h"
+#include "MuseCharacterMovementComponent.h"
+#include "MoveMode/MuseMove_MeleeSuckToTarget.h"
 
-UMuseMoveMode* UMuseMoveModeBuilder::BuildMoveMode(const EMuseMoveMode InMoveMode)
+UMuseMoveMode* UMuseMoveModeBuilder::BuildMoveMode(UMuseCharacterMovementComponent* InMovementComp, const EMuseMoveMode& InMoveMode)
 {
-  return nullptr;
+  UMuseMoveMode* BuiltMoveMode = nullptr;
+  switch (InMoveMode)
+  {
+  case MMOVE_MELEE_SUCK_TO_TARGET:
+    BuiltMoveMode = NewObject<UMuseMove_MeleeSuckToTarget>();
+    break;
+  default:
+    break;
+  }
+  check(BuiltMoveMode);
+  BuiltMoveMode->SetMovementComponent(InMovementComp);
+  return BuiltMoveMode;
 }

@@ -3,9 +3,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "MoveMode/MuseMoveModes.h"
-#include "MoveMode/MuseMoveMode.h"
 #include "MuseCharacterMovementComponent.generated.h"
+
+enum EMuseMoveMode : uint8;
+class UMuseMoveMode;
 
 /**
  * 
@@ -21,10 +22,13 @@ class MUSE_API UMuseCharacterMovementComponent : public UCharacterMovementCompon
 public:
   virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
   virtual void PhysCustom(float DeltaTime, int32 Iterations) override;
+  void ClearMovementModes();
   UFUNCTION(BlueprintCallable)
   void AddMovementMode(const EMuseMoveMode& InMoveMode);
   UFUNCTION(BlueprintCallable)
   void EnterMoveMode(const EMuseMoveMode& InMoveMode);
+  UFUNCTION(BlueprintCallable)
+  void ExitCustomMoveMode();
   void MoveDelta(const float& DeltaTime, const FVector& DeltaPosition, const FQuat& DeltaRotation);
 
   UFUNCTION(BlueprintPure)

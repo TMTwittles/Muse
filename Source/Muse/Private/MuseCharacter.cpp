@@ -4,7 +4,6 @@
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "MuseCharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
@@ -12,6 +11,7 @@
 #include "InputActionValue.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayAbilityInputInfo.h"
+#include "MoveMode/MuseMoveModes.h"
 #include "PlayerGameplayAbilitiesDataAsset.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -24,8 +24,7 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 {
   // Cast movement component to character movement component.
   MuseCharacterMovement = Cast<UMuseCharacterMovementComponent>(GetCharacterMovement());
-  // Add custom movement modes.
-  MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
+  
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -78,6 +77,10 @@ void AMuseCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+  // Add custom movement modes.
+  MuseCharacterMovement->ClearMovementModes();
+  MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
   // Initialize ability system, granting character available abilities.
   InitAbilitySystem();
