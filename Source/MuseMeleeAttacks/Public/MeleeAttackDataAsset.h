@@ -25,7 +25,13 @@ private:
   UPROPERTY(EditAnywhere, Category = "Animation", meta=(AllowPrivateAccess="true"))
   float BlendOutTime;
 
+  UPROPERTY(EditAnywhere, Category = "AttackConfig", meta = (AllowPrivateAccess = "true"))
+  float QueryPawnRadius;
+
 public:
   UFUNCTION()
   inline UAnimMontage* GetMontage() const { return MeleeMontage; };
+
+  UFUNCTION()
+  inline float GetQueryPawnRadius() const { return QueryPawnRadius; }
 };

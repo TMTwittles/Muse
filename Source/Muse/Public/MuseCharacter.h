@@ -6,9 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h"
+#include "MuseCharacterMovementComponent.h"
 #include "MuseCharacter.generated.h"
-
-class UMuseCharacterMovementComponent;
 
 class USpringArmComponent;
 class UCameraComponent;

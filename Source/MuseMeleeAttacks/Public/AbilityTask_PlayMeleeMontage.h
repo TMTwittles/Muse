@@ -9,6 +9,8 @@
 #include "AbilityTask_PlayMeleeMontage.generated.h"
 
 class UAbilitySystemComponent;
+class UMuseMovementComponent;
+class UMuseCharacterMovementComponent;
 class UAnimInstance;
 class ACharacter;
 
@@ -46,6 +48,9 @@ private:
 private:
   FOnMontageEnded MontageEndedDelegate;
   float InitialRootMotionTranslationScale;
+
+  UPROPERTY()
+  TObjectPtr<UMuseCharacterMovementComponent> AvatarMovementComponent;
 
   UPROPERTY()
   TObjectPtr<UMeleeAttackDataAsset> MeleeAttackData;
