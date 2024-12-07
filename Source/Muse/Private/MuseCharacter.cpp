@@ -12,6 +12,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayAbilityInputInfo.h"
 #include "MoveMode/MuseMoveModes.h"
+#include "LockOnComponent.h"
 #include "PlayerGameplayAbilitiesDataAsset.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -24,7 +25,6 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 {
   // Cast movement component to character movement component.
   MuseCharacterMovement = Cast<UMuseCharacterMovementComponent>(GetCharacterMovement());
-  
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -47,6 +47,9 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
+  // Create a lock on component.
+  LockOn = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComponent"));
+
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -63,6 +66,21 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+}
+
+void AMuseCharacter::Tick(float DeltaTime)
+{
+  Super::Tick(DeltaTime);
+
+  bShouldLockOn = bShouldLockOn && LockOn->TryUpdateLockOnTarget();
+  if (bShouldLockOn)
+  {
+    SetActorRotation(LockOn->GetRotationToLockOnTarget());
+  }
+  else
+  {
+    ExitLockOn();
+  }
 }
 
 void AMuseCharacter::PossessedBy(AController* NewController)
@@ -84,6 +102,24 @@ void AMuseCharacter::BeginPlay()
 
   // Initialize ability system, granting character available abilities.
   InitAbilitySystem();
+}
+
+void AMuseCharacter::EnterLockOn()
+{
+  bShouldLockOn = LockOn->TryUpdateLockOnTarget();
+  if (bShouldLockOn)
+  {
+    MuseCharacterMovement->bOrientRotationToMovement = false;
+    MuseCharacterMovement->bUseControllerDesiredRotation = true;
+  }
+}
+
+void AMuseCharacter::ExitLockOn()
+{
+  bShouldLockOn = false;
+  MuseCharacterMovement->bOrientRotationToMovement = true;
+  MuseCharacterMovement->bUseControllerDesiredRotation = false;
+  LockOn->ClearLockOnTarget();
 }
 
 void AMuseCharacter::InitAbilitySystem()
@@ -172,6 +208,9 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Look);
+
+    // LockOn
+    EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterLockOn);
 
     // Ability system inputs.
     BindAbilitySystemInputs(EnhancedInputComponent);

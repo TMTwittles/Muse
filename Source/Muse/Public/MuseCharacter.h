@@ -9,6 +9,8 @@
 #include "MuseCharacterMovementComponent.h"
 #include "MuseCharacter.generated.h"
 
+class ULockOnComponent;
+
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -29,6 +31,13 @@ class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
   /** Muse character movement component */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UMuseCharacterMovementComponent> MuseCharacterMovement;
+
+  /** Muse lock on component */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<ULockOnComponent> LockOn;
+
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
+  bool bShouldLockOn = false;
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -62,9 +71,15 @@ class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> LookAction;
 
+  /** Lock On Input Action */
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UInputAction> LockOnAction;
+
 public:
 	AMuseCharacter(const FObjectInitializer& ObjectInitializer);
 
+
+  virtual void Tick(float DeltaTime) override;
   virtual void PossessedBy(AController* NewController) override;
 
 protected:
@@ -73,7 +88,6 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
 
 protected:
 	// APawn interface
@@ -84,7 +98,10 @@ protected:
 	virtual void BeginPlay();
 
 private:
-  
+
+  void EnterLockOn();
+  void ExitLockOn();
+
   void InitAbilitySystem();
   void BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent);
   void AbilityInputPressed(int32 InputId);
@@ -94,6 +111,8 @@ public:
   virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 public:
+  /** Returns LockOn subobject **/
+  FORCEINLINE class ULockOnComponent* GetLockOn() const { return LockOn; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/

@@ -41,16 +41,25 @@
 				"CoreUObject"
 			]
 		},
-		{
-			"Name": "MuseAI",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"CoreUObject",
-				"AIModule"
-			]
-		}
+    {
+      "Name": "MuseAI",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Engine",
+        "CoreUObject",
+        "AIModule"
+      ]
+    },
+    {
+      "Name": "MuseLockOn",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Engine",
+        "CoreUObject"
+      ]
+    }
 	],
 	"Plugins": [
 		{
