@@ -59,6 +59,15 @@
         "Engine",
         "CoreUObject"
       ]
+    },
+    {
+      "Name": "MuseAnimation",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Engine",
+        "CoreUObject"
+      ]
     }
 	],
 	"Plugins": [

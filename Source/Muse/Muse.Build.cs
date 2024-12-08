@@ -7,7 +7,6 @@ public class Muse : ModuleRules
 	public Muse(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "MuseGAS", "MuseMovement", "MuseMeleeAttacks", "MuseLockOn" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "MuseGAS", "MuseMovement", "MuseMeleeAttacks", "MuseLockOn", "MuseAnimation" });
 	}
 }

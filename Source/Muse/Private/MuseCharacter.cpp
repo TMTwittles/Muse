@@ -13,6 +13,7 @@
 #include "GameplayAbilityInputInfo.h"
 #include "MoveMode/MuseMoveModes.h"
 #include "LockOnComponent.h"
+#include "StrafeAnimationHandlerComponent.h"
 #include "PlayerGameplayAbilitiesDataAsset.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -50,6 +51,9 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
   // Create a lock on component.
   LockOn = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComponent"));
 
+  // Strafe animation handler.
+  StrafeAnimationHandler = CreateDefaultSubobject<UStrafeAnimationHandlerComponent>("StrafeAnimationHandler");
+
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -72,9 +76,11 @@ void AMuseCharacter::Tick(float DeltaTime)
 {
   Super::Tick(DeltaTime);
 
+  // TODO: This should be handled by the lock on component.
   bShouldLockOn = bShouldLockOn && LockOn->TryUpdateLockOnTarget();
   if (bShouldLockOn)
   {
+    StrafeAnimationHandler->UpdateActiveStrafeDirection();
     SetActorRotation(LockOn->GetRotationToLockOnTarget());
   }
   else

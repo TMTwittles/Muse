@@ -9,6 +9,7 @@
 #include "MuseCharacterMovementComponent.h"
 #include "MuseCharacter.generated.h"
 
+class UStrafeAnimationHandlerComponent;
 class ULockOnComponent;
 
 class USpringArmComponent;
@@ -38,6 +39,10 @@ class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
   bool bShouldLockOn = false;
+
+  /** Strafe animation handler */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = StrafeAnimation, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UStrafeAnimationHandlerComponent> StrafeAnimationHandler;
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
