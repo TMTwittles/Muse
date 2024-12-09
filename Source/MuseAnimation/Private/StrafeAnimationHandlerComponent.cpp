@@ -9,6 +9,14 @@ const float StrafeRangeDegrees = 45.0f;
 const float DegreesPositiveLimit = 180.0f;
 const float DegreesNegativeLimit = -180.0f;
 
+TMap<EStrafeDirection, FColor> StrafeDirectionToDebugColorMap =
+{
+  {EStrafeDirection::FORWARD, FColor::Orange},
+  {EStrafeDirection::BACKWARD, FColor::Blue},
+  {EStrafeDirection::RIGHT, FColor::Green},
+  {EStrafeDirection::LEFT, FColor::Yellow}
+};
+
 void UStrafeAnimationHandlerComponent::BeginPlay()
 {
   CharacterMovement = GetOwner()->GetComponentByClass<UCharacterMovementComponent>();
@@ -22,10 +30,17 @@ UStrafeAnimationHandlerComponent::UStrafeAnimationHandlerComponent()
 
 void UStrafeAnimationHandlerComponent::UpdateActiveStrafeDirection()
 {
-  UpdateSignedStrafeDirectionDegrees();
+  UpdateSignedMovementDirectionDegrees();
   UE_LOG(LogMuseAnimation, Log, TEXT("%f"), SignedMovementDirectionDegrees);
-  if (InvalidMovementDirection(SignedMovementDirectionDegrees) || ActiveStrafeDirection == EStrafeDirection::NONE) return;
-  if (StrafeDirectionInRange(ActiveStrafeDirection, SignedMovementDirectionDegrees)) return;
+  if (InvalidMovementDirection(SignedMovementDirectionDegrees) || ActiveStrafeDirection == EStrafeDirection::NONE)
+  {
+    UE_LOG(LogMuseAnimation, Error, TEXT("InvalidMovementDirection"));
+    return;
+  }
+  if (StrafeDirectionInRange(ActiveStrafeDirection, SignedMovementDirectionDegrees))
+  {
+    return;
+  }
 
   TArray<EStrafeDirection> Keys;
   MovementRangesMap.GetKeys(Keys);
@@ -42,9 +57,9 @@ void UStrafeAnimationHandlerComponent::UpdateActiveStrafeDirection()
   UE_LOG(LogMuseAnimation, Error, TEXT("No movement range for %f"), SignedMovementDirectionDegrees);
 }
 
-float UStrafeAnimationHandlerComponent::GetAngleRelativeToActiveStrafeDirection(const float InMovementDirectionDegrees) const
+float UStrafeAnimationHandlerComponent::GetAngleRelativeToActiveStrafeDirection(const float InSignedMovementDirectionDegrees) const
 {
-  return GetAngleRelativeToStrafeDirection(ActiveStrafeDirection, InMovementDirectionDegrees);
+  return GetAngleRelativeToStrafeDirection(ActiveStrafeDirection, InSignedMovementDirectionDegrees);
 }
 
 float UStrafeAnimationHandlerComponent::GetStrafeDirectionDegrees(const EStrafeDirection InStrafeDirection) const
@@ -72,11 +87,12 @@ void UStrafeAnimationHandlerComponent::SetMovementRange(const EStrafeDirection I
   }
 }
 
-void UStrafeAnimationHandlerComponent::UpdateSignedStrafeDirectionDegrees()
+void UStrafeAnimationHandlerComponent::UpdateSignedMovementDirectionDegrees()
 {
   const FVector DirectionFacingNormalized = GetOwner()->GetActorForwardVector().GetSafeNormal();
+  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + DirectionFacingNormalized * 100.0f, FColor::Red);
   const FVector VelocityNormalized = CharacterMovement->Velocity.GetSafeNormal();
-
+  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + VelocityNormalized * 100.0f, StrafeDirectionToDebugColorMap[ActiveStrafeDirection]);
   // Clamp in range 1.0 to -1.0 to avoid floating point errors. 
   const float DotProduct = FMath::Clamp(FVector::DotProduct(DirectionFacingNormalized, VelocityNormalized), -1.0f, 1.0f);
   const float UnsignedStrafeMovementAngleRadians = FMath::Acos(DotProduct);
@@ -88,10 +104,10 @@ void UStrafeAnimationHandlerComponent::UpdateSignedStrafeDirectionDegrees()
   const bool bMovingClockwise = CrossProductZ < 0;
   
   const float SignedStrafeMovementAngleRadians = bMovingClockwise ? UnsignedStrafeMovementAngleRadians * -1.0f : UnsignedStrafeMovementAngleRadians;
-  SignedMovementDirectionDegrees = ConvertToClockWiseRotationDegrees(FMath::RadiansToDegrees(SignedStrafeMovementAngleRadians));
+  SignedMovementDirectionDegrees = FMath::RadiansToDegrees(SignedStrafeMovementAngleRadians);
 }
 
-float UStrafeAnimationHandlerComponent::GetAngleRelativeToStrafeDirection(const EStrafeDirection InStrafeDirection, float InMovementDirectionDegrees) const
+float UStrafeAnimationHandlerComponent::GetAngleRelativeToStrafeDirection(const EStrafeDirection InStrafeDirection, float InSignedMovementDirectionDegrees) const
 {
   if (MovementRangesMap.Contains(InStrafeDirection) == false)
   {
@@ -100,12 +116,12 @@ float UStrafeAnimationHandlerComponent::GetAngleRelativeToStrafeDirection(const 
   }
 
   const FStrafeMovementRange MovementRange = MovementRangesMap[InStrafeDirection];
-  if (MovementRange.StrafeDirectionDegrees == 0 || InMovementDirectionDegrees == 0)
+  if (MovementRange.StrafeDirectionDegrees == 0 || InSignedMovementDirectionDegrees == 0)
   {
     // If the strafe direction degrees is 0, InMovementDirectionDegrees would already be relative in range 90,-90 degrees.
-    return InMovementDirectionDegrees;
+    return InSignedMovementDirectionDegrees;
   }
-  return MovementRange.StrafeDirectionDegrees - ConvertToClockWiseRotationDegrees(InMovementDirectionDegrees);
+  return MovementRange.StrafeDirectionDegrees - ConvertToClockWiseRotationDegrees(InSignedMovementDirectionDegrees);
 }
 
 FStrafeMovementRange UStrafeAnimationHandlerComponent::BuildStrafeMovementRange(const float InStrafeDirectionDegrees, const float InRangeDegreesLeft, const float InRangeDegreesRight) const
@@ -127,6 +143,7 @@ bool UStrafeAnimationHandlerComponent::StrafeDirectionInRange(const EStrafeDirec
   }
 
   float RelativeAngle = GetAngleRelativeToStrafeDirection(Direction, InSignedDirectionDegrees);
+  UE_LOG(LogMuseAnimation, Log, TEXT("Relative angle: %f"), RelativeAngle);
   FStrafeMovementRange MovementRange = MovementRangesMap[Direction];
   return IsFloatInRange(RelativeAngle, MovementRange.StrafeRangeLeft, MovementRange.StrafeRangeRight);
 }

@@ -47,7 +47,7 @@ bool ULockOnComponent::TryUpdateLockOnTarget()
   LockOnTargetActor = nullptr;
   TArray<APawn*> NearbyPawns;
 
-  FCollisionShape Sphere = FCollisionShape::MakeSphere(1000.0f);
+  FCollisionShape Sphere = FCollisionShape::MakeSphere(100000000.0f);
   FCollisionQueryParams CollisionParams;
   CollisionParams.AddIgnoredActor(GetOwner()); // Ignore self
 

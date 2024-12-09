@@ -45,9 +45,9 @@ class MUSEANIMATION_API UStrafeAnimationHandlerComponent : public UActorComponen
   UPROPERTY()
   TArray<FStrafeMovementRange> MovementRanges;
   UPROPERTY()
-  float SignedMovementDirectionDegrees;
-  UPROPERTY()
   EStrafeDirection ActiveStrafeDirection;
+  UPROPERTY()
+  float SignedMovementDirectionDegrees;
   UPROPERTY()
   TObjectPtr<UCharacterMovementComponent> CharacterMovement;
 
@@ -72,8 +72,8 @@ public:
   UFUNCTION(BlueprintCallable)
   void SetMovementRange(const EStrafeDirection InStrafeDirection, const float InClockwiseDirectionDegrees, const float InRangeDegreesLeft, const float InRangeDegreesRight);
 private:
-  void UpdateSignedStrafeDirectionDegrees();
-  float GetAngleRelativeToStrafeDirection(const EStrafeDirection InStrafeDirection, float InMovementDirectionDegrees) const;
+  void UpdateSignedMovementDirectionDegrees();
+  float GetAngleRelativeToStrafeDirection(const EStrafeDirection InStrafeDirection, float InSignedMovementDirectionDegrees) const;
   FStrafeMovementRange BuildStrafeMovementRange(const float InStrafeDirectionDegrees, const float InRangeDegreesLeft, const float InRangeDegreesRight) const;
   bool StrafeDirectionInRange(const EStrafeDirection Direction, const float InSignedDirectionDegrees) const;
   bool InvalidMovementDirection(const float InMovementDirectionDegrees) const;
@@ -81,7 +81,7 @@ private:
   bool IsFloatInRange(const float Value, const float Bound01, const float Bound02) const;
 public:
   UFUNCTION(BlueprintCallable, BlueprintPure)
-  FORCEINLINE float GetSignedStrafeMovementAngleDegrees() const { return SignedMovementDirectionDegrees; }
+  FORCEINLINE float GetMovementDirection() const { return GetAngleRelativeToActiveStrafeDirection(SignedMovementDirectionDegrees); }
   UFUNCTION(BlueprintCallable, BlueprintPure)
   FORCEINLINE EStrafeDirection GetActiveStrafeDirection() const { return ActiveStrafeDirection; }
 };
