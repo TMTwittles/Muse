@@ -5,6 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MuseCharacterMovementComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogMuseCharacterMovementComponent, Log, All);
+
 enum EMuseMoveMode : uint8;
 class UMuseMoveMode;
 
@@ -22,6 +24,9 @@ class MUSE_API UMuseCharacterMovementComponent : public UCharacterMovementCompon
 public:
   virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
   virtual void PhysCustom(float DeltaTime, int32 Iterations) override;
+  // Hacky way to use existing movement modes with out changing the move mode. This allows custom move mode
+  // easily use existing movement modes. 
+  void PhysCustom(const TEnumAsByte<enum EMovementMode> InMove, float DeltaTime, int32 Iterations);
   void ClearMovementModes();
   UFUNCTION(BlueprintCallable)
   void AddMovementMode(const EMuseMoveMode& InMoveMode);
@@ -30,7 +35,9 @@ public:
   UFUNCTION(BlueprintCallable)
   void ExitCustomMoveMode();
   void MoveDelta(const float& DeltaTime, const FVector& DeltaPosition, const FQuat& DeltaRotation);
-
   UFUNCTION(BlueprintPure)
   bool IsCustomMovementMode(EMuseMoveMode InCustomMovementMode) const;
+
+  template<class TMuseMoveMode = UMuseMoveMode>
+  TMuseMoveMode* GetMoveMode(TEnumAsByte<EMuseMoveMode> InMoveMode) const;
 };

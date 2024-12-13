@@ -12,6 +12,7 @@
 #include "AbilitySystemComponent.h"
 #include "GameplayAbilityInputInfo.h"
 #include "MoveMode/MuseMoveModes.h"
+#include "MoveMode/MuseMove_DefaultLocomotion.h"
 #include "LockOnComponent.h"
 #include "StrafeAnimationHandlerComponent.h"
 #include "PlayerGameplayAbilitiesDataAsset.h"
@@ -105,6 +106,11 @@ void AMuseCharacter::BeginPlay()
   // Add custom movement modes.
   MuseCharacterMovement->ClearMovementModes();
   MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
+  MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_SHOOT);
+  // TODO: Have this configurable via data asset and blueprint.
+  UMuseMove_DefaultLocomotion* ShootingLocomotion = MuseCharacterMovement->GetMoveMode<UMuseMove_DefaultLocomotion>(EMuseMoveMode::MMOVE_SHOOT);
+  ShootingLocomotion->SetMaxAcceleration(100.0f);
+  ShootingLocomotion->SetMaxSpeed(250.0f);
 
   // Initialize ability system, granting character available abilities.
   InitAbilitySystem();

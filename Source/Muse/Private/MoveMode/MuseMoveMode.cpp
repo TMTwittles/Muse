@@ -8,7 +8,7 @@ void UMuseMoveMode::SetMovementComponent(UMuseCharacterMovementComponent* Moveme
   MovementComp = MovementComponent;
 }
 
-void UMuseMoveMode::TickMoveMode(const float DeltaTime)
+void UMuseMoveMode::TickMoveMode(const float DeltaTime, int32 Iterations)
 {
 }
 

@@ -6,6 +6,8 @@
 #include "MoveMode/MuseMoveModes.h"
 #include "MoveMode/MuseMoveModeBuilder.h"
 
+DEFINE_LOG_CATEGORY(LogMuseCharacterMovementComponent);
+
 void UMuseCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
 {
   Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
@@ -15,7 +17,20 @@ void UMuseCharacterMovementComponent::PhysCustom(float DeltaTime, int32 Iteratio
 {
   Super::PhysCustom(DeltaTime, Iterations);
   check(MoveModeMap.Contains((EMuseMoveMode)CustomMovementMode));
-  MoveModeMap[(EMuseMoveMode)CustomMovementMode]->TickMoveMode(DeltaTime);
+  MoveModeMap[(EMuseMoveMode)CustomMovementMode]->TickMoveMode(DeltaTime, Iterations);
+}
+
+void UMuseCharacterMovementComponent::PhysCustom(const TEnumAsByte<enum EMovementMode> InMove, float DeltaTime, int32 Iterations)
+{
+  switch (InMove)
+  {
+    case MOVE_Walking:
+      PhysWalking(DeltaTime, Iterations);
+      break;
+    default:
+      UE_LOG(LogMuseCharacterMovementComponent, Error, TEXT("I havent added that move mode yet. Soz."));
+      break;
+  }
 }
 
 void UMuseCharacterMovementComponent::ClearMovementModes()
@@ -70,4 +85,16 @@ void UMuseCharacterMovementComponent::MoveDelta(const float& DeltaTime, const FV
 bool UMuseCharacterMovementComponent::IsCustomMovementMode(EMuseMoveMode InCustomMovementMode) const
 {
   return MovementMode == MOVE_Custom && CustomMovementMode == InCustomMovementMode;
+}
+
+template<class TMuseMoveMode>
+TMuseMoveMode* UMuseCharacterMovementComponent::GetMoveMode(TEnumAsByte<EMuseMoveMode> InMoveMode) const
+{
+  if (MoveModeMap.Contains(InMoveMode) == false)
+  {
+    UE_LOG(LogMuseCharacterMovementComponent, Error, TEXT("No move mode entry added"));
+    return nullptr;
+  }
+
+  return static_cast<TMuseMoveMode>(MoveModeMap[InMoveMode]);
 }

@@ -20,7 +20,7 @@ protected:
 
 public:
   void SetMovementComponent(UMuseCharacterMovementComponent* MovementComponent);
-  virtual void TickMoveMode(const float DeltaTime);
+  virtual void TickMoveMode(const float DeltaTime, int32 Iterations);
   virtual void EnterMoveMode();
   virtual void ExitMoveMode();
 };

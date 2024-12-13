@@ -8,5 +8,7 @@ UENUM(BlueprintType)
 enum EMuseMoveMode : uint8
 {
   MMOVE_NONE UMETA(Hidden),
-  MMOVE_MELEE_SUCK_TO_TARGET UMETA(DisplayName = "Melee suck to target")
+  MMOVE_MELEE_SUCK_TO_TARGET UMETA(DisplayName = "Melee suck to target"),
+  // TODO: Get better at naming. 
+  MMOVE_SHOOT UMETA(DisplayName = "Shoot")
 };
