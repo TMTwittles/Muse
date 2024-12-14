@@ -2,8 +2,8 @@
 
 
 #include "MuseCharacterMovementComponent.h"
-#include "MoveMode/MuseMoveMode.h"
 #include "MoveMode/MuseMoveModes.h"
+#include "MoveMode/MuseMoveMode.h"
 #include "MoveMode/MuseMoveModeBuilder.h"
 
 DEFINE_LOG_CATEGORY(LogMuseCharacterMovementComponent);
@@ -18,19 +18,6 @@ void UMuseCharacterMovementComponent::PhysCustom(float DeltaTime, int32 Iteratio
   Super::PhysCustom(DeltaTime, Iterations);
   check(MoveModeMap.Contains((EMuseMoveMode)CustomMovementMode));
   MoveModeMap[(EMuseMoveMode)CustomMovementMode]->TickMoveMode(DeltaTime, Iterations);
-}
-
-void UMuseCharacterMovementComponent::PhysCustom(const TEnumAsByte<enum EMovementMode> InMove, float DeltaTime, int32 Iterations)
-{
-  switch (InMove)
-  {
-    case MOVE_Walking:
-      PhysWalking(DeltaTime, Iterations);
-      break;
-    default:
-      UE_LOG(LogMuseCharacterMovementComponent, Error, TEXT("I havent added that move mode yet. Soz."));
-      break;
-  }
 }
 
 void UMuseCharacterMovementComponent::ClearMovementModes()
@@ -87,14 +74,24 @@ bool UMuseCharacterMovementComponent::IsCustomMovementMode(EMuseMoveMode InCusto
   return MovementMode == MOVE_Custom && CustomMovementMode == InCustomMovementMode;
 }
 
-template<class TMuseMoveMode>
-TMuseMoveMode* UMuseCharacterMovementComponent::GetMoveMode(TEnumAsByte<EMuseMoveMode> InMoveMode) const
+void UMuseCharacterMovementComponent::OverrideWalkMovementSettings(const float NewAcceleration, const float NewMaxSpeed)
 {
-  if (MoveModeMap.Contains(InMoveMode) == false)
+  // Store initial settings.
+  bHasOverridenSettings = true;
+  InitialAcceleration = MaxAcceleration;
+  InitialMaxSpeed = MaxWalkSpeed;
+
+  MaxAcceleration = NewAcceleration;
+  MaxWalkSpeed = NewMaxSpeed;
+}
+
+void UMuseCharacterMovementComponent::ClearWalkMovementSettings()
+{
+  if (!bHasOverridenSettings)
   {
-    UE_LOG(LogMuseCharacterMovementComponent, Error, TEXT("No move mode entry added"));
-    return nullptr;
+    return;
   }
 
-  return static_cast<TMuseMoveMode>(MoveModeMap[InMoveMode]);
+  MaxAcceleration = InitialAcceleration;
+  MaxWalkSpeed = InitialMaxSpeed;
 }

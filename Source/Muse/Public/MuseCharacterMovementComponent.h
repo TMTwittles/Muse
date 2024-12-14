@@ -20,6 +20,9 @@ class MUSE_API UMuseCharacterMovementComponent : public UCharacterMovementCompon
 
   UPROPERTY()
   TMap<TEnumAsByte<EMuseMoveMode>, TObjectPtr<UMuseMoveMode>> MoveModeMap;
+  bool bHasOverridenSettings = false;
+  float InitialAcceleration = 0.0f;
+  float InitialMaxSpeed = 0.0f;
 
 public:
   virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
@@ -37,7 +40,8 @@ public:
   void MoveDelta(const float& DeltaTime, const FVector& DeltaPosition, const FQuat& DeltaRotation);
   UFUNCTION(BlueprintPure)
   bool IsCustomMovementMode(EMuseMoveMode InCustomMovementMode) const;
-
-  template<class TMuseMoveMode = UMuseMoveMode>
-  TMuseMoveMode* GetMoveMode(TEnumAsByte<EMuseMoveMode> InMoveMode) const;
+  UFUNCTION()
+  void OverrideWalkMovementSettings(const float NewAcceleration, const float NewMaxSpeed);
+  UFUNCTION()
+  void ClearWalkMovementSettings();
 };

@@ -6,9 +6,9 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h"
-#include "MuseCharacterMovementComponent.h"
 #include "MuseCharacter.generated.h"
 
+class UMuseCharacterMovementComponent;
 class UStrafeAnimationHandlerComponent;
 class ULockOnComponent;
 
@@ -25,7 +25,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
+class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 

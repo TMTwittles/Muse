@@ -5,6 +5,9 @@
 #include "MoveMode/MuseMoveModes.h"
 #include "MuseCharacterMovementComponent.h"
 #include "MoveMode/MuseMove_MeleeSuckToTarget.h"
+#include "MoveMode/MuseMove_DefaultLocomotion.h"
+
+DEFINE_LOG_CATEGORY(LogMuseMoveModeBuilder);
 
 UMuseMoveMode* UMuseMoveModeBuilder::BuildMoveMode(UMuseCharacterMovementComponent* InMovementComp, const EMuseMoveMode& InMoveMode)
 {
@@ -15,6 +18,7 @@ UMuseMoveMode* UMuseMoveModeBuilder::BuildMoveMode(UMuseCharacterMovementCompone
     BuiltMoveMode = NewObject<UMuseMove_MeleeSuckToTarget>();
     break;
   default:
+    UE_LOG(LogMuseMoveModeBuilder, Error, TEXT("No entry added for MoveMode"));
     break;
   }
   check(BuiltMoveMode);

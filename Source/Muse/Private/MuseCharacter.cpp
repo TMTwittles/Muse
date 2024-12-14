@@ -11,6 +11,7 @@
 #include "InputActionValue.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayAbilityInputInfo.h"
+#include "MuseCharacterMovementComponent.h"
 #include "MoveMode/MuseMoveModes.h"
 #include "MoveMode/MuseMove_DefaultLocomotion.h"
 #include "LockOnComponent.h"
@@ -78,13 +79,12 @@ void AMuseCharacter::Tick(float DeltaTime)
   Super::Tick(DeltaTime);
 
   // TODO: This should be handled by the lock on component.
-  bShouldLockOn = bShouldLockOn && LockOn->TryUpdateLockOnTarget();
-  if (bShouldLockOn)
+  if (bShouldLockOn && LockOn->TryUpdateLockOnTarget())
   {
     StrafeAnimationHandler->UpdateActiveStrafeDirection();
     SetActorRotation(LockOn->GetRotationToLockOnTarget());
   }
-  else
+  else if (bShouldLockOn)
   {
     ExitLockOn();
   }
@@ -106,11 +106,6 @@ void AMuseCharacter::BeginPlay()
   // Add custom movement modes.
   MuseCharacterMovement->ClearMovementModes();
   MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
-  MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_SHOOT);
-  // TODO: Have this configurable via data asset and blueprint.
-  UMuseMove_DefaultLocomotion* ShootingLocomotion = MuseCharacterMovement->GetMoveMode<UMuseMove_DefaultLocomotion>(EMuseMoveMode::MMOVE_SHOOT);
-  ShootingLocomotion->SetMaxAcceleration(100.0f);
-  ShootingLocomotion->SetMaxSpeed(250.0f);
 
   // Initialize ability system, granting character available abilities.
   InitAbilitySystem();
@@ -123,14 +118,17 @@ void AMuseCharacter::EnterLockOn()
   {
     MuseCharacterMovement->bOrientRotationToMovement = false;
     MuseCharacterMovement->bUseControllerDesiredRotation = true;
+    MuseCharacterMovement->OverrideWalkMovementSettings(100.0f, 100.0f);
   }
 }
 
 void AMuseCharacter::ExitLockOn()
 {
   bShouldLockOn = false;
+  MuseCharacterMovement->ExitCustomMoveMode();
   MuseCharacterMovement->bOrientRotationToMovement = true;
   MuseCharacterMovement->bUseControllerDesiredRotation = false;
+  MuseCharacterMovement->ClearWalkMovementSettings();
   LockOn->ClearLockOnTarget();
 }
 
