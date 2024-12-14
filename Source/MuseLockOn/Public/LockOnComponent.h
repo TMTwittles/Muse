@@ -5,6 +5,11 @@
 #include "Components/ActorComponent.h"
 #include "LockOnComponent.generated.h"
 
+class UStrafeAnimationHandlerComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLockedOn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLockOnCleared);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MUSELOCKON_API ULockOnComponent : public UActorComponent
 {
@@ -12,8 +17,17 @@ class MUSELOCKON_API ULockOnComponent : public UActorComponent
 
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<AActor> LockOnTargetActor;
+  bool bLockOnActive;
+  bool bShouldLockOn;
+  bool bTickLockOnDuration;
+  float CurrentLockOnDuration;
+  UStrafeAnimationHandlerComponent* OwnerStrafeAnimationHandler;
 
-public:	
+public:
+
+  FLockedOn LockedOn;
+  FLockOnCleared LockedOnCleared;
+
 	// Sets default values for this component's properties
 	ULockOnComponent();
 
@@ -22,7 +36,6 @@ public:
 
   UFUNCTION(BlueprintCallable, BlueprintPure)
   inline FVector GetLockOnTargetPosition() const { return LockOnTargetActor == nullptr ? FVector::Zero() : LockOnTargetActor->GetActorLocation(); }
-  
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -34,7 +47,18 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintPure)
   const FQuat GetRotationToLockOnTarget() const;
   UFUNCTION(BlueprintCallable)
+  void EnterLockOn();
+  UFUNCTION(BlueprintCallable)
+  void EnterLockOnForDuration(float LockOnDuration);
+  UFUNCTION(BlueprintCallable)
+  void ExitLockOn();
+  UFUNCTION(BlueprintCallable)
+  inline bool LockOnActive() const { return bLockOnActive; }
+
+private:
+  UFUNCTION(BlueprintCallable)
   bool TryUpdateLockOnTarget();
+
   UFUNCTION(BlueprintCallable)
   inline void ClearLockOnTarget() { LockOnTargetActor == nullptr; }
 };

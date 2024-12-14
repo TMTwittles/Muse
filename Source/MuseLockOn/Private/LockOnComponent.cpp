@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "LockOnComponent.h"
 #include "Engine/OverlapResult.h"
+#include "StrafeAnimationHandlerComponent.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values for this component's properties
@@ -13,23 +14,45 @@ ULockOnComponent::ULockOnComponent()
 	// ...
 }
 
-
 // Called when the game starts
 void ULockOnComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
+  OwnerStrafeAnimationHandler = GetOwner()->GetComponentByClass<UStrafeAnimationHandlerComponent>();
 }
-
 
 // Called every frame
 void ULockOnComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+  if (!bShouldLockOn)
+  {
+    return;
+  }
+
+  if (bTickLockOnDuration)
+  {
+    CurrentLockOnDuration -= DeltaTime;
+    if (CurrentLockOnDuration <= 0.0f)
+    {
+      ExitLockOn();
+      return;
+    }
+  }
+
+  bLockOnActive = TryUpdateLockOnTarget();
+  if (!bLockOnActive)
+  {
+    ExitLockOn();
+    return;
+  }
+
+  if (OwnerStrafeAnimationHandler)
+  {
+    OwnerStrafeAnimationHandler->UpdateActiveStrafeDirection();
+  }
+  GetOwner()->SetActorRotation(GetRotationToLockOnTarget());
 }
 
 const FQuat ULockOnComponent::GetRotationToLockOnTarget() const
@@ -40,6 +63,39 @@ const FQuat ULockOnComponent::GetRotationToLockOnTarget() const
   FVector LockOnDirection = (Target - Start).GetSafeNormal();
   LockOnDirection.Z = 0.0f;
   return FRotationMatrix::MakeFromX(LockOnDirection).ToQuat();;
+}
+
+void ULockOnComponent::EnterLockOn()
+{
+    bLockOnActive = TryUpdateLockOnTarget();
+    bShouldLockOn = true;
+    bTickLockOnDuration = false;
+    CurrentLockOnDuration = 0.0f;
+    if (bLockOnActive)
+    {
+      LockedOn.Broadcast();
+    }
+}
+
+void ULockOnComponent::EnterLockOnForDuration(float LockOnDuration)
+{
+  bLockOnActive = TryUpdateLockOnTarget();
+  bShouldLockOn = true;
+  bTickLockOnDuration = true;
+  CurrentLockOnDuration = LockOnDuration;
+  if (bLockOnActive)
+  {
+    LockedOn.Broadcast();
+  }
+}
+
+void ULockOnComponent::ExitLockOn()
+{
+  bLockOnActive = false;
+  bShouldLockOn = false;
+  bTickLockOnDuration = false;
+  CurrentLockOnDuration = 0.0f;
+  LockedOnCleared.Broadcast();
 }
 
 bool ULockOnComponent::TryUpdateLockOnTarget()

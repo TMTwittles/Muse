@@ -3,44 +3,44 @@
 	"EngineAssociation": "5.5",
 	"Category": "",
 	"Description": "",
-	"Modules": [
-		{
-			"Name": "Muse",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"CoreUObject"
-			]
-		},
-		{
-			"Name": "MuseGAS",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"GameplayAbilities"
-			]
-		},
-		{
-			"Name": "MuseMeleeAttacks",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"CoreUObject",
-				"GameplayAbilities"
-			]
-		},
-		{
-			"Name": "MuseMovement",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"Engine",
-				"CoreUObject"
-			]
-		},
+  "Modules": [
+    {
+      "Name": "Muse",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Engine",
+        "CoreUObject"
+      ]
+    },
+    {
+      "Name": "MuseGAS",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Engine",
+        "GameplayAbilities"
+      ]
+    },
+    {
+      "Name": "MuseMeleeAttacks",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Engine",
+        "CoreUObject",
+        "GameplayAbilities"
+      ]
+    },
+    {
+      "Name": "MuseMovement",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Engine",
+        "CoreUObject"
+      ]
+    },
     {
       "Name": "MuseAI",
       "Type": "Runtime",
@@ -68,8 +68,17 @@
         "Engine",
         "CoreUObject"
       ]
+    },
+    {
+      "Name": "MuseRangeCombat",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "Engine",
+        "CoreUObject"
+      ]
     }
-	],
+  ],
 	"Plugins": [
 		{
 			"Name": "ModelingToolsEditorMode",

@@ -64,6 +64,10 @@ class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterfac
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
+  /** Fire Input Action */
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UInputAction> FireAction;
+
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> JumpAction;
@@ -104,8 +108,12 @@ protected:
 
 private:
 
+  void FireWeapon();
+
   void EnterLockOn();
+  void OnEnterLockOn();
   void ExitLockOn();
+  void OnExitLockOn();
 
   void InitAbilitySystem();
   void BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent);

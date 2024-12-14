@@ -77,17 +77,6 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 void AMuseCharacter::Tick(float DeltaTime)
 {
   Super::Tick(DeltaTime);
-
-  // TODO: This should be handled by the lock on component.
-  if (bShouldLockOn && LockOn->TryUpdateLockOnTarget())
-  {
-    StrafeAnimationHandler->UpdateActiveStrafeDirection();
-    SetActorRotation(LockOn->GetRotationToLockOnTarget());
-  }
-  else if (bShouldLockOn)
-  {
-    ExitLockOn();
-  }
 }
 
 void AMuseCharacter::PossessedBy(AController* NewController)
@@ -107,29 +96,41 @@ void AMuseCharacter::BeginPlay()
   MuseCharacterMovement->ClearMovementModes();
   MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
+  LockOn->LockedOn.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
+  LockOn->LockedOnCleared.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
+
   // Initialize ability system, granting character available abilities.
   InitAbilitySystem();
 }
 
+void AMuseCharacter::FireWeapon()
+{
+  LockOn->EnterLockOnForDuration(1.25f);
+}
+
 void AMuseCharacter::EnterLockOn()
 {
-  bShouldLockOn = LockOn->TryUpdateLockOnTarget();
-  if (bShouldLockOn)
-  {
-    MuseCharacterMovement->bOrientRotationToMovement = false;
-    MuseCharacterMovement->bUseControllerDesiredRotation = true;
-    MuseCharacterMovement->OverrideWalkMovementSettings(100.0f, 100.0f);
-  }
+  LockOn->EnterLockOn();
+}
+
+void AMuseCharacter::OnEnterLockOn()
+{
+  MuseCharacterMovement->bOrientRotationToMovement = false;
+  MuseCharacterMovement->bUseControllerDesiredRotation = true;
+  MuseCharacterMovement->OverrideWalkMovementSettings(100.0f, 100.0f);
 }
 
 void AMuseCharacter::ExitLockOn()
 {
-  bShouldLockOn = false;
+  LockOn->ExitLockOn();
+}
+
+void AMuseCharacter::OnExitLockOn()
+{
   MuseCharacterMovement->ExitCustomMoveMode();
   MuseCharacterMovement->bOrientRotationToMovement = true;
   MuseCharacterMovement->bUseControllerDesiredRotation = false;
   MuseCharacterMovement->ClearWalkMovementSettings();
-  LockOn->ClearLockOnTarget();
 }
 
 void AMuseCharacter::InitAbilitySystem()
@@ -221,6 +222,9 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
     // LockOn
     EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterLockOn);
+
+    // Fire weapon
+    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMuseCharacter::FireWeapon);
 
     // Ability system inputs.
     BindAbilitySystemInputs(EnhancedInputComponent);
