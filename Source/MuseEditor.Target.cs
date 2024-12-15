@@ -15,5 +15,7 @@ public class MuseEditorTarget : TargetRules
     ExtraModuleNames.Add("MuseMeleeAttacks");
     ExtraModuleNames.Add("MuseMovement");
     ExtraModuleNames.Add("MuseAI");
+    ExtraModuleNames.Add("MuseLockOn");
+    ExtraModuleNames.Add("MuseRangeCombat");
 	}
 }

@@ -6,8 +6,11 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h"
-#include "MuseCharacterMovementComponent.h"
 #include "MuseCharacter.generated.h"
+
+class UMuseCharacterMovementComponent;
+class UStrafeAnimationHandlerComponent;
+class ULockOnComponent;
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -22,13 +25,24 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
+class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
   /** Muse character movement component */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UMuseCharacterMovementComponent> MuseCharacterMovement;
+
+  /** Muse lock on component */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<ULockOnComponent> LockOn;
+
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
+  bool bShouldLockOn = false;
+
+  /** Strafe animation handler */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = StrafeAnimation, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UStrafeAnimationHandlerComponent> StrafeAnimationHandler;
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -50,6 +64,10 @@ class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
+  /** Fire Input Action */
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UInputAction> FireAction;
+
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> JumpAction;
@@ -62,9 +80,15 @@ class AMuseCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> LookAction;
 
+  /** Lock On Input Action */
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UInputAction> LockOnAction;
+
 public:
 	AMuseCharacter(const FObjectInitializer& ObjectInitializer);
 
+
+  virtual void Tick(float DeltaTime) override;
   virtual void PossessedBy(AController* NewController) override;
 
 protected:
@@ -73,7 +97,6 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
 
 protected:
 	// APawn interface
@@ -84,7 +107,14 @@ protected:
 	virtual void BeginPlay();
 
 private:
-  
+
+  void FireWeapon();
+
+  void EnterLockOn();
+  void OnEnterLockOn();
+  void ExitLockOn();
+  void OnExitLockOn();
+
   void InitAbilitySystem();
   void BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent);
   void AbilityInputPressed(int32 InputId);
@@ -94,6 +124,8 @@ public:
   virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 public:
+  /** Returns LockOn subobject **/
+  FORCEINLINE class ULockOnComponent* GetLockOn() const { return LockOn; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/

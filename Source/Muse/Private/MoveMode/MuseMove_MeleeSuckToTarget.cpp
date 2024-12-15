@@ -4,7 +4,7 @@
 #include "MuseCharacterMovementComponent.h"
 #include "Engine/OverlapResult.h"
 
-void UMuseMove_MeleeSuckToTarget::TickMoveMode(const float DeltaTime)
+void UMuseMove_MeleeSuckToTarget::TickMoveMode(const float DeltaTime, int32 Iterations)
 {
   if (!TargetActorFound())
   {

@@ -2,9 +2,11 @@
 
 
 #include "MuseCharacterMovementComponent.h"
-#include "MoveMode/MuseMoveMode.h"
 #include "MoveMode/MuseMoveModes.h"
+#include "MoveMode/MuseMoveMode.h"
 #include "MoveMode/MuseMoveModeBuilder.h"
+
+DEFINE_LOG_CATEGORY(LogMuseCharacterMovementComponent);
 
 void UMuseCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
 {
@@ -15,7 +17,7 @@ void UMuseCharacterMovementComponent::PhysCustom(float DeltaTime, int32 Iteratio
 {
   Super::PhysCustom(DeltaTime, Iterations);
   check(MoveModeMap.Contains((EMuseMoveMode)CustomMovementMode));
-  MoveModeMap[(EMuseMoveMode)CustomMovementMode]->TickMoveMode(DeltaTime);
+  MoveModeMap[(EMuseMoveMode)CustomMovementMode]->TickMoveMode(DeltaTime, Iterations);
 }
 
 void UMuseCharacterMovementComponent::ClearMovementModes()
@@ -70,4 +72,26 @@ void UMuseCharacterMovementComponent::MoveDelta(const float& DeltaTime, const FV
 bool UMuseCharacterMovementComponent::IsCustomMovementMode(EMuseMoveMode InCustomMovementMode) const
 {
   return MovementMode == MOVE_Custom && CustomMovementMode == InCustomMovementMode;
+}
+
+void UMuseCharacterMovementComponent::OverrideWalkMovementSettings(const float NewAcceleration, const float NewMaxSpeed)
+{
+  // Store initial settings.
+  bHasOverridenSettings = true;
+  InitialAcceleration = MaxAcceleration;
+  InitialMaxSpeed = MaxWalkSpeed;
+
+  MaxAcceleration = NewAcceleration;
+  MaxWalkSpeed = NewMaxSpeed;
+}
+
+void UMuseCharacterMovementComponent::ClearWalkMovementSettings()
+{
+  if (!bHasOverridenSettings)
+  {
+    return;
+  }
+
+  MaxAcceleration = InitialAcceleration;
+  MaxWalkSpeed = InitialMaxSpeed;
 }

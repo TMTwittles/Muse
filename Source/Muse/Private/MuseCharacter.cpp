@@ -11,7 +11,11 @@
 #include "InputActionValue.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayAbilityInputInfo.h"
+#include "MuseCharacterMovementComponent.h"
 #include "MoveMode/MuseMoveModes.h"
+#include "MoveMode/MuseMove_DefaultLocomotion.h"
+#include "LockOnComponent.h"
+#include "StrafeAnimationHandlerComponent.h"
 #include "PlayerGameplayAbilitiesDataAsset.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -24,7 +28,6 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 {
   // Cast movement component to character movement component.
   MuseCharacterMovement = Cast<UMuseCharacterMovementComponent>(GetCharacterMovement());
-  
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -47,6 +50,12 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
+  // Create a lock on component.
+  LockOn = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComponent"));
+
+  // Strafe animation handler.
+  StrafeAnimationHandler = CreateDefaultSubobject<UStrafeAnimationHandlerComponent>("StrafeAnimationHandler");
+
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -63,6 +72,11 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+}
+
+void AMuseCharacter::Tick(float DeltaTime)
+{
+  Super::Tick(DeltaTime);
 }
 
 void AMuseCharacter::PossessedBy(AController* NewController)
@@ -82,8 +96,41 @@ void AMuseCharacter::BeginPlay()
   MuseCharacterMovement->ClearMovementModes();
   MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
+  LockOn->LockedOn.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
+  LockOn->LockedOnCleared.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
+
   // Initialize ability system, granting character available abilities.
   InitAbilitySystem();
+}
+
+void AMuseCharacter::FireWeapon()
+{
+  LockOn->EnterLockOnForDuration(1.25f);
+}
+
+void AMuseCharacter::EnterLockOn()
+{
+  LockOn->EnterLockOn();
+}
+
+void AMuseCharacter::OnEnterLockOn()
+{
+  MuseCharacterMovement->bOrientRotationToMovement = false;
+  MuseCharacterMovement->bUseControllerDesiredRotation = true;
+  MuseCharacterMovement->OverrideWalkMovementSettings(100.0f, 100.0f);
+}
+
+void AMuseCharacter::ExitLockOn()
+{
+  LockOn->ExitLockOn();
+}
+
+void AMuseCharacter::OnExitLockOn()
+{
+  MuseCharacterMovement->ExitCustomMoveMode();
+  MuseCharacterMovement->bOrientRotationToMovement = true;
+  MuseCharacterMovement->bUseControllerDesiredRotation = false;
+  MuseCharacterMovement->ClearWalkMovementSettings();
 }
 
 void AMuseCharacter::InitAbilitySystem()
@@ -172,6 +219,12 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Look);
+
+    // LockOn
+    EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterLockOn);
+
+    // Fire weapon
+    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMuseCharacter::FireWeapon);
 
     // Ability system inputs.
     BindAbilitySystemInputs(EnhancedInputComponent);

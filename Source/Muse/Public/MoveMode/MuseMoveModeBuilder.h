@@ -7,6 +7,8 @@
 #include "MuseMoveModes.h" // TODO: Forward declare this. 
 #include "MuseMoveModeBuilder.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogMuseMoveModeBuilder, Log, All);
+
 class UMuseMoveMode;
 class UMuseCharacterMovementComponent;
 
