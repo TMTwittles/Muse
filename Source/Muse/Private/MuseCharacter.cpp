@@ -224,7 +224,7 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterLockOn);
 
     // Fire weapon
-    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMuseCharacter::FireWeapon);
+    //EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMuseCharacter::FireWeapon);
 
     // Ability system inputs.
     BindAbilitySystemInputs(EnhancedInputComponent);
