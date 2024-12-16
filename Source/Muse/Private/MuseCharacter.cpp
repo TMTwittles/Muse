@@ -17,6 +17,7 @@
 #include "LockOnComponent.h"
 #include "StrafeAnimationHandlerComponent.h"
 #include "PlayerGameplayAbilitiesDataAsset.h"
+#include "Equipment/EquipmentManagerComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -55,6 +56,8 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 
   // Strafe animation handler.
   StrafeAnimationHandler = CreateDefaultSubobject<UStrafeAnimationHandlerComponent>("StrafeAnimationHandler");
+
+  EquipmentManagerComponent = CreateDefaultSubobject<UEquipmentManagerComponent>("EquipmentManager");
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));

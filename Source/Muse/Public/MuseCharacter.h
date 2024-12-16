@@ -8,6 +8,7 @@
 #include "AbilitySystemInterface.h"
 #include "MuseCharacter.generated.h"
 
+class UEquipmentManagerComponent;
 class UMuseCharacterMovementComponent;
 class UStrafeAnimationHandlerComponent;
 class ULockOnComponent;
@@ -32,6 +33,10 @@ class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterfac
   /** Muse character movement component */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UMuseCharacterMovementComponent> MuseCharacterMovement;
+
+  /** */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
 
   /** Muse lock on component */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
