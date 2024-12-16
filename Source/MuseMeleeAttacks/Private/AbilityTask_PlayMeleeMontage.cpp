@@ -32,7 +32,7 @@ void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, b
 
 void UAbilityTask_PlayMeleeMontage::PlayMeleeMontage()
 {
-  AvatarMovementComponent->EnterMoveMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
+  //AvatarMovementComponent->EnterMoveMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
   UAnimMontage* MeleeMontage = MeleeAttackData->GetMontage();
   if (AbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
   {
@@ -43,7 +43,7 @@ void UAbilityTask_PlayMeleeMontage::PlayMeleeMontage()
 
 void UAbilityTask_PlayMeleeMontage::EndMeleeMontageTask()
 {
-  AvatarMovementComponent->ExitCustomMoveMode();
+  //AvatarMovementComponent->ExitCustomMoveMode();
   if (MeleeMontageTaskEnded.IsBound())
   {
     MeleeMontageTaskEnded.Broadcast();
