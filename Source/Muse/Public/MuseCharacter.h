@@ -9,6 +9,8 @@
 #include "MuseCharacter.generated.h"
 
 class UEquipmentManagerComponent;
+class UEquipmentDataAsset;
+
 class UMuseCharacterMovementComponent;
 class UStrafeAnimationHandlerComponent;
 class ULockOnComponent;
@@ -34,8 +36,20 @@ class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterfac
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UMuseCharacterMovementComponent> MuseCharacterMovement;
 
-  /** */
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
+  /** Equipment */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UStaticMeshComponent> Sword;
+
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UStaticMeshComponent> Rifle;
+
+  UPROPERTY(EditAnywhere, Category = Equipment, meta = (AllowPrivateAccess = "true"))
+  UEquipmentDataAsset* SwordEquipmentData;
+
+  UPROPERTY(EditAnywhere, Category = Equipment, meta = (AllowPrivateAccess = "true"))
+  UEquipmentDataAsset* RifleEquipmentData;
+
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
 
   /** Muse lock on component */
@@ -112,6 +126,8 @@ protected:
 	virtual void BeginPlay();
 
 private:
+  void ConstructEquipment();
+  void ConfigureEquipment();
 
   void FireWeapon();
 

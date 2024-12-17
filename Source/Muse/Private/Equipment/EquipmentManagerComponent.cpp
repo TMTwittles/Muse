@@ -16,8 +16,6 @@ void UEquipmentManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
   ResetActiveEquipment();
-  SwordStaticMesh->SetVisibility(false);
-  RifleStaticMesh->SetVisibility(false);
   SetEquipmentState(EEquipmentState::HOLSTERED);
 }
 
@@ -29,6 +27,16 @@ void UEquipmentManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
+void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, const FEquipment& Equipment)
+{
+  if (!MappedEquipment.Contains(WeaponType))
+  {
+    MappedEquipment.Add(WeaponType);
+  }
+  MappedEquipment[WeaponType].AnimationData = Equipment.AnimationData;
+  MappedEquipment[WeaponType].EquipmentMesh = Equipment.EquipmentMesh;
+}
+
 void UEquipmentManagerComponent::SetActiveEquipment(const EWeapon WeaponType)
 {
   if (ActiveWeapon == WeaponType)
@@ -37,24 +45,17 @@ void UEquipmentManagerComponent::SetActiveEquipment(const EWeapon WeaponType)
   }
 
   ResetActiveEquipment();
-  switch (WeaponType)
+
+  if (WeaponType == EWeapon::NONE)
   {
-  case EWeapon::SWORD:
-    ActiveEquipmentMesh = SwordStaticMesh;
-    ActiveEquipmentAnimationData = SwordEquipmentAnimationData;
-    break;
-  case EWeapon::RIFLE:
-    ActiveEquipmentMesh = RifleStaticMesh;
-    ActiveEquipmentAnimationData = RifleEquipmentAnimationData;
-    break;
-  case EWeapon::NONE:
-  default:
     ActiveEquipmentMesh = nullptr;
     ActiveEquipmentAnimationData = nullptr;
     SetEquipmentState(EEquipmentState::HOLSTERED);
     return;
   }
 
+  ActiveEquipmentMesh = MappedEquipment[WeaponType].EquipmentMesh;
+  ActiveEquipmentAnimationData = MappedEquipment[WeaponType].AnimationData;
   ActiveEquipmentMesh->SetVisibility(true);
   SetEquipmentState(EEquipmentState::EQUIPPED);
   ActiveEquipmentChanged.Broadcast(ActiveEquipmentAnimationData);
@@ -80,6 +81,7 @@ void UEquipmentManagerComponent::ResetActiveEquipment()
   {
     ActiveEquipmentMesh->SetVisibility(false);
   }
+  ActiveWeapon = EWeapon::NONE;
   ActiveEquipmentMesh = nullptr;
   ActiveEquipmentAnimationData = nullptr;
 }

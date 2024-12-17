@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "MuseCharacterMovementComponent.h"
 #include "MoveMode/MuseMoveModes.h"
+#include "LockOnComponent.h"
+#include "Equipment/EquipmentManagerComponent.h"
 
 UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility, FName TaskInstanceName, UMeleeAttackDataAsset* InMeleeAttackData)
 {
@@ -20,8 +22,14 @@ UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMon
   ACharacter* AvatarCharacter = Cast<ACharacter>(PlayMeleeMontageTask->GetAvatarActor());
   UMuseCharacterMovementComponent* AvatarMovementComponent = AvatarCharacter != nullptr ?
     AvatarCharacter->FindComponentByClass<UMuseCharacterMovementComponent>() : nullptr;
+  UEquipmentManagerComponent* AvatarEquipmentManagerComponent = AvatarCharacter != nullptr ?
+    AvatarCharacter->FindComponentByClass<UEquipmentManagerComponent>() : nullptr;
+  ULockOnComponent* AvatarLockOnComponent = AvatarCharacter != nullptr ?
+    AvatarCharacter->FindComponentByClass<ULockOnComponent>() : nullptr;
   PlayMeleeMontageTask->AvatarCharacter = AvatarCharacter;
   PlayMeleeMontageTask->AvatarMovementComponent = AvatarMovementComponent;
+  PlayMeleeMontageTask->AvatarEquipmentManagerComponent = AvatarEquipmentManagerComponent;
+  PlayMeleeMontageTask->AvatarLockOnComponent = AvatarLockOnComponent;
   return PlayMeleeMontageTask;
 }
 
@@ -34,6 +42,8 @@ void UAbilityTask_PlayMeleeMontage::PlayMeleeMontage()
 {
   //AvatarMovementComponent->EnterMoveMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
   UAnimMontage* MeleeMontage = MeleeAttackData->GetMontage();
+  AvatarEquipmentManagerComponent->SetActiveEquipment(EWeapon::SWORD);
+  AvatarLockOnComponent->EnterLockOnForDuration(4.25f);
   if (AbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
   {
     MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);

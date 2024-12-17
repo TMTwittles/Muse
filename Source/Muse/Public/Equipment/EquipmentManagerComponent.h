@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "EquipmentAnimationDataAsset.h"
+#include "EquipmentDataAsset.h"
 #include "EquipmentManagerComponent.generated.h"
 
 UENUM(BlueprintType)
@@ -21,6 +21,14 @@ enum class EEquipmentState : uint8
   EQUIPPED UMETA(DisplayName = "Equipped")
 };
 
+USTRUCT(BlueprintType)
+struct FEquipment
+{
+  GENERATED_USTRUCT_BODY()
+  UStaticMeshComponent* EquipmentMesh;
+  UEquipmentAnimationDataAsset* AnimationData;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MUSE_API UEquipmentManagerComponent : public UActorComponent
 {
@@ -36,17 +44,8 @@ public:
   FEquipmentStateChanged EquipmentStateChanged;
 
 private:
-  UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="True"))
-  TObjectPtr<UStaticMeshComponent> SwordStaticMesh;
-
-  UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess="True"))
-  TObjectPtr<UEquipmentAnimationDataAsset> SwordEquipmentAnimationData;
-
-  UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "True"))
-  TObjectPtr<UStaticMeshComponent> RifleStaticMesh;
-
-  UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "True"))
-  TObjectPtr<UEquipmentAnimationDataAsset> RifleEquipmentAnimationData;
+  UPROPERTY()
+  TMap<EWeapon, FEquipment> MappedEquipment;
 
   EWeapon ActiveWeapon;
   EEquipmentState ActiveEquipmentState;
@@ -66,6 +65,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+  UFUNCTION(BlueprintCallable)
+  void SetEquipment(const EWeapon WeaponType, const FEquipment& Equipment);
 
   UFUNCTION(BlueprintCallable)
   void SetActiveEquipment(const EWeapon WeaponType);

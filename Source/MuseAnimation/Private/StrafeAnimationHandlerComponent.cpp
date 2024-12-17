@@ -34,7 +34,7 @@ void UStrafeAnimationHandlerComponent::UpdateActiveStrafeDirection()
   UE_LOG(LogMuseAnimation, Log, TEXT("%f"), SignedMovementDirectionDegrees);
   if (InvalidMovementDirection(SignedMovementDirectionDegrees) || ActiveStrafeDirection == EStrafeDirection::NONE)
   {
-    UE_LOG(LogMuseAnimation, Error, TEXT("InvalidMovementDirection"));
+    UE_LOG(LogMuseAnimation, Warning, TEXT("InvalidMovementDirection"));
     return;
   }
   if (StrafeDirectionInRange(ActiveStrafeDirection, SignedMovementDirectionDegrees))
@@ -54,7 +54,7 @@ void UStrafeAnimationHandlerComponent::UpdateActiveStrafeDirection()
     }
   }
 
-  UE_LOG(LogMuseAnimation, Error, TEXT("No movement range for %f"), SignedMovementDirectionDegrees);
+  UE_LOG(LogMuseAnimation, Warning, TEXT("No movement range for %f"), SignedMovementDirectionDegrees);
 }
 
 float UStrafeAnimationHandlerComponent::GetAngleRelativeToActiveStrafeDirection(const float InSignedMovementDirectionDegrees) const
@@ -71,12 +71,12 @@ void UStrafeAnimationHandlerComponent::SetMovementRange(const EStrafeDirection I
 {
   if (MovementRangesMap.Contains(InStrafeDirection))
   {
-    UE_LOG(LogMuseAnimation, Error, TEXT("Movement range for strafe direction %s already exists."), *UEnum::GetValueAsString(InStrafeDirection));
+    UE_LOG(LogMuseAnimation, Warning, TEXT("Movement range for strafe direction %s already exists."), *UEnum::GetValueAsString(InStrafeDirection));
     return;
   }
   if (InClockwiseDirectionDegrees < 0.0f)
   {
-    UE_LOG(LogMuseAnimation, Error, TEXT("Input direction for %s must be clockwise"), *UEnum::GetValueAsString(InStrafeDirection));
+    UE_LOG(LogMuseAnimation, Warning, TEXT("Input direction for %s must be clockwise"), *UEnum::GetValueAsString(InStrafeDirection));
     return;
   }
   MovementRangesMap.Add(InStrafeDirection, BuildStrafeMovementRange(InClockwiseDirectionDegrees, InRangeDegreesLeft, InRangeDegreesRight));
@@ -111,7 +111,7 @@ float UStrafeAnimationHandlerComponent::GetAngleRelativeToStrafeDirection(const 
 {
   if (MovementRangesMap.Contains(InStrafeDirection) == false)
   {
-    UE_LOG(LogMuseAnimation, Error, TEXT("No entry for strafe direction %s exists."), *UEnum::GetValueAsString(InStrafeDirection));
+    UE_LOG(LogMuseAnimation, Warning, TEXT("No entry for strafe direction %s exists."), *UEnum::GetValueAsString(InStrafeDirection));
     return -1.0f;
   }
 
@@ -138,7 +138,7 @@ bool UStrafeAnimationHandlerComponent::StrafeDirectionInRange(const EStrafeDirec
 {
   if (MovementRangesMap.Contains(Direction) == false)
   {
-    UE_LOG(LogMuseAnimation, Error, TEXT("No entry for strafe direction %s exists."), *UEnum::GetValueAsString(Direction));
+    UE_LOG(LogMuseAnimation, Warning, TEXT("No entry for strafe direction %s exists."), *UEnum::GetValueAsString(Direction));
     return false;
   }
 
@@ -152,7 +152,7 @@ bool UStrafeAnimationHandlerComponent::InvalidMovementDirection(const float InMo
 {
   if (InMovementDirectionDegrees > DegreesPositiveLimit || InMovementDirectionDegrees < DegreesNegativeLimit)
   {
-    UE_LOG(LogMuseAnimation, Error, TEXT("Input direction: %f does not fit in limits: %f and %f"), InMovementDirectionDegrees, DegreesPositiveLimit, DegreesNegativeLimit);
+    UE_LOG(LogMuseAnimation, Warning, TEXT("Input direction: %f does not fit in limits: %f and %f"), InMovementDirectionDegrees, DegreesPositiveLimit, DegreesNegativeLimit);
     return true;
   }
   return false;
