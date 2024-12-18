@@ -11,6 +11,8 @@
 class UAbilitySystemComponent;
 class UMuseMovementComponent;
 class UMuseCharacterMovementComponent;
+class ULockOnComponent;
+class UEquipmentManagerComponent;
 class UAnimInstance;
 class ACharacter;
 
@@ -51,6 +53,12 @@ private:
 
   UPROPERTY()
   TObjectPtr<UMuseCharacterMovementComponent> AvatarMovementComponent;
+
+  UPROPERTY()
+  TObjectPtr<UEquipmentManagerComponent> AvatarEquipmentManagerComponent;
+
+  UPROPERTY()
+  TObjectPtr<ULockOnComponent> AvatarLockOnComponent;
 
   UPROPERTY()
   TObjectPtr<UMeleeAttackDataAsset> MeleeAttackData;

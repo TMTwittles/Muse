@@ -17,6 +17,8 @@
 #include "LockOnComponent.h"
 #include "StrafeAnimationHandlerComponent.h"
 #include "PlayerGameplayAbilitiesDataAsset.h"
+#include "Equipment/EquipmentDataAsset.h"
+#include "Equipment/EquipmentManagerComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -55,6 +57,10 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 
   // Strafe animation handler.
   StrafeAnimationHandler = CreateDefaultSubobject<UStrafeAnimationHandlerComponent>("StrafeAnimationHandler");
+
+  // Equipment
+  EquipmentManagerComponent = CreateDefaultSubobject<UEquipmentManagerComponent>(TEXT("EquipmentManager"));
+  ConstructEquipment();
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -96,15 +102,44 @@ void AMuseCharacter::BeginPlay()
   MuseCharacterMovement->ClearMovementModes();
   MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
+  // Bind to lock on.
   LockOn->LockedOn.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
   LockOn->LockedOnCleared.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
+
+  // Configure Equipment
+  ConfigureEquipment();
 
   // Initialize ability system, granting character available abilities.
   InitAbilitySystem();
 }
 
+void AMuseCharacter::ConstructEquipment()
+{
+  Sword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordEquipment"));
+  Sword->SetupAttachment(GetMesh(), FName("Hand_R"));
+
+  Rifle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleEquipment"));
+  Rifle->SetupAttachment(GetMesh(), FName("Hand_R"));
+}
+
+void AMuseCharacter::ConfigureEquipment()
+{
+  Sword->SetVisibility(false);
+  FEquipment SwordEquipment;
+  SwordEquipment.EquipmentMesh = Sword;
+  SwordEquipment.AnimationData = SwordEquipmentData->AnimationData;
+  EquipmentManagerComponent->SetEquipment(EWeapon::SWORD, SwordEquipment);
+
+  Rifle->SetVisibility(false);
+  FEquipment RifleEquipment;
+  RifleEquipment.EquipmentMesh = Rifle;
+  RifleEquipment.AnimationData = RifleEquipmentData->AnimationData;
+  EquipmentManagerComponent->SetEquipment(EWeapon::RIFLE, RifleEquipment);
+}
+
 void AMuseCharacter::FireWeapon()
 {
+  EquipmentManagerComponent->SetActiveEquipment(EWeapon::RIFLE);
   LockOn->EnterLockOnForDuration(1.25f);
 }
 
@@ -221,10 +256,10 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Look);
 
     // LockOn
-    EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &AMuseCharacter::EnterLockOn);
+    //EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &AMuseCharacter::EnterLockOn);
 
     // Fire weapon
-    //EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMuseCharacter::FireWeapon);
+    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMuseCharacter::FireWeapon);
 
     // Ability system inputs.
     BindAbilitySystemInputs(EnhancedInputComponent);
