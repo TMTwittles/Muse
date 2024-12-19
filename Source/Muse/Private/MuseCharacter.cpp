@@ -73,6 +73,8 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+  LockOn->SetCameraSpringArm(CameraBoom);
+
 	// Create ability system component.
   AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("CharacterGameplayAbilities"));
 
@@ -104,7 +106,7 @@ void AMuseCharacter::BeginPlay()
 
   // Bind to lock on.
   LockOn->LockedOn.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
-  LockOn->LockedOnCleared.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
+  LockOn->LockedOnCleared.AddDynamic(this, &AMuseCharacter::OnExitLockOn);
 
   // Configure Equipment
   ConfigureEquipment();
@@ -143,9 +145,9 @@ void AMuseCharacter::FireWeapon()
   LockOn->EnterLockOnForDuration(1.25f);
 }
 
-void AMuseCharacter::EnterLockOn()
+void AMuseCharacter::EnterHardLockOn()
 {
-  LockOn->EnterLockOn();
+  LockOn->EnterHardLockOn();
 }
 
 void AMuseCharacter::OnEnterLockOn()
@@ -155,9 +157,14 @@ void AMuseCharacter::OnEnterLockOn()
   MuseCharacterMovement->OverrideWalkMovementSettings(100.0f, 100.0f);
 }
 
-void AMuseCharacter::ExitLockOn()
+void AMuseCharacter::OnEnterHardLockOn()
 {
-  LockOn->ExitLockOn();
+  InitialRotation = GetControlRotation();
+}
+
+void AMuseCharacter::ExitHardLockOn()
+{
+  LockOn->ExitHardLockOn();
 }
 
 void AMuseCharacter::OnExitLockOn()
@@ -166,6 +173,11 @@ void AMuseCharacter::OnExitLockOn()
   MuseCharacterMovement->bOrientRotationToMovement = true;
   MuseCharacterMovement->bUseControllerDesiredRotation = false;
   MuseCharacterMovement->ClearWalkMovementSettings();
+}
+
+void AMuseCharacter::OnExitHardLockOn()
+{
+  LockOn->ExitHardLockOn();
 }
 
 void AMuseCharacter::InitAbilitySystem()
@@ -256,7 +268,8 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Look);
 
     // LockOn
-    //EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &AMuseCharacter::EnterLockOn);
+    EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &AMuseCharacter::EnterHardLockOn);
+    EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Completed, this, &AMuseCharacter::ExitHardLockOn);
 
     // Fire weapon
     EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMuseCharacter::FireWeapon);
@@ -298,7 +311,7 @@ void AMuseCharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
+	if (Controller != nullptr && !LockOn->HardLockOnActive())
 	{
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);

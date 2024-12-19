@@ -59,6 +59,8 @@ class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterfac
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
   bool bShouldLockOn = false;
 
+  FRotator InitialRotation;
+
   /** Strafe animation handler */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = StrafeAnimation, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UStrafeAnimationHandlerComponent> StrafeAnimationHandler;
@@ -106,7 +108,6 @@ class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterfac
 public:
 	AMuseCharacter(const FObjectInitializer& ObjectInitializer);
 
-
   virtual void Tick(float DeltaTime) override;
   virtual void PossessedBy(AController* NewController) override;
 
@@ -131,10 +132,12 @@ private:
 
   void FireWeapon();
 
-  void EnterLockOn();
+  void EnterHardLockOn();
   void OnEnterLockOn();
-  void ExitLockOn();
+  void OnEnterHardLockOn();
+  void ExitHardLockOn();
   void OnExitLockOn();
+  void OnExitHardLockOn();
 
   void InitAbilitySystem();
   void BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent);
