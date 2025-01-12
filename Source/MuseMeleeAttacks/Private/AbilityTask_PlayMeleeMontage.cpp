@@ -8,6 +8,7 @@
 #include "MoveMode/MuseMoveModes.h"
 #include "LockOnComponent.h"
 #include "Equipment/EquipmentManagerComponent.h"
+#include "MeleeAttackAnimNotifyState.h"
 
 UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility, FName TaskInstanceName, UMeleeAttackDataAsset* InMeleeAttackData)
 {
@@ -33,6 +34,26 @@ UAbilityTask_PlayMeleeMontage* UAbilityTask_PlayMeleeMontage::CreatePlayMeleeMon
   return PlayMeleeMontageTask;
 }
 
+void UAbilityTask_PlayMeleeMontage::SetMeleeAnimationState(const EMeleeAnimationState NewAnimationState)
+{
+  ActiveAnimationState = NewAnimationState;
+
+  if (ActiveAnimationState == EMeleeAnimationState::RECOVERY && bEndTaskOnEnterRecovery)
+  {
+    EndMeleeMontageTask();
+  }
+}
+
+bool UAbilityTask_PlayMeleeMontage::CanEndMeleeMontageTask()
+{
+  return ActiveAnimationState == EMeleeAnimationState::RECOVERY;
+}
+
+void UAbilityTask_PlayMeleeMontage::EndMeleeMontageTaskOnEnterRecovery()
+{
+  bEndTaskOnEnterRecovery = true;
+}
+
 void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
   EndMeleeMontageTask();
@@ -41,13 +62,26 @@ void UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded(UAnimMontage* Montage, b
 void UAbilityTask_PlayMeleeMontage::PlayMeleeMontage()
 {
   //AvatarMovementComponent->EnterMoveMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
+  AvatarCharacter->SetActorRotation(AvatarMovementComponent->GetPendingInputVector().Rotation());
   UAnimMontage* MeleeMontage = MeleeAttackData->GetMontage();
+  TArray<FAnimNotifyEvent> Notifies = MeleeMontage->Notifies;
+  for (FAnimNotifyEvent NotifyEvent : Notifies)
+  {
+    AnimationStateNotifyEvents.Add(static_cast<UAnimNotifyState_MeleeAttackPhase*>(NotifyEvent.NotifyStateClass));
+  }
+  for (UAnimNotifyState_MeleeAttackPhase* MeleeAttackAnimNotifyState : AnimationStateNotifyEvents)
+  {
+    MeleeAttackAnimNotifyState->BindAbilityTask(this);
+  }
+
   AvatarEquipmentManagerComponent->SetActiveEquipment(EWeapon::SWORD);
-  AvatarLockOnComponent->EnterLockOnForDuration(4.25f);
+  //AvatarLockOnComponent->EnterLockOnForDuration(4.25f);
   if (AbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MeleeMontage, 1.0f, FName(TEXT("")), 0.0f) > 0.f)
   {
-    MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
-    AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MeleeMontage);
+    MontageBlendingOutStartedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
+    //MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
+    AnimInstance->Montage_SetBlendingOutDelegate(MontageBlendingOutStartedDelegate, MeleeMontage);
+    //AnimInstance->Montage_Set(MontageBlendingOutStartedDelegate, MeleeMontage);
   }
 }
 
@@ -136,7 +170,7 @@ void UAbilityTask_PlayMeleeMontage::Activate()
     EndTask();
     return;
   }
-
+  bEndTaskOnEnterRecovery = false;
   MontageEndedDelegate.BindUObject(this, &UAbilityTask_PlayMeleeMontage::OnMeleeMontageEnded);
   PlayMeleeMontage();
 }

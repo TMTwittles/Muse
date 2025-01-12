@@ -8,6 +8,20 @@ void UMeleeGameplayAbility::InputPressed(
   const FGameplayAbilityActivationInfo ActivationInfo)
 {
   bPlayerTriggeredNextMeleeMontageTask = true;
+
+  if (!PlayMeleeMontageTasks[ActiveMeleeMontageTaskIndex])
+  {
+    return;
+  }
+
+  if (PlayMeleeMontageTasks[ActiveMeleeMontageTaskIndex]->CanEndMeleeMontageTask())
+  {
+    PlayMeleeMontageTasks[ActiveMeleeMontageTaskIndex]->EndMeleeMontageTask();
+  }
+  else
+  {
+    PlayMeleeMontageTasks[ActiveMeleeMontageTaskIndex]->EndMeleeMontageTaskOnEnterRecovery();
+  }
 }
 
 void UMeleeGameplayAbility::ActivateAbility(

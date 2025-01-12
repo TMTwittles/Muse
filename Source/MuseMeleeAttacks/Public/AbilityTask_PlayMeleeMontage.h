@@ -6,6 +6,7 @@
 #include "Abilities/Tasks/AbilityTask.h"
 #include "MeleeAttackDataAsset.h"
 #include "Animation/AnimMontage.h"
+#include "MeleeAnimationState.h"
 #include "AbilityTask_PlayMeleeMontage.generated.h"
 
 class UAbilitySystemComponent;
@@ -15,6 +16,7 @@ class ULockOnComponent;
 class UEquipmentManagerComponent;
 class UAnimInstance;
 class ACharacter;
+class UAnimNotifyState_MeleeAttackPhase;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMeleeMontageDelegate);
 
@@ -41,15 +43,23 @@ public:
   static UAbilityTask_PlayMeleeMontage* CreatePlayMeleeMontageProxy(UGameplayAbility* OwningAbility,
     FName TaskInstanceName, UMeleeAttackDataAsset* InMeleeAttackData);
 
+  void SetMeleeAnimationState(const EMeleeAnimationState NewAnimationState);
+  bool CanEndMeleeMontageTask();
+  void EndMeleeMontageTaskOnEnterRecovery();
+  void EndMeleeMontageTask();
+
 private:
   void PlayMeleeMontage();
-  void EndMeleeMontageTask();
   void OnMeleeMontageEnded(UAnimMontage* Montage, bool bInterrupted);
   bool TrySetAvatarCharacterRootMotionScale(const float InRootMotionScale);
 
 private:
+  bool bEndTaskOnEnterRecovery;
+  EMeleeAnimationState ActiveAnimationState;
   FOnMontageEnded MontageEndedDelegate;
+  FOnMontageBlendingOutStarted MontageBlendingOutStartedDelegate;
   float InitialRootMotionTranslationScale;
+  TArray<UAnimNotifyState_MeleeAttackPhase*> AnimationStateNotifyEvents;
 
   UPROPERTY()
   TObjectPtr<UMuseCharacterMovementComponent> AvatarMovementComponent;

@@ -118,10 +118,10 @@ void AMuseCharacter::BeginPlay()
 void AMuseCharacter::ConstructEquipment()
 {
   Sword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordEquipment"));
-  Sword->SetupAttachment(GetMesh(), FName("Hand_R"));
+  Sword->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
 
   Rifle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleEquipment"));
-  Rifle->SetupAttachment(GetMesh(), FName("Hand_R"));
+  Rifle->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
 }
 
 void AMuseCharacter::ConfigureEquipment()
