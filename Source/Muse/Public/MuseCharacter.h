@@ -5,30 +5,29 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
-#include "AbilitySystemInterface.h"
 #include "MuseCharacter.generated.h"
 
 class UEquipmentManagerComponent;
 class UEquipmentDataAsset;
 
 class UMuseCharacterMovementComponent;
+
 class UStrafeAnimationHandlerComponent;
-class ULockOnComponent;
 
 class USpringArmComponent;
 class UCameraComponent;
-
-class UAbilitySystemComponent;
-class UPlayerGameplayAbilitiesDataAsset;
 
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 
+class UMeleeAttackComponent;
+class UMeleeComboDataAsset;
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterface
+class MUSE_API AMuseCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -40,26 +39,11 @@ class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterfac
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UStaticMeshComponent> Sword;
 
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UStaticMeshComponent> Rifle;
-
-  UPROPERTY(EditAnywhere, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  UEquipmentDataAsset* SwordEquipmentData;
-
-  UPROPERTY(EditAnywhere, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  UEquipmentDataAsset* RifleEquipmentData;
+  UPROPERTY(VisibleAnywhere, Category = Equipment, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
 
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
-
-  /** Muse lock on component */
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<ULockOnComponent> LockOn;
-
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = LockOn, meta = (AllowPrivateAccess = "true"))
-  bool bShouldLockOn = false;
-
-  FRotator InitialRotation;
 
   /** Strafe animation handler */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = StrafeAnimation, meta = (AllowPrivateAccess = "true"))
@@ -73,21 +57,16 @@ class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterfac
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> FollowCamera;
 
-  /** Character GAS component */
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AbilitySystem, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UAbilitySystemComponent> AbilitySystem;
+  /** Melee */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Melee, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UMeleeAttackComponent> MeleeAttack;
 
-  //** Player abilities */
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AbilitySystem, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UPlayerGameplayAbilitiesDataAsset> PlayerAbilities;
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Melee, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UMeleeComboDataAsset> MeleeComboData;
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
-
-  /** Fire Input Action */
-  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UInputAction> FireAction;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -101,9 +80,8 @@ class MUSE_API AMuseCharacter : public ACharacter, public IAbilitySystemInterfac
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> LookAction;
 
-  /** Lock On Input Action */
   UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UInputAction> LockOnAction;
+  TObjectPtr<UInputAction> MeleeAction;
 
 public:
 	AMuseCharacter(const FObjectInitializer& ObjectInitializer);
@@ -118,38 +96,21 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
 private:
+  /** Equipment */
   void ConstructEquipment();
   void ConfigureEquipment();
 
-  void FireWeapon();
-
-  void EnterHardLockOn();
-  void OnEnterLockOn();
-  void OnEnterHardLockOn();
-  void ExitHardLockOn();
-  void OnExitLockOn();
-  void OnExitHardLockOn();
-
-  void InitAbilitySystem();
-  void BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent);
-  void AbilityInputPressed(int32 InputId);
-  void AbilityInputReleased(int32 InputId);
+  /** Called for melee input */
+  void Melee();
 
 public:
-  virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-public:
-  /** Returns LockOn subobject **/
-  FORCEINLINE class ULockOnComponent* GetLockOn() const { return LockOn; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/

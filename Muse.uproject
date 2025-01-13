@@ -14,26 +14,7 @@
       ]
     },
     {
-      "Name": "MuseGAS",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "GameplayAbilities"
-      ]
-    },
-    {
-      "Name": "MuseMeleeAttacks",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "CoreUObject",
-        "GameplayAbilities"
-      ]
-    },
-    {
-      "Name": "MuseMovement",
+      "Name": "MuseMelee",
       "Type": "Runtime",
       "LoadingPhase": "Default",
       "AdditionalDependencies": [
@@ -52,25 +33,7 @@
       ]
     },
     {
-      "Name": "MuseLockOn",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "CoreUObject"
-      ]
-    },
-    {
       "Name": "MuseAnimation",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "CoreUObject"
-      ]
-    },
-    {
-      "Name": "MuseRangeCombat",
       "Type": "Runtime",
       "LoadingPhase": "Default",
       "AdditionalDependencies": [

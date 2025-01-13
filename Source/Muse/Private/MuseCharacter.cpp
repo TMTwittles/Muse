@@ -9,16 +9,13 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-#include "AbilitySystemComponent.h"
-#include "GameplayAbilityInputInfo.h"
 #include "MuseCharacterMovementComponent.h"
 #include "MoveMode/MuseMoveModes.h"
 #include "MoveMode/MuseMove_DefaultLocomotion.h"
-#include "LockOnComponent.h"
 #include "StrafeAnimationHandlerComponent.h"
-#include "PlayerGameplayAbilitiesDataAsset.h"
 #include "Equipment/EquipmentDataAsset.h"
 #include "Equipment/EquipmentManagerComponent.h"
+#include "MeleeAttackComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,14 +49,11 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-  // Create a lock on component.
-  LockOn = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComponent"));
-
   // Strafe animation handler.
   StrafeAnimationHandler = CreateDefaultSubobject<UStrafeAnimationHandlerComponent>("StrafeAnimationHandler");
 
   // Equipment
-  EquipmentManagerComponent = CreateDefaultSubobject<UEquipmentManagerComponent>(TEXT("EquipmentManager"));
+  EquipmentManager = CreateDefaultSubobject<UEquipmentManagerComponent>(TEXT("EquipmentManager"));
   ConstructEquipment();
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
@@ -73,10 +67,8 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-  LockOn->SetCameraSpringArm(CameraBoom);
-
-	// Create ability system component.
-  AbilitySystem = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("CharacterGameplayAbilities"));
+  // Melee
+  MeleeAttack = CreateDefaultSubobject<UMeleeAttackComponent>(TEXT("MeleeAttack"));
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -90,9 +82,6 @@ void AMuseCharacter::Tick(float DeltaTime)
 void AMuseCharacter::PossessedBy(AController* NewController)
 {
   Super::PossessedBy(NewController);
-
-  // Notify server actor has changed. 
-  AbilitySystem->RefreshAbilityActorInfo();
 }
 
 void AMuseCharacter::BeginPlay()
@@ -104,24 +93,14 @@ void AMuseCharacter::BeginPlay()
   MuseCharacterMovement->ClearMovementModes();
   MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
-  // Bind to lock on.
-  LockOn->LockedOn.AddDynamic(this, &AMuseCharacter::OnEnterLockOn);
-  LockOn->LockedOnCleared.AddDynamic(this, &AMuseCharacter::OnExitLockOn);
-
   // Configure Equipment
   ConfigureEquipment();
-
-  // Initialize ability system, granting character available abilities.
-  InitAbilitySystem();
 }
 
 void AMuseCharacter::ConstructEquipment()
 {
   Sword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordEquipment"));
   Sword->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
-
-  Rifle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleEquipment"));
-  Rifle->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
 }
 
 void AMuseCharacter::ConfigureEquipment()
@@ -130,114 +109,13 @@ void AMuseCharacter::ConfigureEquipment()
   FEquipment SwordEquipment;
   SwordEquipment.EquipmentMesh = Sword;
   SwordEquipment.AnimationData = SwordEquipmentData->AnimationData;
-  EquipmentManagerComponent->SetEquipment(EWeapon::SWORD, SwordEquipment);
-
-  Rifle->SetVisibility(false);
-  FEquipment RifleEquipment;
-  RifleEquipment.EquipmentMesh = Rifle;
-  RifleEquipment.AnimationData = RifleEquipmentData->AnimationData;
-  EquipmentManagerComponent->SetEquipment(EWeapon::RIFLE, RifleEquipment);
+  EquipmentManager->SetEquipment(EWeapon::SWORD, SwordEquipment);
 }
 
-void AMuseCharacter::FireWeapon()
+void AMuseCharacter::Melee()
 {
-  EquipmentManagerComponent->SetActiveEquipment(EWeapon::RIFLE);
-  LockOn->EnterLockOnForDuration(1.25f);
-}
-
-void AMuseCharacter::EnterHardLockOn()
-{
-  LockOn->EnterHardLockOn();
-}
-
-void AMuseCharacter::OnEnterLockOn()
-{
-  MuseCharacterMovement->bOrientRotationToMovement = false;
-  MuseCharacterMovement->bUseControllerDesiredRotation = true;
-  MuseCharacterMovement->OverrideWalkMovementSettings(100.0f, 100.0f);
-}
-
-void AMuseCharacter::OnEnterHardLockOn()
-{
-  InitialRotation = GetControlRotation();
-}
-
-void AMuseCharacter::ExitHardLockOn()
-{
-  LockOn->ExitHardLockOn();
-}
-
-void AMuseCharacter::OnExitLockOn()
-{
-  MuseCharacterMovement->ExitCustomMoveMode();
-  MuseCharacterMovement->bOrientRotationToMovement = true;
-  MuseCharacterMovement->bUseControllerDesiredRotation = false;
-  MuseCharacterMovement->ClearWalkMovementSettings();
-}
-
-void AMuseCharacter::OnExitHardLockOn()
-{
-  LockOn->ExitHardLockOn();
-}
-
-void AMuseCharacter::InitAbilitySystem()
-{
-  check(AbilitySystem);
-  check(PlayerAbilities);
-
-  const auto& InputAbilities = PlayerAbilities->GetInputAbilities();
-  for (const auto& InputAbility : InputAbilities)
-  {
-    check(InputAbility.IsValid() == true);
-
-    // Only give abilities on the server.
-    if (HasAuthority())
-    {
-      constexpr int32 AbilityLevel = 1;
-      const int32 InputId = InputAbility.InputId;
-      const FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(InputAbility.GameplayAbilityClass, AbilityLevel, InputId);
-      AbilitySystem->GiveAbility(AbilitySpec);
-    }
-  }
-
-  // Actor responsible/owns the ability system.
-  AActor* OwningActor = this;
-  // Actor through which the ability system acts, uses abilities etc.
-  AActor* Avatar = this;
-  // Tell ability system of owner and avatar.
-  AbilitySystem->InitAbilityActorInfo(OwningActor, Avatar);
-}
-
-void AMuseCharacter::BindAbilitySystemInputs(UEnhancedInputComponent* EnhancedInputComponent)
-{
-  check(AbilitySystem != nullptr);
-  check(PlayerAbilities != nullptr);
-  const auto& InputAbilities = PlayerAbilities->GetInputAbilities();
-  for (const auto& InputAbility : InputAbilities)
-  {
-    check(InputAbility.IsValid() == true);
-    const UInputAction* InputAction = InputAbility.InputAction;
-    const int32 InputId = InputAbility.InputId;
-    EnhancedInputComponent->BindAction(InputAction, ETriggerEvent::Started, this, &AMuseCharacter::AbilityInputPressed, InputId);
-    EnhancedInputComponent->BindAction(InputAction, ETriggerEvent::Completed, this, &AMuseCharacter::AbilityInputReleased, InputId);
-  }
-}
-
-void AMuseCharacter::AbilityInputPressed(int32 InputId)
-{
-  check(AbilitySystem);
-  AbilitySystem->AbilityLocalInputPressed(InputId);
-}
-
-void AMuseCharacter::AbilityInputReleased(int32 InputId)
-{
-  check(AbilitySystem);
-  AbilitySystem->AbilityLocalInputReleased(InputId);
-}
-
-UAbilitySystemComponent* AMuseCharacter::GetAbilitySystemComponent() const
-{
-  return AbilitySystem;
+  EquipmentManager->SetActiveEquipment(EWeapon::SWORD);
+  MeleeAttack->TryTriggerAttack();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -267,15 +145,8 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Look);
 
-    // LockOn
-    EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &AMuseCharacter::EnterHardLockOn);
-    EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Completed, this, &AMuseCharacter::ExitHardLockOn);
-
-    // Fire weapon
-    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMuseCharacter::FireWeapon);
-
-    // Ability system inputs.
-    BindAbilitySystemInputs(EnhancedInputComponent);
+    // Melee
+    EnhancedInputComponent->BindAction(MeleeAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Melee);
 	}
 	else
 	{
@@ -311,7 +182,7 @@ void AMuseCharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr && !LockOn->HardLockOnActive())
+	if (Controller != nullptr)
 	{
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
