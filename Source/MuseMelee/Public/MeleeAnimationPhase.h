@@ -4,9 +4,10 @@
 #include "CoreMinimal.h"
 
 UENUM(BlueprintType)
-enum class EMeleeAnimationState : uint8
+enum class EMeleeAnimationPhase : uint8
 {
   SETUP = 0 UMETA(DisplayName = "Setup"),
   ATTACK = 1 UMETA(DisplayName = "Attack"),
-  RECOVERY = 2 UMETA(DisplayName = "Recovery")
+  RECOVERY = 2 UMETA(DisplayName = "Recovery"),
+  NONE = 3 UMETA(DisplayName = "None")
 };

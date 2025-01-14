@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "MeleeAttackComponent.h"
+#include "AnimNotifyState_MeleeAttackPhase.h"
+#include "MeleeAnimationPhase.h"
+
+DEFINE_LOG_CATEGORY(LogMeleeAttackComponent)
 
 // Sets default values for this component's properties
 UMeleeAttackComponent::UMeleeAttackComponent()
@@ -32,14 +34,62 @@ void UMeleeAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 bool UMeleeAttackComponent::TryTriggerAttack()
 {
-  bool bAttackTriggered = true;
-  CurrAnimMontage = MeleeComboData->GetMeleeAttack(0)->GetMontage();
-  AnimInstance->Montage_Play(CurrAnimMontage);
+  bool bAttackTriggered = false;
   return bAttackTriggered;
 }
 
-void UMeleeAttackComponent::SetMeleeComboData(UMeleeComboDataAsset* InMeleeComboData)
+void UMeleeAttackComponent::ConfigureContainer(FMeleeAttackContainer& InContainer, const uint32 MeleeAttackIndex)
 {
-  MeleeComboData = InMeleeComboData;
+  InContainer.AnimMontage = MeleeComboData->GetMeleeAttack(MeleeAttackIndex)->GetMontage();
+  if (!InContainer.AnimMontage)
+  {
+    UE_LOG(LogMeleeAttackComponent, Error, TEXT("Melee montage in melee combo is not configured %s."), *MeleeComboData.GetName());
+    return;
+  }
+
+  // Reset melee attack phases for new anim montage.
+  InContainer.MeleeAttackAnimPhases.SetNum(3);
+  InContainer.MeleeAttackAnimPhases[(uint8)EMeleeAnimationPhase::SETUP] = nullptr;
+  InContainer.MeleeAttackAnimPhases[(uint8)EMeleeAnimationPhase::ATTACK] = nullptr;
+  InContainer.MeleeAttackAnimPhases[(uint8)EMeleeAnimationPhase::RECOVERY] = nullptr;
+
+  for (FAnimNotifyEvent AnimNotifyEvent : InContainer.AnimMontage->Notifies)
+  {
+    UAnimNotifyState_MeleeAttackPhase* MeleeAttackPhaseNotify = Cast<UAnimNotifyState_MeleeAttackPhase>(AnimNotifyEvent.NotifyStateClass);
+    if (MeleeAttackPhaseNotify)
+    {
+      uint8 MeleeAttackPhaseNotifyIndex = (uint8)MeleeAttackPhaseNotify->GetMeleeAnimPhase();
+      InContainer.MeleeAttackAnimPhases[MeleeAttackPhaseNotifyIndex] = MeleeAttackPhaseNotify;
+      // Ensure order is maintained, setup must appear before attack etc.
+      check(MeleeAttackPhaseNotifyIndex == 0 || InContainer.MeleeAttackAnimPhases[MeleeAttackPhaseNotifyIndex - 1] != nullptr);
+    }
+  }
 }
+
+void UMeleeAttackComponent::MeleeMontageFinished(UAnimMontage* Montage, bool bInterrupted)
+{
+  if (Montage == CurrMeleeContainer.AnimMontage)
+  {
+    CurrMeleeContainer.Clear();
+  }
+}
+
+EMeleeAnimationPhase UMeleeAttackComponent::GetActiveMeleeAnimationPhase()
+{
+  if (!MeleeAnimationPlaying())
+  {
+    return EMeleeAnimationPhase::NONE;
+  }
+
+  for (UAnimNotifyState_MeleeAttackPhase* MeleeAttackAnimNotify : CurrMeleeContainer.MeleeAttackAnimPhases)
+  {
+    if (MeleeAttackAnimNotify->IsActivePhase())
+    {
+      return MeleeAttackAnimNotify->GetMeleeAnimPhase();
+    }
+  }
+  UE_LOG(LogMeleeAttackComponent, Error, TEXT("Unable to retun an active melee animation phase, ensure montage has been configured correctly."));
+  return EMeleeAnimationPhase::NONE;
+}
+
 

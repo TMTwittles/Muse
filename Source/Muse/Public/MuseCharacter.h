@@ -43,7 +43,7 @@ class MUSE_API AMuseCharacter : public ACharacter
   TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
 
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
+  TObjectPtr<UEquipmentManagerComponent> EquipmentManager;
 
   /** Strafe animation handler */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = StrafeAnimation, meta = (AllowPrivateAccess = "true"))
@@ -60,9 +60,6 @@ class MUSE_API AMuseCharacter : public ACharacter
   /** Melee */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Melee, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UMeleeAttackComponent> MeleeAttack;
-
-  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Melee, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UMeleeComboDataAsset> MeleeComboData;
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

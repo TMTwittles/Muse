@@ -4,24 +4,29 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "MeleeAnimationState.h"
+#include "MeleeAnimationPhase.h"
 #include "AnimNotifyState_MeleeAttackPhase.generated.h"
-
-class UAbilityTask_PlayMeleeMontage;
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class MUSEMELEE_API UMeleeAttackAnimNotifyState : public UAnimNotifyState
+class MUSEMELEE_API UAnimNotifyState_MeleeAttackPhase : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
-public:
-  UPROPERTY(EditAnywhere)
-  uint8 MeleeAttackPhaseID;
-
-  virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
 private:
-  void SetMeleeAttackPhase(EMeleeAnimationState InMeleeAttackPhase);
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+  EMeleeAnimationPhase ENotifyMeleeAnimationPhase;
+  bool bPropertyActive = false;
+
+public:
+  virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
+  virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+
+  UFUNCTION(BlueprintPure)
+  inline EMeleeAnimationPhase GetMeleeAnimPhase() { return ENotifyMeleeAnimationPhase; }
+
+  UFUNCTION(BlueprintPure)
+  inline bool IsActivePhase() { return bPropertyActive; }
 };
