@@ -3,6 +3,7 @@
 
 void UAnimNotifyState_MeleeAttackPhase::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
+  MeleeAttackPhaseStarted.Broadcast(ENotifyMeleeAnimationPhase);
   bPropertyActive = true;
 }
 

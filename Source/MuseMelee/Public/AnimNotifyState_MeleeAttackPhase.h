@@ -7,6 +7,8 @@
 #include "MeleeAnimationPhase.h"
 #include "AnimNotifyState_MeleeAttackPhase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMeleeAttackPhaseStarted, EMeleeAnimationPhase, AnimationPhaseStarted);
+
 /**
  * 
  */
@@ -23,6 +25,9 @@ private:
 public:
   virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
   virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+
+  UPROPERTY()
+  FMeleeAttackPhaseStarted MeleeAttackPhaseStarted;
 
   UFUNCTION(BlueprintPure)
   inline EMeleeAnimationPhase GetMeleeAnimPhase() { return ENotifyMeleeAnimationPhase; }

@@ -7,23 +7,34 @@
 #include "MeleeComboDataAsset.h"
 #include "MeleeAttackComponent.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogMeleeAttackComponent, Log, All);
-
 class UAnimNotifyState_MeleeAttackPhase;
 enum class EMeleeAnimationPhase : uint8;
+
+DECLARE_LOG_CATEGORY_EXTERN(LogMeleeAttackComponent, Log, All);
 
 USTRUCT()
 struct FMeleeAttackContainer
 {
   GENERATED_USTRUCT_BODY()
 
+  uint32 ComboID;
   UAnimMontage* AnimMontage;
   TArray<UAnimNotifyState_MeleeAttackPhase*> MeleeAttackAnimPhases;
 
   void Clear()
   {
+    ComboID = 0;
     AnimMontage = nullptr;
     MeleeAttackAnimPhases.Empty();
+  }
+
+  bool IsValid()
+  {
+    return AnimMontage != nullptr
+      && MeleeAttackAnimPhases.Num() == 3
+      && MeleeAttackAnimPhases[0] != nullptr
+      && MeleeAttackAnimPhases[1] != nullptr
+      && MeleeAttackAnimPhases[2] != nullptr;
   }
 };
 
@@ -50,8 +61,12 @@ public:
   bool TryTriggerAttack();
 
 private:
-  void ConfigureContainer(FMeleeAttackContainer& InContainer, const uint32 MeleeAttackIndex);
+  void ConfigureContainer();
+  UFUNCTION()
   void MeleeMontageFinished(UAnimMontage* Montage, bool bInterrupted);
+  UFUNCTION()
+  void MeleeAnimationPhaseStarted(EMeleeAnimationPhase InPhase);
+  void PlayActiveAnimation();
   EMeleeAnimationPhase GetActiveMeleeAnimationPhase();
   inline bool MeleeAnimationPlaying() { return CurrMeleeContainer.AnimMontage != nullptr; }
 
