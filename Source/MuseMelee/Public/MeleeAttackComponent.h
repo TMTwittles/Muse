@@ -21,13 +21,6 @@ struct FMeleeAttackContainer
   UAnimMontage* AnimMontage;
   TArray<UAnimNotifyState_MeleeAttackPhase*> MeleeAttackAnimPhases;
 
-  void Clear()
-  {
-    ComboID = 0;
-    AnimMontage = nullptr;
-    MeleeAttackAnimPhases.Empty();
-  }
-
   bool IsValid()
   {
     return AnimMontage != nullptr
@@ -59,6 +52,11 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
   bool TryTriggerAttack();
+  UFUNCTION()
+  EMeleeAnimationPhase GetActiveMeleeAnimationPhase();
+  UFUNCTION()
+  inline bool MeleeAnimationPlaying() { return CurrMeleeContainer.AnimMontage != nullptr; }
+  bool TryCancelMeleeAnimation();
 
 private:
   void ConfigureContainer();
@@ -67,8 +65,7 @@ private:
   UFUNCTION()
   void MeleeAnimationPhaseStarted(EMeleeAnimationPhase InPhase);
   void PlayActiveAnimation();
-  EMeleeAnimationPhase GetActiveMeleeAnimationPhase();
-  inline bool MeleeAnimationPlaying() { return CurrMeleeContainer.AnimMontage != nullptr; }
+  void ClearMeleeContainer();
 
 private:
   UAnimInstance* AnimInstance;

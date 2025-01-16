@@ -38,6 +38,7 @@ bool UMeleeAttackComponent::TryTriggerAttack()
 
   if (!MeleeAnimationPlaying())
   {
+    UE_LOG(LogMeleeAttackComponent, Log, TEXT("Calling"));
     ConfigureContainer();
     PlayActiveAnimation();
     return true;
@@ -62,12 +63,12 @@ bool UMeleeAttackComponent::TryTriggerAttack()
 
 void UMeleeAttackComponent::ConfigureContainer()
 {
-  int32 NewComboID = 0;
+  int32 NewComboID = CurrMeleeContainer.ComboID;
   if (CurrMeleeContainer.AnimMontage != nullptr)
   {
-    NewComboID = CurrMeleeContainer.ComboID == MeleeComboData->GetNumComboAttacks() - 1 ? 0 : NewComboID++;
+    NewComboID = CurrMeleeContainer.ComboID == MeleeComboData->GetNumComboAttacks() - 1 ? 0 : ++NewComboID;
   }
-  CurrMeleeContainer.Clear();
+  ClearMeleeContainer();
   CurrMeleeContainer.ComboID = NewComboID;
   CurrMeleeContainer.AnimMontage = MeleeComboData->GetMeleeAttack(NewComboID)->GetMontage();
   if (!CurrMeleeContainer.AnimMontage)
@@ -112,7 +113,8 @@ void UMeleeAttackComponent::MeleeMontageFinished(UAnimMontage* Montage, bool bIn
 {
   if (Montage == CurrMeleeContainer.AnimMontage)
   {
-    CurrMeleeContainer.Clear();
+    UE_LOG(LogMeleeAttackComponent, Log, TEXT("Clearing container"));
+    ClearMeleeContainer();
     AnimInstance->OnMontageEnded.RemoveDynamic(this, &UMeleeAttackComponent::MeleeMontageFinished);
   }
 }
@@ -138,6 +140,22 @@ void UMeleeAttackComponent::PlayActiveAnimation()
   }
 }
 
+void UMeleeAttackComponent::ClearMeleeContainer()
+{
+  CurrMeleeContainer.ComboID = 0;
+  CurrMeleeContainer.AnimMontage = nullptr;
+
+  for (UAnimNotifyState_MeleeAttackPhase* MeleeAttackNotify : CurrMeleeContainer.MeleeAttackAnimPhases)
+  {
+    if (MeleeAttackNotify)
+    {
+      MeleeAttackNotify->MeleeAttackPhaseStarted.RemoveAll(this);
+      MeleeAttackNotify = nullptr;
+    }
+  }
+  CurrMeleeContainer.MeleeAttackAnimPhases.Empty();
+}
+
 EMeleeAnimationPhase UMeleeAttackComponent::GetActiveMeleeAnimationPhase()
 {
   if (!MeleeAnimationPlaying())
@@ -155,5 +173,25 @@ EMeleeAnimationPhase UMeleeAttackComponent::GetActiveMeleeAnimationPhase()
   UE_LOG(LogMeleeAttackComponent, Error, TEXT("Unable to retun an active melee animation phase, ensure montage has been configured correctly."));
   return EMeleeAnimationPhase::NONE;
 }
+
+bool UMeleeAttackComponent::TryCancelMeleeAnimation()
+{
+  if (CurrMeleeContainer.AnimMontage == nullptr)
+  {
+    return true;
+  }
+
+  if (GetActiveMeleeAnimationPhase() == EMeleeAnimationPhase::RECOVERY)
+  {
+    CurrMeleeContainer.AnimMontage->bEnableRootMotionRotation = true;
+    CurrMeleeContainer.AnimMontage->bEnableRootMotionTranslation = true;
+    AnimInstance->Montage_Stop(0.25f, CurrMeleeContainer.AnimMontage);
+    ClearMeleeContainer();
+    return true;
+  }
+
+  return false;
+}
+
 
 
