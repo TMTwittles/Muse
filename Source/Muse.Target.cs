@@ -12,7 +12,6 @@ public class MuseTarget : TargetRules
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
 		ExtraModuleNames.Add("Muse");
     ExtraModuleNames.Add("MuseAnimation");
-    ExtraModuleNames.Add("MuseMelee");
     ExtraModuleNames.Add("MuseAI");
 	}
 }

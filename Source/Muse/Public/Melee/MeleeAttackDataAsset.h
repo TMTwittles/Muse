@@ -11,7 +11,7 @@
  * 
  */
 UCLASS(BlueprintType)
-class MUSEMELEE_API UMeleeAttackDataAsset : public UDataAsset
+class MUSE_API UMeleeAttackDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-#include "MeleeAttackComponent.h"
-#include "AnimNotifyState_MeleeAttackPhase.h"
-#include "MeleeAnimationPhase.h"
+#include "Melee/MeleeAttackComponent.h"
+#include "Melee/AnimNotifyState_MeleeAttackPhase.h"
+#include "Melee/MeleeAnimationPhase.h"
 
 DEFINE_LOG_CATEGORY(LogMeleeAttackComponent)
 
@@ -130,11 +130,9 @@ void UMeleeAttackComponent::MeleeAnimationPhaseStarted(EMeleeAnimationPhase InPh
   PlayActiveAnimation();
 }
 
-void UMeleeAttackComponent::PlayActiveAnimation(FVector MovementInput, bool bInAir)
+void UMeleeAttackComponent::PlayActiveAnimation()
 {
   check(CurrMeleeContainer.AnimMontage);
-
-  if (MovementInput.)
 
   AnimInstance->Montage_Play(CurrMeleeContainer.AnimMontage);
   if (!AnimInstance->OnMontageEnded.IsAlreadyBound(this, &UMeleeAttackComponent::MeleeMontageFinished))

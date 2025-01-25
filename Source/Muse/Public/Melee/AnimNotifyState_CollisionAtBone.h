@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "MeleeHitType.h"
+#include "Melee/MeleeHitType.h"
 #include "AnimNotifyState_CollisionAtBone.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(AnimNotifyState_CollisionAtBone, Log, All);
@@ -13,7 +13,7 @@ DECLARE_LOG_CATEGORY_EXTERN(AnimNotifyState_CollisionAtBone, Log, All);
  * 
  */
 UCLASS(Blueprintable)
-class MUSEMELEE_API UAnimNotifyState_CollisionAtBone : public UAnimNotifyState
+class MUSE_API UAnimNotifyState_CollisionAtBone : public UAnimNotifyState
 {
 	GENERATED_BODY()
 

@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MeleeComboDataAsset.h"
+#include "Melee/MeleeComboDataAsset.h"
 #include "MeleeAttackComponent.generated.h"
 
 class UAnimNotifyState_MeleeAttackPhase;
@@ -32,7 +31,7 @@ struct FMeleeAttackContainer
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class MUSEMELEE_API UMeleeAttackComponent : public UActorComponent
+class MUSE_API UMeleeAttackComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -64,7 +63,7 @@ private:
   void MeleeMontageFinished(UAnimMontage* Montage, bool bInterrupted);
   UFUNCTION()
   void MeleeAnimationPhaseStarted(EMeleeAnimationPhase InPhase);
-  void PlayActiveAnimation(FVector MovementInput, bool bInAir);
+  void PlayActiveAnimation();
   void ClearMeleeContainer();
 
 private:

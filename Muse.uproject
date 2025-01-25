@@ -14,15 +14,6 @@
       ]
     },
     {
-      "Name": "MuseMelee",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "CoreUObject"
-      ]
-    },
-    {
       "Name": "MuseAI",
       "Type": "Runtime",
       "LoadingPhase": "Default",

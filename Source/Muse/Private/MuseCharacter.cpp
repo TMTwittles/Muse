@@ -15,7 +15,7 @@
 #include "StrafeAnimationHandlerComponent.h"
 #include "Equipment/EquipmentDataAsset.h"
 #include "Equipment/EquipmentManagerComponent.h"
-#include "MeleeAttackComponent.h"
+#include "Melee/MeleeAttackComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -156,7 +156,7 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AMuseCharacter::Move(const FInputActionValue& Value)
 {
-  MeleeAttack->TryCancelMeleeAnimation();
+  //MeleeAttack->TryCancelMeleeAnimation();
 
   // input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();

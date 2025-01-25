@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMeleeAttackPhaseStarted, EMeleeAnim
  * 
  */
 UCLASS(Blueprintable)
-class MUSEMELEE_API UAnimNotifyState_MeleeAttackPhase : public UAnimNotifyState
+class MUSE_API UAnimNotifyState_MeleeAttackPhase : public UAnimNotifyState
 {
 	GENERATED_BODY()
 

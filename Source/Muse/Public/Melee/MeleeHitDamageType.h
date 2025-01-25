@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class MUSEMELEE_API UMeleeHitDamageType : public UDamageType
+class MUSE_API UMeleeHitDamageType : public UDamageType
 {
 	GENERATED_BODY()
 

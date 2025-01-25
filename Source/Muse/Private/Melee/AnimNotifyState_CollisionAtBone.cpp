@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-#include "AnimNotifyState_CollisionAtBone.h"
+#include "Melee/AnimNotifyState_CollisionAtBone.h"
 #include "Kismet/GameplayStatics.h"
-#include "MeleeHitRegisterComponent.h"
+#include "Melee/MeleeHitRegisterComponent.h"
 
 DEFINE_LOG_CATEGORY(AnimNotifyState_CollisionAtBone);
 

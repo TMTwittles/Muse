@@ -3,14 +3,14 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "MeleeHitType.h"
+#include "Melee/MeleeHitType.h"
 #include "MeleeHitReactsDataAsset.generated.h"
 
 /**
  * 
  */
 UCLASS(BlueprintType)
-class MUSEMELEE_API UMeleeHitReactsDataAsset : public UDataAsset
+class MUSE_API UMeleeHitReactsDataAsset : public UDataAsset
 {
   GENERATED_BODY()
 

@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MeleeHitType.h"
-#include "MeleeHitReactsDataAsset.h"
+#include "Melee/MeleeHitType.h"
+#include "Melee/MeleeHitReactsDataAsset.h"
 #include "MeleeHitRegisterComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class MUSEMELEE_API UMeleeHitRegisterComponent : public UActorComponent
+class MUSE_API UMeleeHitRegisterComponent : public UActorComponent
 {
 	GENERATED_BODY()
 

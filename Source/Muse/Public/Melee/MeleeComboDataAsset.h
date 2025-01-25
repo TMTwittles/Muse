@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "MeleeAttackDataAsset.h"
+#include "Melee/MeleeAttackDataAsset.h"
 #include "MeleeComboDataAsset.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class MUSEMELEE_API UMeleeComboDataAsset : public UDataAsset
+class MUSE_API UMeleeComboDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 
