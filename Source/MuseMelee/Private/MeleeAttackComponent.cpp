@@ -32,7 +32,7 @@ void UMeleeAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// ...
 }
 
-bool UMeleeAttackComponent::TryTriggerAttack()
+bool UMeleeAttackComponent::TryTriggerAttack(FVector MovementInput, bool bInAir)
 {
   bool bAttackTriggered = false;
 
@@ -130,9 +130,12 @@ void UMeleeAttackComponent::MeleeAnimationPhaseStarted(EMeleeAnimationPhase InPh
   PlayActiveAnimation();
 }
 
-void UMeleeAttackComponent::PlayActiveAnimation()
+void UMeleeAttackComponent::PlayActiveAnimation(FVector MovementInput, bool bInAir)
 {
   check(CurrMeleeContainer.AnimMontage);
+
+  if (MovementInput.)
+
   AnimInstance->Montage_Play(CurrMeleeContainer.AnimMontage);
   if (!AnimInstance->OnMontageEnded.IsAlreadyBound(this, &UMeleeAttackComponent::MeleeMontageFinished))
   {

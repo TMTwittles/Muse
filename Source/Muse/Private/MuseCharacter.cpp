@@ -115,7 +115,7 @@ void AMuseCharacter::ConfigureEquipment()
 void AMuseCharacter::Melee()
 {
   EquipmentManager->SetActiveEquipment(EWeapon::SWORD);
-  MeleeAttack->TryTriggerAttack();
+  MeleeAttack->TryTriggerAttack(GetPendingMovementInputVector(), !GetMovementComponent()->IsMovingOnGround());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -146,7 +146,7 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Look);
 
     // Melee
-    EnhancedInputComponent->BindAction(MeleeAction, ETriggerEvent::Triggered, this, &AMuseCharacter::Melee);
+    EnhancedInputComponent->BindAction(MeleeAction, ETriggerEvent::Started, this, &AMuseCharacter::Melee);
 	}
 	else
 	{

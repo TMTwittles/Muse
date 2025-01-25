@@ -51,7 +51,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-  bool TryTriggerAttack();
+  bool TryTriggerAttack(FVector MovementInput, bool bInAir);
   UFUNCTION()
   EMeleeAnimationPhase GetActiveMeleeAnimationPhase();
   UFUNCTION()
@@ -64,7 +64,7 @@ private:
   void MeleeMontageFinished(UAnimMontage* Montage, bool bInterrupted);
   UFUNCTION()
   void MeleeAnimationPhaseStarted(EMeleeAnimationPhase InPhase);
-  void PlayActiveAnimation();
+  void PlayActiveAnimation(FVector MovementInput, bool bInAir);
   void ClearMeleeContainer();
 
 private:
