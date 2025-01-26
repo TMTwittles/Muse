@@ -2,6 +2,10 @@
 #include "Melee/MeleeAttackComponent.h"
 #include "Melee/AnimNotifyState_MeleeAttackPhase.h"
 #include "Melee/MeleeAnimationPhase.h"
+#include "Gameplay/RotationComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 
 DEFINE_LOG_CATEGORY(LogMeleeAttackComponent)
 
@@ -20,7 +24,10 @@ UMeleeAttackComponent::UMeleeAttackComponent()
 void UMeleeAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
+  Character = Cast<ACharacter>(GetOwner());
+  PlayerController = Cast<APawn>(GetOwner())->GetController<APlayerController>();
   AnimInstance = GetOwner()->FindComponentByClass<USkeletalMeshComponent>()->GetAnimInstance();
+  RotationComponent = GetOwner()->FindComponentByClass<URotationComponent>();
 }
 
 
@@ -28,11 +35,10 @@ void UMeleeAttackComponent::BeginPlay()
 void UMeleeAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	
 }
 
-bool UMeleeAttackComponent::TryTriggerAttack(FVector MovementInput, bool bInAir)
+bool UMeleeAttackComponent::TryTriggerAttack()
 {
   bool bAttackTriggered = false;
 
@@ -133,8 +139,18 @@ void UMeleeAttackComponent::MeleeAnimationPhaseStarted(EMeleeAnimationPhase InPh
 void UMeleeAttackComponent::PlayActiveAnimation()
 {
   check(CurrMeleeContainer.AnimMontage);
+  const float BlendInTime = 0.2f;
+  FVector InputVector = Character->GetCharacterMovement()->GetLastInputVector();
+  if (InputVector != FVector::Zero())
+  {
+    RotationComponent->SmoothRotateToVector(InputVector, BlendInTime);
+    RotationComponent->RotationComplete.BindUObject(this, &UMeleeAttackComponent::RotateToInputFinished);
+    // Only till rotation is complete do we turn on root translation and rotation.
+    CurrMeleeContainer.AnimMontage->bEnableRootMotionRotation = false;
+    CurrMeleeContainer.AnimMontage->bEnableRootMotionTranslation = false;
+  }
 
-  AnimInstance->Montage_Play(CurrMeleeContainer.AnimMontage);
+  AnimInstance->Montage_PlayWithBlendIn(CurrMeleeContainer.AnimMontage, BlendInTime);
   if (!AnimInstance->OnMontageEnded.IsAlreadyBound(this, &UMeleeAttackComponent::MeleeMontageFinished))
   {
     AnimInstance->OnMontageEnded.AddDynamic(this, &UMeleeAttackComponent::MeleeMontageFinished);
@@ -155,6 +171,14 @@ void UMeleeAttackComponent::ClearMeleeContainer()
     }
   }
   CurrMeleeContainer.MeleeAttackAnimPhases.Empty();
+}
+
+void UMeleeAttackComponent::RotateToInputFinished()
+{
+  check(CurrMeleeContainer.AnimMontage);
+  RotationComponent->RotationComplete.Unbind();
+  CurrMeleeContainer.AnimMontage->bEnableRootMotionRotation = true;
+  CurrMeleeContainer.AnimMontage->bEnableRootMotionTranslation = true;
 }
 
 EMeleeAnimationPhase UMeleeAttackComponent::GetActiveMeleeAnimationPhase()

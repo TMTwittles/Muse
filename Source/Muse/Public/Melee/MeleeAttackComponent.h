@@ -6,6 +6,9 @@
 #include "Melee/MeleeComboDataAsset.h"
 #include "MeleeAttackComponent.generated.h"
 
+class APlayerController;
+class ACharacter;
+class URotationComponent;
 class UAnimNotifyState_MeleeAttackPhase;
 enum class EMeleeAnimationPhase : uint8;
 
@@ -50,7 +53,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-  bool TryTriggerAttack(FVector MovementInput, bool bInAir);
+  bool TryTriggerAttack();
   UFUNCTION()
   EMeleeAnimationPhase GetActiveMeleeAnimationPhase();
   UFUNCTION()
@@ -65,8 +68,12 @@ private:
   void MeleeAnimationPhaseStarted(EMeleeAnimationPhase InPhase);
   void PlayActiveAnimation();
   void ClearMeleeContainer();
-
+  UFUNCTION()
+  void RotateToInputFinished();
 private:
   UAnimInstance* AnimInstance;
+  ACharacter* Character;
+  APlayerController* PlayerController;
+  URotationComponent* RotationComponent;
   FMeleeAttackContainer CurrMeleeContainer;
 };

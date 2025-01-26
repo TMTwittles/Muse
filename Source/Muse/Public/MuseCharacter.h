@@ -13,6 +13,8 @@ class UMuseCharacterMovementComponent;
 
 class UStrafeAnimationHandlerComponent;
 
+class URotationComponent;
+
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -59,6 +61,9 @@ class MUSE_API AMuseCharacter : public ACharacter
   /** Melee */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Melee, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UMeleeAttackComponent> MeleeAttack;
+
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess="true"))
+  TObjectPtr<URotationComponent> RotationComp;
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

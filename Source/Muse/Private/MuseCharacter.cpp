@@ -16,6 +16,7 @@
 #include "Equipment/EquipmentDataAsset.h"
 #include "Equipment/EquipmentManagerComponent.h"
 #include "Melee/MeleeAttackComponent.h"
+#include "Gameplay/RotationComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -70,6 +71,9 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
   // Melee
   MeleeAttack = CreateDefaultSubobject<UMeleeAttackComponent>(TEXT("MeleeAttack"));
 
+  // Gameplay components
+  RotationComp = CreateDefaultSubobject<URotationComponent>(TEXT("Rotation"));
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -115,7 +119,7 @@ void AMuseCharacter::ConfigureEquipment()
 void AMuseCharacter::Melee()
 {
   EquipmentManager->SetActiveEquipment(EWeapon::SWORD);
-  MeleeAttack->TryTriggerAttack(GetPendingMovementInputVector(), !GetMovementComponent()->IsMovingOnGround());
+  MeleeAttack->TryTriggerAttack();
 }
 
 //////////////////////////////////////////////////////////////////////////
