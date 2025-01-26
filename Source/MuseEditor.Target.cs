@@ -11,11 +11,7 @@ public class MuseEditorTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
 		ExtraModuleNames.Add("Muse");
-    ExtraModuleNames.Add("MuseGAS");
-    ExtraModuleNames.Add("MuseMeleeAttacks");
-    ExtraModuleNames.Add("MuseMovement");
     ExtraModuleNames.Add("MuseAI");
-    ExtraModuleNames.Add("MuseLockOn");
-    ExtraModuleNames.Add("MuseRangeCombat");
-	}
+    ExtraModuleNames.Add("MuseAnimation");
+  }
 }
