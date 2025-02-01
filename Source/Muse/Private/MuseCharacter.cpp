@@ -94,8 +94,8 @@ void AMuseCharacter::BeginPlay()
 	Super::BeginPlay();
 
   // Add custom movement modes.
-  MuseCharacterMovement->ClearMovementModes();
-  MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
+  //MuseCharacterMovement->ClearMovementModes();
+  //MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
   // Configure Equipment
   ConfigureEquipment();
