@@ -5,6 +5,7 @@
 #include "MoveMode/MuseMoveModes.h"
 #include "MoveMode/MuseMoveMode.h"
 #include "MoveMode/MuseMoveModeBuilder.h"
+#include "GameFramework/Character.h"
 
 DEFINE_LOG_CATEGORY(LogMuseCharacterMovementComponent);
 
@@ -94,4 +95,32 @@ void UMuseCharacterMovementComponent::ClearWalkMovementSettings()
 
   MaxAcceleration = InitialAcceleration;
   MaxWalkSpeed = InitialMaxSpeed;
+}
+
+void UMuseCharacterMovementComponent::CalculateMovementAngle(const float DeltaTime)
+{
+  FRotator CurrentRotation = UpdatedComponent->GetComponentRotation(); // Normalized
+  CurrentRotation.DiagnosticCheckNaN(TEXT("CharacterMovementComponent::PhysicsRotation(): CurrentRotation"));
+
+  FRotator DeltaRot = GetDeltaRotation(DeltaTime);
+  DeltaRot.DiagnosticCheckNaN(TEXT("CharacterMovementComponent::PhysicsRotation(): GetDeltaRotation"));
+
+  FRotator DesiredRotation = CurrentRotation;
+  if (bOrientRotationToMovement)
+  {
+    DesiredRotation = ComputeOrientToMovementRotation(CurrentRotation, DeltaTime, DeltaRot);
+  }
+  else if (CharacterOwner->Controller && bUseControllerDesiredRotation)
+  {
+    DesiredRotation = CharacterOwner->Controller->GetDesiredRotation();
+  }
+  else if (!CharacterOwner->Controller && bRunPhysicsWithNoController && bUseControllerDesiredRotation)
+  {
+    if (AController* ControllerOwner = Cast<AController>(CharacterOwner->GetOwner()))
+    {
+      DesiredRotation = ControllerOwner->GetDesiredRotation();
+    }
+  }
+
+  
 }

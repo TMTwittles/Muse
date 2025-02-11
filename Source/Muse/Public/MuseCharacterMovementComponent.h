@@ -44,4 +44,6 @@ public:
   void OverrideWalkMovementSettings(const float NewAcceleration, const float NewMaxSpeed);
   UFUNCTION()
   void ClearWalkMovementSettings();
+  UFUNCTION(BlueprintCallable)
+  void CalculateMovementAngle(const float DeltaTime);
 };
