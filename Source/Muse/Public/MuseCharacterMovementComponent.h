@@ -45,5 +45,5 @@ public:
   UFUNCTION()
   void ClearWalkMovementSettings();
   UFUNCTION(BlueprintCallable)
-  void CalculateMovementAngle(const float DeltaTime);
+  float CalculateMovementAngle(const float DeltaTime);
 };

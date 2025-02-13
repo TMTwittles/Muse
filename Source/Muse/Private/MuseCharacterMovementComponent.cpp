@@ -6,6 +6,7 @@
 #include "MoveMode/MuseMoveMode.h"
 #include "MoveMode/MuseMoveModeBuilder.h"
 #include "GameFramework/Character.h"
+#include "Statics/MuseGameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogMuseCharacterMovementComponent);
 
@@ -97,17 +98,15 @@ void UMuseCharacterMovementComponent::ClearWalkMovementSettings()
   MaxWalkSpeed = InitialMaxSpeed;
 }
 
-void UMuseCharacterMovementComponent::CalculateMovementAngle(const float DeltaTime)
+float UMuseCharacterMovementComponent::CalculateMovementAngle(const float DeltaTime)
 {
   FRotator CurrentRotation = UpdatedComponent->GetComponentRotation(); // Normalized
   CurrentRotation.DiagnosticCheckNaN(TEXT("CharacterMovementComponent::PhysicsRotation(): CurrentRotation"));
 
-  FRotator DeltaRot = GetDeltaRotation(DeltaTime);
-  DeltaRot.DiagnosticCheckNaN(TEXT("CharacterMovementComponent::PhysicsRotation(): GetDeltaRotation"));
-
   FRotator DesiredRotation = CurrentRotation;
   if (bOrientRotationToMovement)
   {
+    FRotator DeltaRot = GetDeltaRotation(DeltaTime);
     DesiredRotation = ComputeOrientToMovementRotation(CurrentRotation, DeltaTime, DeltaRot);
   }
   else if (CharacterOwner->Controller && bUseControllerDesiredRotation)
@@ -121,6 +120,8 @@ void UMuseCharacterMovementComponent::CalculateMovementAngle(const float DeltaTi
       DesiredRotation = ControllerOwner->GetDesiredRotation();
     }
   }
-
-  
+  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + CurrentRotation.Vector().GetSafeNormal() * 100.0f, FColor::Red);
+  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + DesiredRotation.Vector().GetSafeNormal() * 100.0f, FColor::Green);
+  float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CurrentRotation.Vector(), DesiredRotation.Vector());
+  return SignedAngle;
 }
