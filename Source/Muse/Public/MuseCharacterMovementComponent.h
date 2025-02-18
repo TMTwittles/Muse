@@ -23,6 +23,7 @@ class MUSE_API UMuseCharacterMovementComponent : public UCharacterMovementCompon
   bool bHasOverridenSettings = false;
   float InitialAcceleration = 0.0f;
   float InitialMaxSpeed = 0.0f;
+  FRotator PrevRotation;
 
 public:
   virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;

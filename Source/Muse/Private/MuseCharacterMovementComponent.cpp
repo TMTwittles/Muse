@@ -100,28 +100,48 @@ void UMuseCharacterMovementComponent::ClearWalkMovementSettings()
 
 float UMuseCharacterMovementComponent::CalculateMovementAngle(const float DeltaTime)
 {
-  FRotator CurrentRotation = UpdatedComponent->GetComponentRotation(); // Normalized
-  CurrentRotation.DiagnosticCheckNaN(TEXT("CharacterMovementComponent::PhysicsRotation(): CurrentRotation"));
+  FRotator CurrentRotation = GetOwner()->GetActorRotation();
+  // Calculate the change in rotation
+  FRotator DeltaRotation = CurrentRotation - PrevRotation;
 
-  FRotator DesiredRotation = CurrentRotation;
-  if (bOrientRotationToMovement)
-  {
-    FRotator DeltaRot = GetDeltaRotation(DeltaTime);
-    DesiredRotation = ComputeOrientToMovementRotation(CurrentRotation, DeltaTime, DeltaRot);
-  }
-  else if (CharacterOwner->Controller && bUseControllerDesiredRotation)
-  {
-    DesiredRotation = CharacterOwner->Controller->GetDesiredRotation();
-  }
-  else if (!CharacterOwner->Controller && bRunPhysicsWithNoController && bUseControllerDesiredRotation)
-  {
-    if (AController* ControllerOwner = Cast<AController>(CharacterOwner->GetOwner()))
-    {
-      DesiredRotation = ControllerOwner->GetDesiredRotation();
-    }
-  }
+  // Convert to angular velocity (degrees per second)
+  float AngularVelocity = DeltaRotation.Yaw / DeltaTime;  // Yaw is the rotation around the Z-axis
+
+  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + DeltaRotation.Vector().GetSafeNormal() * 100.0f, FColor::Yellow);
   DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + CurrentRotation.Vector().GetSafeNormal() * 100.0f, FColor::Red);
-  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + DesiredRotation.Vector().GetSafeNormal() * 100.0f, FColor::Green);
-  float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CurrentRotation.Vector(), DesiredRotation.Vector());
+  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + PrevRotation.Vector().GetSafeNormal() * 100.0f, FColor::Green);
+
+  //UE_LOG(LogMuseCharacterMovementComponent, Log, TEXT("Angular velocity: %f"), AngularVelocity);
+
+  float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CurrentRotation.Vector(), PrevRotation.Vector());
+
+  PrevRotation = CurrentRotation;
+
   return SignedAngle;
+
+  //FRotator CurrentRotation = UpdatedComponent->GetComponentRotation(); // Normalized
+  //CurrentRotation.DiagnosticCheckNaN(TEXT("CharacterMovementComponent::PhysicsRotation(): CurrentRotation"));
+
+  //FRotator DesiredRotation = CurrentRotation;
+  //if (bOrientRotationToMovement)
+  //{
+  //  FRotator DeltaRot = GetDeltaRotation(DeltaTime);
+  //  DesiredRotation = ComputeOrientToMovementRotation(CurrentRotation, DeltaTime, DeltaRot);
+  //}
+  //else if (CharacterOwner->Controller && bUseControllerDesiredRotation)
+  //{
+  //  DesiredRotation = CharacterOwner->Controller->GetDesiredRotation();
+  //}
+  //else if (!CharacterOwner->Controller && bRunPhysicsWithNoController && bUseControllerDesiredRotation)
+  //{
+  //  if (AController* ControllerOwner = Cast<AController>(CharacterOwner->GetOwner()))
+  //  {
+  //    DesiredRotation = ControllerOwner->GetDesiredRotation();
+  //  }
+  //}
+  //DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + CurrentRotation.Vector().GetSafeNormal() * 100.0f, FColor::Red);
+  //DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + DesiredRotation.Vector().GetSafeNormal() * 100.0f, FColor::Green);
+  //float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CurrentRotation.Vector(), DesiredRotation.Vector());
+
+  //return SignedAngle;
 }
