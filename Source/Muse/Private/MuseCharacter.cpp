@@ -133,6 +133,16 @@ void AMuseCharacter::Melee()
   MeleeAttack->TryTriggerAttack();
 }
 
+void AMuseCharacter::EnterSprint()
+{
+  MuseCharacterMovement->OverrideWalkMovementSettings(3052.0f, 800.0f);
+}
+
+void AMuseCharacter::ExitSprint()
+{
+  MuseCharacterMovement->ClearWalkMovementSettings();
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -162,6 +172,10 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
     // Melee
     EnhancedInputComponent->BindAction(MeleeAction, ETriggerEvent::Started, this, &AMuseCharacter::Melee);
+
+    // Sprint
+    EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterSprint);
+    EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMuseCharacter::ExitSprint);
 	}
 	else
 	{

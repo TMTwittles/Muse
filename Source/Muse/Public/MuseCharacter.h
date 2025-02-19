@@ -81,8 +81,13 @@ class MUSE_API AMuseCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> LookAction;
 
+  /** Melee Input action */
   UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UInputAction> MeleeAction;
+
+  /** Sprint Action */
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UInputAction> SprintAction;
 
   FRotator PreviousRotation;
   float SignedAngularRotationDegrees;
@@ -120,6 +125,9 @@ private:
   /** Called for melee input */
   void Melee();
 
+  /** Called for sprint input */
+  void EnterSprint();
+  void ExitSprint();
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
