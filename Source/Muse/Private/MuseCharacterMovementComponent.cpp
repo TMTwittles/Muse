@@ -10,6 +10,12 @@
 
 DEFINE_LOG_CATEGORY(LogMuseCharacterMovementComponent);
 
+void UMuseCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+  PrevRotation = GetOwner()->GetActorRotation();
+  Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
 void UMuseCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
 {
   Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
@@ -98,50 +104,21 @@ void UMuseCharacterMovementComponent::ClearWalkMovementSettings()
   MaxWalkSpeed = InitialMaxSpeed;
 }
 
-float UMuseCharacterMovementComponent::CalculateMovementAngle(const float DeltaTime)
+float UMuseCharacterMovementComponent::GetCurrentAngularVelocity(const float DeltaTime) const
 {
-  FRotator CurrentRotation = GetOwner()->GetActorRotation();
-  // Calculate the change in rotation
-  FRotator DeltaRotation = CurrentRotation - PrevRotation;
-
-  // Convert to angular velocity (degrees per second)
-  float AngularVelocity = DeltaRotation.Yaw / DeltaTime;  // Yaw is the rotation around the Z-axis
-
-  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + DeltaRotation.Vector().GetSafeNormal() * 100.0f, FColor::Yellow);
-  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + CurrentRotation.Vector().GetSafeNormal() * 100.0f, FColor::Red);
-  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + PrevRotation.Vector().GetSafeNormal() * 100.0f, FColor::Green);
-
-  //UE_LOG(LogMuseCharacterMovementComponent, Log, TEXT("Angular velocity: %f"), AngularVelocity);
-
-  float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CurrentRotation.Vector(), PrevRotation.Vector());
-
-  PrevRotation = CurrentRotation;
-
-  return SignedAngle;
-
-  //FRotator CurrentRotation = UpdatedComponent->GetComponentRotation(); // Normalized
-  //CurrentRotation.DiagnosticCheckNaN(TEXT("CharacterMovementComponent::PhysicsRotation(): CurrentRotation"));
-
-  //FRotator DesiredRotation = CurrentRotation;
-  //if (bOrientRotationToMovement)
-  //{
-  //  FRotator DeltaRot = GetDeltaRotation(DeltaTime);
-  //  DesiredRotation = ComputeOrientToMovementRotation(CurrentRotation, DeltaTime, DeltaRot);
-  //}
-  //else if (CharacterOwner->Controller && bUseControllerDesiredRotation)
-  //{
-  //  DesiredRotation = CharacterOwner->Controller->GetDesiredRotation();
-  //}
-  //else if (!CharacterOwner->Controller && bRunPhysicsWithNoController && bUseControllerDesiredRotation)
-  //{
-  //  if (AController* ControllerOwner = Cast<AController>(CharacterOwner->GetOwner()))
-  //  {
-  //    DesiredRotation = ControllerOwner->GetDesiredRotation();
-  //  }
-  //}
-  //DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + CurrentRotation.Vector().GetSafeNormal() * 100.0f, FColor::Red);
-  //DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + DesiredRotation.Vector().GetSafeNormal() * 100.0f, FColor::Green);
-  //float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CurrentRotation.Vector(), DesiredRotation.Vector());
-
-  //return SignedAngle;
+  const FRotator CurrentRotation = GetOwner()->GetActorRotation();
+  const FRotator DeltaRotation = CurrentRotation - PrevRotation;
+  const float CurrentAngularVelocity = DeltaRotation.Yaw != 0.0f ?
+    FMath::DegreesToRadians(DeltaRotation.Yaw) / DeltaTime :
+    0.0f;
+  return CurrentAngularVelocity;
 }
+
+float UMuseCharacterMovementComponent::GetMaxAngularVelocity(const float DeltaTime) const
+{
+  const float MaxAngularVelocity = RotationRate.Yaw != 0.0f ?
+    RotationRate.Yaw * DeltaTime :
+    0.0f;
+  return MaxAngularVelocity;
+}
+

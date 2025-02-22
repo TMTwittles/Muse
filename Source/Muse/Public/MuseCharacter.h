@@ -89,7 +89,6 @@ class MUSE_API AMuseCharacter : public ACharacter
   UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UInputAction> SprintAction;
 
-  FRotator PreviousRotation;
   float SignedAngularRotationDegrees;
   UPROPERTY(EditAnywhere)
   float RotationIncreaseDegrees = 0.25f;
@@ -97,12 +96,8 @@ class MUSE_API AMuseCharacter : public ACharacter
 
 public:
 	AMuseCharacter(const FObjectInitializer& ObjectInitializer);
-
   virtual void Tick(float DeltaTime) override;
   virtual void PossessedBy(AController* NewController) override;
-
-  UFUNCTION(BlueprintCallable)
-  float GetCharacterChangeInRotation();
 
 protected:
 	/** Called for movement input */

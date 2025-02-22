@@ -26,6 +26,7 @@ class MUSE_API UMuseCharacterMovementComponent : public UCharacterMovementCompon
   FRotator PrevRotation;
 
 public:
+  virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
   virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
   virtual void PhysCustom(float DeltaTime, int32 Iterations) override;
   // Hacky way to use existing movement modes with out changing the move mode. This allows custom move mode
@@ -45,6 +46,8 @@ public:
   void OverrideWalkMovementSettings(const float NewAcceleration, const float NewMaxSpeed);
   UFUNCTION()
   void ClearWalkMovementSettings();
-  UFUNCTION(BlueprintCallable)
-  float CalculateMovementAngle(const float DeltaTime);
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  float GetCurrentAngularVelocity(const float DeltaTime) const;
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  float GetMaxAngularVelocity(const float DeltaTime) const;
 };

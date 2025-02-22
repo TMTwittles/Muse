@@ -90,15 +90,6 @@ void AMuseCharacter::PossessedBy(AController* NewController)
   Super::PossessedBy(NewController);
 }
 
-float AMuseCharacter::GetCharacterChangeInRotation()
-{
-  FRotator CurrentRotation = GetActorRotation();
-  DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CurrentRotation.Vector().GetSafeNormal() * 100.0f, FColor::Red);
-  DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + PreviousRotation.Vector().GetSafeNormal() * 100.0f, FColor::Green);
-  SignedAngularRotationDegrees = UMuseGameplayStatics::GetSignedAngle(PreviousRotation.Vector(), CurrentRotation.Vector());
-  return SignedAngularRotationDegrees;
-}
-
 void AMuseCharacter::BeginPlay()
 {
 	// Call the base class  
@@ -189,11 +180,6 @@ void AMuseCharacter::Move(const FInputActionValue& Value)
 
   // input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
-
-  if (MovementVector != FVector2D::Zero())
-  {
-    PreviousRotation = GetActorRotation();
-  }
 
 	if (Controller != nullptr)
 	{
