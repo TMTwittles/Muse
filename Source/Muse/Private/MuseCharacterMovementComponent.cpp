@@ -5,8 +5,16 @@
 #include "MoveMode/MuseMoveModes.h"
 #include "MoveMode/MuseMoveMode.h"
 #include "MoveMode/MuseMoveModeBuilder.h"
+#include "GameFramework/Character.h"
+#include "Statics/MuseGameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogMuseCharacterMovementComponent);
+
+void UMuseCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+  PrevRotation = GetOwner()->GetActorRotation();
+  Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
 
 void UMuseCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
 {
@@ -95,3 +103,22 @@ void UMuseCharacterMovementComponent::ClearWalkMovementSettings()
   MaxAcceleration = InitialAcceleration;
   MaxWalkSpeed = InitialMaxSpeed;
 }
+
+float UMuseCharacterMovementComponent::GetCurrentAngularVelocity(const float DeltaTime) const
+{
+  const FRotator CurrentRotation = GetOwner()->GetActorRotation();
+  const FRotator DeltaRotation = CurrentRotation - PrevRotation;
+  const float CurrentAngularVelocity = DeltaRotation.Yaw != 0.0f ?
+    FMath::DegreesToRadians(DeltaRotation.Yaw) / DeltaTime :
+    0.0f;
+  return CurrentAngularVelocity;
+}
+
+float UMuseCharacterMovementComponent::GetMaxAngularVelocity(const float DeltaTime) const
+{
+  const float MaxAngularVelocity = RotationRate.Yaw != 0.0f ?
+    RotationRate.Yaw * DeltaTime :
+    0.0f;
+  return MaxAngularVelocity;
+}
+

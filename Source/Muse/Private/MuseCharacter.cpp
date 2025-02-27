@@ -17,8 +17,10 @@
 #include "Equipment/EquipmentManagerComponent.h"
 #include "Melee/MeleeAttackComponent.h"
 #include "Gameplay/RotationComponent.h"
+#include "Statics/MuseGameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
+DEFINE_LOG_CATEGORY_STATIC(LogMuseCharacter, Log, All);
 
 //////////////////////////////////////////////////////////////////////////
 // AMuseCharacter
@@ -34,12 +36,12 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 		
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+  bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
@@ -94,8 +96,8 @@ void AMuseCharacter::BeginPlay()
 	Super::BeginPlay();
 
   // Add custom movement modes.
-  MuseCharacterMovement->ClearMovementModes();
-  MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
+  //MuseCharacterMovement->ClearMovementModes();
+  //MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
   // Configure Equipment
   ConfigureEquipment();
@@ -120,6 +122,16 @@ void AMuseCharacter::Melee()
 {
   EquipmentManager->SetActiveEquipment(EWeapon::SWORD);
   MeleeAttack->TryTriggerAttack();
+}
+
+void AMuseCharacter::EnterSprint()
+{
+  MuseCharacterMovement->OverrideWalkMovementSettings(3052.0f, 800.0f);
+}
+
+void AMuseCharacter::ExitSprint()
+{
+  MuseCharacterMovement->ClearWalkMovementSettings();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -151,6 +163,10 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
     // Melee
     EnhancedInputComponent->BindAction(MeleeAction, ETriggerEvent::Started, this, &AMuseCharacter::Melee);
+
+    // Sprint
+    EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterSprint);
+    EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMuseCharacter::ExitSprint);
 	}
 	else
 	{
