@@ -44,6 +44,12 @@ class MUSE_API AMuseCharacter : public ACharacter
   TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
 
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UStaticMeshComponent> Rifle;
+
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UEquipmentDataAsset> RifleEquipmentData;
+
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UEquipmentManagerComponent> EquipmentManager;
 
   /** Strafe animation handler */
@@ -85,6 +91,10 @@ class MUSE_API AMuseCharacter : public ACharacter
   UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UInputAction> MeleeAction;
 
+  /** Fire Input action */
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UInputAction> FireAction;
+
   /** Sprint Action */
   UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UInputAction> SprintAction;
@@ -119,6 +129,9 @@ private:
 
   /** Called for melee input */
   void Melee();
+
+  /** Called for firing rifle input */
+  void FireRifle();
 
   /** Called for sprint input */
   void EnterSprint();

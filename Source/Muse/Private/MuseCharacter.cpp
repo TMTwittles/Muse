@@ -107,6 +107,8 @@ void AMuseCharacter::ConstructEquipment()
 {
   Sword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordEquipment"));
   Sword->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
+  Rifle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleEquipment"));
+  Rifle->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
 }
 
 void AMuseCharacter::ConfigureEquipment()
@@ -116,12 +118,23 @@ void AMuseCharacter::ConfigureEquipment()
   SwordEquipment.EquipmentMesh = Sword;
   SwordEquipment.AnimationData = SwordEquipmentData->AnimationData;
   EquipmentManager->SetEquipment(EWeapon::SWORD, SwordEquipment);
+
+  Rifle->SetVisibility(false);
+  FEquipment RifleEquipment;
+  RifleEquipment.EquipmentMesh = Rifle;
+  RifleEquipment.AnimationData = RifleEquipmentData->AnimationData;
+  EquipmentManager->SetEquipment(EWeapon::RIFLE, RifleEquipment);
 }
 
 void AMuseCharacter::Melee()
 {
   EquipmentManager->SetActiveEquipment(EWeapon::SWORD);
   MeleeAttack->TryTriggerAttack();
+}
+
+void AMuseCharacter::FireRifle()
+{
+  EquipmentManager->SetActiveEquipment(EWeapon::RIFLE);
 }
 
 void AMuseCharacter::EnterSprint()
@@ -163,6 +176,9 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
     // Melee
     EnhancedInputComponent->BindAction(MeleeAction, ETriggerEvent::Started, this, &AMuseCharacter::Melee);
+
+    // Melee
+    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AMuseCharacter::FireRifle);
 
     // Sprint
     EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterSprint);

@@ -22,16 +22,16 @@ public:
   TObjectPtr<UAnimSequence> EquipmentAimPose;
 
   UPROPERTY(EditAnywhere)
-  float TwoHandedBlendWeight;
+  float RightHandedBlendWeight;
 
   UPROPERTY(EditAnywhere)
-  float OneHandedBlendWeight;
+  float LeftHandedBlendWeight;
 
   UFUNCTION(BlueprintCallable)
-  inline float GetTwoHandedBlendWeight() const { return TwoHandedBlendWeight; }
+  inline float GetLeftHandedBlendWeight() const { return LeftHandedBlendWeight; }
 
   UFUNCTION(BlueprintCallable)
-  inline float GetOneHandedBlendWeight() const { return OneHandedBlendWeight; }
+  inline float GetOneHandedBlendWeight() const { return RightHandedBlendWeight; }
 
   UFUNCTION(BlueprintCallable)
   inline UAnimSequence* GetEquipmentRestingPose() const { return EquipmentRestingPose; }
