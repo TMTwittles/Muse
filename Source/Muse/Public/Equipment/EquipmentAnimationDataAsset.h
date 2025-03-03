@@ -21,22 +21,34 @@ public:
   UPROPERTY(EditAnywhere)
   TObjectPtr<UAnimSequence> EquipmentAimPose;
 
-  UPROPERTY(EditAnywhere)
+  UPROPERTY(EditAnywhere, Category = "RightHandedEquipmentProperties")
+  bool bApplyRightHandedBlendWeight;
+
+  UPROPERTY(EditAnywhere, Category = "RightHandedEquipmentProperties")
   float RightHandedBlendWeight;
 
-  UPROPERTY(EditAnywhere)
+  UPROPERTY(EditAnywhere, Category = "LeftHandedEquipmentProperties")
+  bool bApplyLeftHandedBlendWeight;
+
+  UPROPERTY(EditAnywhere, Category = "LeftHandedEquipmentProperties")
   float LeftHandedBlendWeight;
 
-  UFUNCTION(BlueprintCallable)
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline bool ApplyRightHandedBlendWeight() const { return bApplyRightHandedBlendWeight; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline bool ApplyLeftHandedBlendWeight() const { return bApplyLeftHandedBlendWeight; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
   inline float GetLeftHandedBlendWeight() const { return LeftHandedBlendWeight; }
 
-  UFUNCTION(BlueprintCallable)
-  inline float GetOneHandedBlendWeight() const { return RightHandedBlendWeight; }
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline float GetRightHandedBlendWeight() const { return RightHandedBlendWeight; }
 
-  UFUNCTION(BlueprintCallable)
+  UFUNCTION(BlueprintCallable, BlueprintPure)
   inline UAnimSequence* GetEquipmentRestingPose() const { return EquipmentRestingPose; }
 
-  UFUNCTION(BlueprintCallable)
+  UFUNCTION(BlueprintCallable, BlueprintPure)
   inline UAnimSequence* GetEquipmentAimPose() const { return EquipmentAimPose; }
 
 };
