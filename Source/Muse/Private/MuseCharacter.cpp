@@ -16,6 +16,7 @@
 #include "Equipment/EquipmentDataAsset.h"
 #include "Equipment/EquipmentManagerComponent.h"
 #include "Melee/MeleeAttackComponent.h"
+#include "Ranged/RangedAttackComponent.h"
 #include "Gameplay/RotationComponent.h"
 #include "Statics/MuseGameplayStatics.h"
 
@@ -72,6 +73,9 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 
   // Melee
   MeleeAttack = CreateDefaultSubobject<UMeleeAttackComponent>(TEXT("MeleeAttack"));
+
+  // Ranged
+  RangedAttack = CreateDefaultSubobject<URangedAttackComponent>(TEXT("RangedAttack"));
 
   // Gameplay components
   RotationComp = CreateDefaultSubobject<URotationComponent>(TEXT("Rotation"));
@@ -132,9 +136,19 @@ void AMuseCharacter::Melee()
   MeleeAttack->TryTriggerAttack();
 }
 
-void AMuseCharacter::FireRifle()
+void AMuseCharacter::FireRanged()
 {
-  EquipmentManager->SetActiveEquipment(EWeapon::RIFLE);
+  RangedAttack->FireWeapon();
+}
+
+void AMuseCharacter::StartAimRanged()
+{
+  RangedAttack->EnterAim();
+}
+
+void AMuseCharacter::ExitAimRanged()
+{
+  RangedAttack->ExitAim();
 }
 
 void AMuseCharacter::EnterSprint()
@@ -177,8 +191,10 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
     // Melee
     EnhancedInputComponent->BindAction(MeleeAction, ETriggerEvent::Started, this, &AMuseCharacter::Melee);
 
-    // Melee
-    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AMuseCharacter::FireRifle);
+    // Ranged
+    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AMuseCharacter::FireRanged);
+    EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AMuseCharacter::StartAimRanged);
+    EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AMuseCharacter::ExitAimRanged);
 
     // Sprint
     EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterSprint);

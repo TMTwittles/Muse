@@ -6,6 +6,11 @@
 #include "Logging/LogMacros.h"
 #include "MuseCharacter.generated.h"
 
+/*
+* TODO: Changed dependencies to not use forward declarations if in same module. Perform
+* this once modules have been better consolidated. In this case creating a gameplay module to store alot of this code.
+*/
+
 class UEquipmentManagerComponent;
 class UEquipmentDataAsset;
 
@@ -24,6 +29,8 @@ struct FInputActionValue;
 
 class UMeleeAttackComponent;
 class UMeleeComboDataAsset;
+
+class URangedAttackComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -68,6 +75,10 @@ class MUSE_API AMuseCharacter : public ACharacter
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Melee, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UMeleeAttackComponent> MeleeAttack;
 
+  /** Ranged */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Ranged, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<URangedAttackComponent> RangedAttack;
+
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay, meta = (AllowPrivateAccess="true"))
   TObjectPtr<URotationComponent> RotationComp;
 
@@ -94,6 +105,8 @@ class MUSE_API AMuseCharacter : public ACharacter
   /** Fire Input action */
   UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UInputAction> FireAction;
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UInputAction> AimAction;
 
   /** Sprint Action */
   UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -131,7 +144,9 @@ private:
   void Melee();
 
   /** Called for firing rifle input */
-  void FireRifle();
+  void FireRanged();
+  void StartAimRanged();
+  void ExitAimRanged();
 
   /** Called for sprint input */
   void EnterSprint();
