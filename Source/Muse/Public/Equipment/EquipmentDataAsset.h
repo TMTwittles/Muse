@@ -16,15 +16,15 @@ class MUSE_API UEquipmentDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-  UPROPERTY(EditAnywhere)
+  UPROPERTY(EditAnywhere, Category = "DefaultData")
   TObjectPtr<UStaticMesh> EquipmentMesh;
 
-  UPROPERTY(EditAnywhere)
+  UPROPERTY(EditAnywhere, Category = "DefaultData")
   TObjectPtr<UEquipmentAnimationDataAsset> AnimationData;
 
-  UFUNCTION(BlueprintCallable)
+  UFUNCTION(BlueprintCallable, Category = "DefaultData")
   inline UStaticMesh* GetEquipmentMesh() const { return EquipmentMesh; }
 
-  UFUNCTION(BlueprintCallable)
+  UFUNCTION(BlueprintCallable, Category ="DefaultData")
   inline UEquipmentAnimationDataAsset* GetEquipmentAnimationData() const { return AnimationData; }
 };

@@ -15,22 +15,22 @@ class MUSE_API UEquipmentAnimationDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-  UPROPERTY(EditAnywhere)
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|AnimSequences")
   TObjectPtr<UAnimSequence> EquipmentRestingPose;
 
-  UPROPERTY(EditAnywhere)
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|AnimSequences")
   TObjectPtr<UAnimSequence> EquipmentAimPose;
 
-  UPROPERTY(EditAnywhere, Category = "RightHandedEquipmentProperties")
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|RightHandedEquipmentProperties")
   bool bApplyRightHandedBlendWeight;
 
-  UPROPERTY(EditAnywhere, Category = "RightHandedEquipmentProperties")
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|RightHandedEquipmentProperties")
   float RightHandedBlendWeight;
 
-  UPROPERTY(EditAnywhere, Category = "LeftHandedEquipmentProperties")
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|LeftHandedEquipmentProperties")
   bool bApplyLeftHandedBlendWeight;
 
-  UPROPERTY(EditAnywhere, Category = "LeftHandedEquipmentProperties")
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|LeftHandedEquipmentProperties")
   float LeftHandedBlendWeight;
 
   UFUNCTION(BlueprintCallable, BlueprintPure)
