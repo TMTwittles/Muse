@@ -32,7 +32,7 @@ void URangedAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
   if (bIsAiming)
   {
-    DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + OwningCharacter->Controller->GetControlRotation().Vector() * 1000.0f, FColor::Red, false, 0.01f, 0, 10.0f);
+    
   }
 }
 
