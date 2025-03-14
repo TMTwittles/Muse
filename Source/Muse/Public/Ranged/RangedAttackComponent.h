@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Equipment/EquipmentManagerComponent.h"
 #include "MuseCharacter.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 #include "RangedAttackComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -22,6 +22,9 @@ class MUSE_API URangedAttackComponent : public UActorComponent
 
   UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
   AMuseCharacter* OwningCharacter;
+
+  UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+  UCharacterMovementComponent* OwningMovementComponent;
 
 public:	
 	// Sets default values for this component's properties

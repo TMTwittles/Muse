@@ -1,6 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Ranged/RangedAttackComponent.h"
 
 // Sets default values for this component's properties
@@ -20,6 +18,8 @@ void URangedAttackComponent::BeginPlay()
 	Super::BeginPlay();
   OwningCharacter = Cast<AMuseCharacter>(GetOwner());
   check(OwningCharacter);
+  OwningMovementComponent = Cast<UCharacterMovementComponent>(OwningCharacter->GetMovementComponent());
+  check(OwningMovementComponent);
   EquipmentManagerComponent = GetOwner()->GetComponentByClass<UEquipmentManagerComponent>();
   check(EquipmentManagerComponent);
 }
@@ -40,11 +40,18 @@ void URangedAttackComponent::EnterAim()
 {
   bIsAiming = true;
   EquipmentManagerComponent->SetActiveEquipment(EWeapon::RIFLE);
+
+  OwningMovementComponent->bOrientRotationToMovement = false;
+  OwningMovementComponent->bUseControllerDesiredRotation = true;
+
 }
 
 void URangedAttackComponent::ExitAim()
 {
   bIsAiming = false;
+
+  OwningMovementComponent->bOrientRotationToMovement = true;
+  OwningMovementComponent->bUseControllerDesiredRotation = false;
 }
 
 void URangedAttackComponent::FireWeapon()
