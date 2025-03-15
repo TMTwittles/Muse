@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "RangedAttackComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogRangedAttackComponent, Log, All);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MUSE_API URangedAttackComponent : public UActorComponent
 {
@@ -16,6 +18,9 @@ class MUSE_API URangedAttackComponent : public UActorComponent
 
   UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
   bool bIsAiming;
+
+  UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+  float AimPitch;
 
   UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
   TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
@@ -47,4 +52,10 @@ public:
 
   UFUNCTION(BlueprintCallable, BlueprintPure)
   inline bool GetIsAiming() { return bIsAiming; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline float GetAimPitch() { return AimPitch; }
+
+private:
+  void TickAimComponent(const float DeltaTime);
 };

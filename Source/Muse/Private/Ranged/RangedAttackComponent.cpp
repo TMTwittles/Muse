@@ -1,5 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Ranged/RangedAttackComponent.h"
+#include "Statics/MuseGameplayStatics.h"
+
+DEFINE_LOG_CATEGORY(LogRangedAttackComponent);
 
 // Sets default values for this component's properties
 URangedAttackComponent::URangedAttackComponent()
@@ -32,7 +35,7 @@ void URangedAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
   if (bIsAiming)
   {
-    
+    TickAimComponent(DeltaTime);
   }
 }
 
@@ -43,7 +46,6 @@ void URangedAttackComponent::EnterAim()
 
   OwningMovementComponent->bOrientRotationToMovement = false;
   OwningMovementComponent->bUseControllerDesiredRotation = true;
-
 }
 
 void URangedAttackComponent::ExitAim()
@@ -57,5 +59,13 @@ void URangedAttackComponent::ExitAim()
 void URangedAttackComponent::FireWeapon()
 {
   EquipmentManagerComponent->SetActiveEquipment(EWeapon::RIFLE);
+}
+
+void URangedAttackComponent::TickAimComponent(const float DeltaTime)
+{
+  FVector AimDirection = OwningCharacter->GetControlRotation().Vector();
+  FVector CharacterForward = OwningCharacter->GetActorForwardVector();
+  float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, -GetOwner()->GetActorRightVector());
+  AimPitch = FMath::RadiansToDegrees(SignedAngle);
 }
 
