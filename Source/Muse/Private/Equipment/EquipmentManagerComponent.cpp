@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Equipment/EquipmentManagerComponent.h"
 
+DEFINE_LOG_CATEGORY(LogEquipmentManagerComponent);
+
 // Sets default values for this component's properties
 UEquipmentManagerComponent::UEquipmentManagerComponent()
 {
@@ -73,6 +75,17 @@ void UEquipmentManagerComponent::SetEquipmentState(const EEquipmentState InEquip
   }
   ActiveEquipmentState = InEquipmentState;
   EquipmentStateChanged.Broadcast(ActiveEquipmentState);
+}
+
+void UEquipmentManagerComponent::SetUseFullBodyAnims(const bool bInUseFullBodyAnims)
+{
+  if (bUseFullBodyAnims == bInUseFullBodyAnims)
+  {
+    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("Trying to set bUseFullBody anims to %d when variable is already %d."), bUseFullBodyAnims, bUseFullBodyAnims);
+    return;
+  }
+  bUseFullBodyAnims = bInUseFullBodyAnims;
+  EquipmentAnimStateChanged.Broadcast(bUseFullBodyAnims);
 }
 
 void UEquipmentManagerComponent::ResetActiveEquipment()

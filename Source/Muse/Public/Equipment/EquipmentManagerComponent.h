@@ -6,6 +6,8 @@
 #include "EquipmentDataAsset.h"
 #include "EquipmentManagerComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogEquipmentManagerComponent, Log, All);
+
 UENUM(BlueprintType)
 enum class EWeapon : uint8
 {
@@ -43,6 +45,10 @@ public:
   UPROPERTY(BlueprintAssignable)
   FEquipmentStateChanged EquipmentStateChanged;
 
+  DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipmentAnimStateChanged, bool, bUseFullBodyAnims);
+  UPROPERTY(BlueprintAssignable)
+  FEquipmentAnimStateChanged EquipmentAnimStateChanged;
+
 private:
   UPROPERTY()
   TMap<EWeapon, FEquipment> MappedEquipment;
@@ -53,6 +59,7 @@ private:
   UEquipmentAnimationDataAsset* ActiveEquipmentAnimationData;
   bool bTickCurrentEquipmentActiveDuration = false;
   float CurrentEquipmentActiveDuration = 0.0f;
+  bool bUseFullBodyAnims = false;
 
 public:	
 	// Sets default values for this component's properties
@@ -77,6 +84,9 @@ public:
 
   UFUNCTION(BlueprintCallable)
   void SetEquipmentState(const EEquipmentState InEquipmentState);
+
+  UFUNCTION(BlueprintCallable)
+  void SetUseFullBodyAnims(const bool bInUseFullBodyAnims);
 
   UFUNCTION(BlueprintCallable, BlueprintPure)
   inline bool IsEquipped() const { return ActiveEquipmentState == EEquipmentState::EQUIPPED; }
