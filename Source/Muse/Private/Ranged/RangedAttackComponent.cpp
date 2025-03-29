@@ -42,18 +42,18 @@ void URangedAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void URangedAttackComponent::EnterAim()
 {
   bIsAiming = true;
-  EquipmentManagerComponent->SetActiveEquipment(EWeapon::RIFLE);
-  EquipmentManagerComponent->SetUseFullBodyAnims(true);
+  //EquipmentManagerComponent->SetActiveEquipment(EWeapon::RIFLE);
+  //EquipmentManagerComponent->SetUseFullBodyAnims(true);
   OwningMovementComponent->bOrientRotationToMovement = false;
-  OwningMovementComponent->bUseControllerDesiredRotation = true;
+  //OwningMovementComponent->bUseControllerDesiredRotation = true;
 }
 
 void URangedAttackComponent::ExitAim()
 {
   bIsAiming = false;
-  EquipmentManagerComponent->SetUseFullBodyAnims(false);
+  //EquipmentManagerComponent->SetUseFullBodyAnims(false);
   OwningMovementComponent->bOrientRotationToMovement = true;
-  OwningMovementComponent->bUseControllerDesiredRotation = false;
+  //OwningMovementComponent->bUseControllerDesiredRotation = false;
 }
 
 void URangedAttackComponent::FireWeapon()
@@ -67,5 +67,6 @@ void URangedAttackComponent::TickAimComponent(const float DeltaTime)
   FVector CharacterForward = OwningCharacter->GetActorForwardVector();
   float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, -GetOwner()->GetActorRightVector());
   AimPitch = FMath::RadiansToDegrees(SignedAngle);
+  AimPitch = 0.0f;
 }
 
