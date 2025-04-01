@@ -10,6 +10,5 @@
 class MUSE_API UMuseGameplayStatics : public UObject
 {
 public:
-  static float GetSignedAngle(const FVector& InVectorA, const FVector& InVectorB);
-  static float GetSignedAngle(const FQuat& QuatA, const FQuat& QuatB);
+  static float GetSignedAngle(const FVector& InVectorA, const FVector& InVectorB, const FVector& InReferenceNormal);
 };

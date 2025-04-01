@@ -15,28 +15,40 @@ class MUSE_API UEquipmentAnimationDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-  UPROPERTY(EditAnywhere)
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|AnimSequences")
   TObjectPtr<UAnimSequence> EquipmentRestingPose;
 
-  UPROPERTY(EditAnywhere)
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|AnimSequences")
   TObjectPtr<UAnimSequence> EquipmentAimPose;
 
-  UPROPERTY(EditAnywhere)
-  float TwoHandedBlendWeight;
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|RightHandedEquipmentProperties")
+  bool bApplyRightHandedBlendWeight;
 
-  UPROPERTY(EditAnywhere)
-  float OneHandedBlendWeight;
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|RightHandedEquipmentProperties")
+  float RightHandedBlendWeight;
 
-  UFUNCTION(BlueprintCallable)
-  inline float GetTwoHandedBlendWeight() const { return TwoHandedBlendWeight; }
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|LeftHandedEquipmentProperties")
+  bool bApplyLeftHandedBlendWeight;
 
-  UFUNCTION(BlueprintCallable)
-  inline float GetOneHandedBlendWeight() const { return OneHandedBlendWeight; }
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|LeftHandedEquipmentProperties")
+  float LeftHandedBlendWeight;
 
-  UFUNCTION(BlueprintCallable)
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline bool ApplyRightHandedBlendWeight() const { return bApplyRightHandedBlendWeight; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline bool ApplyLeftHandedBlendWeight() const { return bApplyLeftHandedBlendWeight; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline float GetLeftHandedBlendWeight() const { return LeftHandedBlendWeight; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline float GetRightHandedBlendWeight() const { return RightHandedBlendWeight; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
   inline UAnimSequence* GetEquipmentRestingPose() const { return EquipmentRestingPose; }
 
-  UFUNCTION(BlueprintCallable)
+  UFUNCTION(BlueprintCallable, BlueprintPure)
   inline UAnimSequence* GetEquipmentAimPose() const { return EquipmentAimPose; }
 
 };

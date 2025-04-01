@@ -16,6 +16,7 @@
 #include "Equipment/EquipmentDataAsset.h"
 #include "Equipment/EquipmentManagerComponent.h"
 #include "Melee/MeleeAttackComponent.h"
+#include "Ranged/RangedAttackComponent.h"
 #include "Gameplay/RotationComponent.h"
 #include "Statics/MuseGameplayStatics.h"
 
@@ -73,6 +74,9 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
   // Melee
   MeleeAttack = CreateDefaultSubobject<UMeleeAttackComponent>(TEXT("MeleeAttack"));
 
+  // Ranged
+  RangedAttack = CreateDefaultSubobject<URangedAttackComponent>(TEXT("RangedAttack"));
+
   // Gameplay components
   RotationComp = CreateDefaultSubobject<URotationComponent>(TEXT("Rotation"));
 
@@ -107,6 +111,8 @@ void AMuseCharacter::ConstructEquipment()
 {
   Sword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordEquipment"));
   Sword->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
+  Rifle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleEquipment"));
+  Rifle->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
 }
 
 void AMuseCharacter::ConfigureEquipment()
@@ -116,12 +122,33 @@ void AMuseCharacter::ConfigureEquipment()
   SwordEquipment.EquipmentMesh = Sword;
   SwordEquipment.AnimationData = SwordEquipmentData->AnimationData;
   EquipmentManager->SetEquipment(EWeapon::SWORD, SwordEquipment);
+
+  Rifle->SetVisibility(false);
+  FEquipment RifleEquipment;
+  RifleEquipment.EquipmentMesh = Rifle;
+  RifleEquipment.AnimationData = RifleEquipmentData->AnimationData;
+  EquipmentManager->SetEquipment(EWeapon::RIFLE, RifleEquipment);
 }
 
 void AMuseCharacter::Melee()
 {
   EquipmentManager->SetActiveEquipment(EWeapon::SWORD);
   MeleeAttack->TryTriggerAttack();
+}
+
+void AMuseCharacter::FireRanged()
+{
+  RangedAttack->FireWeapon();
+}
+
+void AMuseCharacter::StartAimRanged()
+{
+  RangedAttack->EnterAim();
+}
+
+void AMuseCharacter::ExitAimRanged()
+{
+  RangedAttack->ExitAim();
 }
 
 void AMuseCharacter::EnterSprint()
@@ -163,6 +190,11 @@ void AMuseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
     // Melee
     EnhancedInputComponent->BindAction(MeleeAction, ETriggerEvent::Started, this, &AMuseCharacter::Melee);
+
+    // Ranged
+    EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AMuseCharacter::FireRanged);
+    EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AMuseCharacter::StartAimRanged);
+    EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AMuseCharacter::ExitAimRanged);
 
     // Sprint
     EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AMuseCharacter::EnterSprint);

@@ -3,36 +3,36 @@
 	"EngineAssociation": "5.5",
 	"Category": "",
 	"Description": "",
-  "Modules": [
-    {
-      "Name": "Muse",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "CoreUObject"
-      ]
-    },
-    {
-      "Name": "MuseAI",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "CoreUObject",
-        "AIModule"
-      ]
-    },
-    {
-      "Name": "MuseAnimation",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "CoreUObject"
-      ]
-    }
-  ],
+	"Modules": [
+		{
+			"Name": "Muse",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject"
+			]
+		},
+		{
+			"Name": "MuseAI",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject",
+				"AIModule"
+			]
+		},
+		{
+			"Name": "MuseAnimation",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject"
+			]
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "ModelingToolsEditorMode",
