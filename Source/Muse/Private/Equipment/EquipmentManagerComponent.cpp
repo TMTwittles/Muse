@@ -19,6 +19,7 @@ void UEquipmentManagerComponent::BeginPlay()
 	Super::BeginPlay();
   ResetActiveEquipment();
   SetEquipmentState(EEquipmentState::HOLSTERED);
+  
 }
 
 // Called every frame
@@ -29,14 +30,44 @@ void UEquipmentManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
-void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, const FEquipment& Equipment)
+void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance)
 {
-  if (!MappedEquipment.Contains(WeaponType))
+  check(!MappedEquipment.Contains(WeaponType));
+  MappedEquipment.Add(WeaponType);
+  MappedEquipment[WeaponType] = InEquipmentInstance;
+}
+
+void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSkeletalMeshComponent, const FName BoneAttachmentName)
+{
+  // TODO: Please forgive me for not making this modular.
+
+  if (SwordEquipmentData->Equipment != nullptr)
   {
-    MappedEquipment.Add(WeaponType);
+    SwordEquipment = NewObject<AEquipment>(SwordEquipmentData->Equipment, "SwordEquipment");
+    SwordEquipment->AttachToComponent(InSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, BoneAttachmentName);
+    FEquipmentInstance SwordEquipmentInstance;
+    SwordEquipmentInstance.Data = SwordEquipmentData;
+    SwordEquipmentInstance.Equipment = SwordEquipment;
+    SetEquipment(EWeapon::SWORD, SwordEquipmentInstance);
   }
-  MappedEquipment[WeaponType].AnimationData = Equipment.AnimationData;
-  MappedEquipment[WeaponType].EquipmentMesh = Equipment.EquipmentMesh;
+  else
+  {
+    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("Sword equipment data does not have a valid equipment configured."));
+  }
+
+  if (RifleEquipmentData->Equipment == nullptr)
+  {
+    RifleEquipment = NewObject<AEquipment>(RifleEquipmentData->Equipment, "RifleEquipment");
+    RifleEquipment->AttachToComponent(InSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, BoneAttachmentName);
+    FEquipmentInstance RifleEquipmentInstance;
+    RifleEquipmentInstance.Data = RifleEquipmentData;
+    RifleEquipmentInstance.Equipment = RifleEquipment;
+    SetEquipment(EWeapon::RIFLE, RifleEquipmentInstance);
+  }
+  else
+  {
+    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("Rifle equipment data does not have a valid equipment configured."));
+  }
 }
 
 void UEquipmentManagerComponent::SetActiveEquipment(const EWeapon WeaponType)
@@ -50,17 +81,15 @@ void UEquipmentManagerComponent::SetActiveEquipment(const EWeapon WeaponType)
 
   if (WeaponType == EWeapon::NONE)
   {
-    ActiveEquipmentMesh = nullptr;
-    ActiveEquipmentAnimationData = nullptr;
+    ActiveEquipmentInstance = nullptr;
     SetEquipmentState(EEquipmentState::HOLSTERED);
     return;
   }
 
-  ActiveEquipmentMesh = MappedEquipment[WeaponType].EquipmentMesh;
-  ActiveEquipmentAnimationData = MappedEquipment[WeaponType].AnimationData;
-  ActiveEquipmentMesh->SetVisibility(true);
+  ActiveEquipmentInstance = &MappedEquipment[WeaponType];
+  ActiveEquipmentInstance->GetEquipment()->SetWeaponMeshVisibility(true);
   SetEquipmentState(EEquipmentState::EQUIPPED);
-  ActiveEquipmentChanged.Broadcast(ActiveEquipmentAnimationData);
+  ActiveEquipmentChanged.Broadcast(ActiveEquipmentInstance->GetEquipmentData()->AnimationData);
 }
 
 void UEquipmentManagerComponent::SetActiveEquipmentForDuration(const EWeapon InWeapon, const float EquipDuration)
@@ -90,11 +119,10 @@ void UEquipmentManagerComponent::SetUseFullBodyAnims(const bool bInUseFullBodyAn
 
 void UEquipmentManagerComponent::ResetActiveEquipment()
 {
-  if (ActiveEquipmentMesh != nullptr)
+  if (ActiveEquipmentInstance != nullptr)
   {
-    ActiveEquipmentMesh->SetVisibility(false);
+    ActiveEquipmentInstance->GetEquipment()->SetWeaponMeshVisibility(false);
   }
   ActiveWeapon = EWeapon::NONE;
-  ActiveEquipmentMesh = nullptr;
-  ActiveEquipmentAnimationData = nullptr;
+  ActiveEquipmentInstance = nullptr;
 }

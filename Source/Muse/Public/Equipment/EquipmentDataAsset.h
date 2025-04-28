@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "Equipment.h"
 #include "EquipmentAnimationDataAsset.h"
 #include "EquipmentDataAsset.generated.h"
 
@@ -17,13 +18,13 @@ class MUSE_API UEquipmentDataAsset : public UDataAsset
 
 public:
   UPROPERTY(EditAnywhere, Category = "DefaultData")
-  TObjectPtr<UStaticMesh> EquipmentMesh;
+  TObjectPtr<AEquipment> Equipment;
 
   UPROPERTY(EditAnywhere, Category = "DefaultData")
   TObjectPtr<UEquipmentAnimationDataAsset> AnimationData;
 
   UFUNCTION(BlueprintCallable, Category = "DefaultData")
-  inline UStaticMesh* GetEquipmentMesh() const { return EquipmentMesh; }
+  inline AEquipment* GetEquipment() const { return Equipment; }
 
   UFUNCTION(BlueprintCallable, Category ="DefaultData")
   inline UEquipmentAnimationDataAsset* GetEquipmentAnimationData() const { return AnimationData; }

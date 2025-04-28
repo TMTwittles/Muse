@@ -109,25 +109,12 @@ void AMuseCharacter::BeginPlay()
 
 void AMuseCharacter::ConstructEquipment()
 {
-  Sword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordEquipment"));
-  Sword->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
-  Rifle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleEquipment"));
-  Rifle->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
+
 }
 
 void AMuseCharacter::ConfigureEquipment()
 {
-  Sword->SetVisibility(false);
-  FEquipment SwordEquipment;
-  SwordEquipment.EquipmentMesh = Sword;
-  SwordEquipment.AnimationData = SwordEquipmentData->AnimationData;
-  EquipmentManager->SetEquipment(EWeapon::SWORD, SwordEquipment);
 
-  Rifle->SetVisibility(false);
-  FEquipment RifleEquipment;
-  RifleEquipment.EquipmentMesh = Rifle;
-  RifleEquipment.AnimationData = RifleEquipmentData->AnimationData;
-  EquipmentManager->SetEquipment(EWeapon::RIFLE, RifleEquipment);
 }
 
 void AMuseCharacter::Melee()

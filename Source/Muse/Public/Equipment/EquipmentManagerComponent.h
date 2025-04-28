@@ -24,11 +24,19 @@ enum class EEquipmentState : uint8
 };
 
 USTRUCT(BlueprintType)
-struct FEquipment
+struct FEquipmentInstance
 {
   GENERATED_USTRUCT_BODY()
-  UStaticMeshComponent* EquipmentMesh;
-  UEquipmentAnimationDataAsset* AnimationData;
+
+  UPROPERTY()
+  AEquipment* Equipment;
+
+  UPROPERTY()
+  UEquipmentDataAsset* Data;
+
+public:
+  inline AEquipment* GetEquipment() const { return Equipment; }
+  inline const UEquipmentDataAsset* GetEquipmentData() const { return Data; }
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -50,13 +58,22 @@ public:
   FEquipmentAnimStateChanged EquipmentAnimStateChanged;
 
 private:
+  UPROPERTY(EditAnywhere, Category="EquipmentData", meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
+  UPROPERTY(BlueprintReadOnly, Category="EquipmentData", meta = (AllowPrivateAccess="true"))
+  TObjectPtr<AEquipment> SwordEquipment;
+  UPROPERTY(EditAnywhere, Category="EquipmentData", meta = (AllowPrivateAccess = "true"))
+  TObjectPtr <UEquipmentDataAsset> RifleEquipmentData;
+  UPROPERTY(BlueprintReadOnly, Category = "EquipmentData", meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<AEquipment> RifleEquipment;
+
   UPROPERTY()
-  TMap<EWeapon, FEquipment> MappedEquipment;
+  TMap<EWeapon, FEquipmentInstance> MappedEquipment;
 
   EWeapon ActiveWeapon;
   EEquipmentState ActiveEquipmentState;
-  UStaticMeshComponent* ActiveEquipmentMesh;
-  UEquipmentAnimationDataAsset* ActiveEquipmentAnimationData;
+  FEquipmentInstance* ActiveEquipmentInstance;
+
   bool bTickCurrentEquipmentActiveDuration = false;
   float CurrentEquipmentActiveDuration = 0.0f;
   bool bUseFullBodyAnims = false;
@@ -73,8 +90,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+  void SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance);
+
   UFUNCTION(BlueprintCallable)
-  void SetEquipment(const EWeapon WeaponType, const FEquipment& Equipment);
+  void ConstructEquipment(USkeletalMeshComponent* InSkeletalMeshComponent, const FName BoneAttachmentName);
 
   UFUNCTION(BlueprintCallable)
   void SetActiveEquipment(const EWeapon WeaponType);
