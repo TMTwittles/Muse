@@ -37,39 +37,6 @@ void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, const FE
   MappedEquipment[WeaponType] = InEquipmentInstance;
 }
 
-void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSkeletalMeshComponent, const FName BoneAttachmentName)
-{
-  // TODO: Please forgive me for not making this modular.
-
-  if (SwordEquipmentData->Equipment != nullptr)
-  {
-    SwordEquipment = NewObject<AEquipment>(SwordEquipmentData->Equipment, "SwordEquipment");
-    SwordEquipment->AttachToComponent(InSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, BoneAttachmentName);
-    FEquipmentInstance SwordEquipmentInstance;
-    SwordEquipmentInstance.Data = SwordEquipmentData;
-    SwordEquipmentInstance.Equipment = SwordEquipment;
-    SetEquipment(EWeapon::SWORD, SwordEquipmentInstance);
-  }
-  else
-  {
-    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("Sword equipment data does not have a valid equipment configured."));
-  }
-
-  if (RifleEquipmentData->Equipment == nullptr)
-  {
-    RifleEquipment = NewObject<AEquipment>(RifleEquipmentData->Equipment, "RifleEquipment");
-    RifleEquipment->AttachToComponent(InSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, BoneAttachmentName);
-    FEquipmentInstance RifleEquipmentInstance;
-    RifleEquipmentInstance.Data = RifleEquipmentData;
-    RifleEquipmentInstance.Equipment = RifleEquipment;
-    SetEquipment(EWeapon::RIFLE, RifleEquipmentInstance);
-  }
-  else
-  {
-    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("Rifle equipment data does not have a valid equipment configured."));
-  }
-}
-
 void UEquipmentManagerComponent::SetActiveEquipment(const EWeapon WeaponType)
 {
   if (ActiveWeapon == WeaponType)

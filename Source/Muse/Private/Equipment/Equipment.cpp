@@ -2,19 +2,19 @@
 
 #include "Equipment/Equipment.h"
 
-AEquipment::AEquipment()
+UEquipmentComponent::UEquipmentComponent()
 {
   EquipmentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root component"));
-  SetRootComponent(EquipmentRoot);
+  EquipmentRoot->SetupAttachment(this);
 
   WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon Mesh"));
-  WeaponMesh->AttachToComponent(EquipmentRoot, FAttachmentTransformRules::KeepRelativeTransform);
+  WeaponMesh->SetupAttachment(EquipmentRoot);
 
   IKWeaponAttachPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Scene component"));
-  IKWeaponAttachPoint->AttachToComponent(WeaponMesh, FAttachmentTransformRules::KeepRelativeTransform);
+  IKWeaponAttachPoint->SetupAttachment(WeaponMesh);
 }
 
-void AEquipment::SetWeaponMeshVisibility(const bool bVisible)
+void UEquipmentComponent::SetWeaponMeshVisibility(const bool bMeshVisible)
 {
-  WeaponMesh->SetVisibility(bVisible);
+  WeaponMesh->SetVisibility(bMeshVisible);
 }

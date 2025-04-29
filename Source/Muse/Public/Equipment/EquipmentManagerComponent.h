@@ -29,13 +29,13 @@ struct FEquipmentInstance
   GENERATED_USTRUCT_BODY()
 
   UPROPERTY()
-  AEquipment* Equipment;
+  UEquipmentComponent* Equipment;
 
   UPROPERTY()
   UEquipmentDataAsset* Data;
 
 public:
-  inline AEquipment* GetEquipment() const { return Equipment; }
+  inline UEquipmentComponent* GetEquipment() const { return Equipment; }
   inline const UEquipmentDataAsset* GetEquipmentData() const { return Data; }
 };
 
@@ -58,15 +58,6 @@ public:
   FEquipmentAnimStateChanged EquipmentAnimStateChanged;
 
 private:
-  UPROPERTY(EditAnywhere, Category="EquipmentData", meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
-  UPROPERTY(BlueprintReadOnly, Category="EquipmentData", meta = (AllowPrivateAccess="true"))
-  TObjectPtr<AEquipment> SwordEquipment;
-  UPROPERTY(EditAnywhere, Category="EquipmentData", meta = (AllowPrivateAccess = "true"))
-  TObjectPtr <UEquipmentDataAsset> RifleEquipmentData;
-  UPROPERTY(BlueprintReadOnly, Category = "EquipmentData", meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<AEquipment> RifleEquipment;
-
   UPROPERTY()
   TMap<EWeapon, FEquipmentInstance> MappedEquipment;
 
@@ -91,9 +82,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
   void SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance);
-
-  UFUNCTION(BlueprintCallable)
-  void ConstructEquipment(USkeletalMeshComponent* InSkeletalMeshComponent, const FName BoneAttachmentName);
 
   UFUNCTION(BlueprintCallable)
   void SetActiveEquipment(const EWeapon WeaponType);

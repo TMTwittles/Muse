@@ -15,6 +15,7 @@
 #include "StrafeAnimationHandlerComponent.h"
 #include "Equipment/EquipmentDataAsset.h"
 #include "Equipment/EquipmentManagerComponent.h"
+#include "Equipment/Equipment.h"
 #include "Melee/MeleeAttackComponent.h"
 #include "Ranged/RangedAttackComponent.h"
 #include "Gameplay/RotationComponent.h"
@@ -104,17 +105,23 @@ void AMuseCharacter::BeginPlay()
   //MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
   // Configure Equipment
-  ConfigureEquipment();
 }
 
 void AMuseCharacter::ConstructEquipment()
 {
+  Sword = CreateDefaultSubobject<UEquipmentComponent>("Sword Equipment");
+  Sword->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
+  FEquipmentInstance SwordEquipmentInstance;
+  SwordEquipmentInstance.Data = SwordEquipmentData;
+  SwordEquipmentInstance.Equipment = Sword;
+  EquipmentManager->SetEquipment(EWeapon::SWORD, SwordEquipmentInstance);
 
-}
-
-void AMuseCharacter::ConfigureEquipment()
-{
-
+  Rifle = CreateDefaultSubobject<UEquipmentComponent>("Rifle Equipment");
+  Rifle->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
+  FEquipmentInstance RifleEquipmentInstance;
+  RifleEquipmentInstance.Data = RifleEquipmentData;
+  RifleEquipmentInstance.Equipment = Rifle;
+  EquipmentManager->SetEquipment(EWeapon::RIFLE, RifleEquipmentInstance);
 }
 
 void AMuseCharacter::Melee()
