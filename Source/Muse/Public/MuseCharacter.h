@@ -48,18 +48,6 @@ class MUSE_API AMuseCharacter : public ACharacter
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UEquipmentManagerComponent> EquipmentManager;
 
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UEquipmentComponent> Sword;
-
-  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
-
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UEquipmentComponent> Rifle;
-
-  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UEquipmentDataAsset> RifleEquipmentData;
-
   /** Strafe animation handler */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = StrafeAnimation, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UStrafeAnimationHandlerComponent> StrafeAnimationHandler;
@@ -137,9 +125,6 @@ protected:
 	virtual void BeginPlay();
 
 private:
-  /** Equipment related **/
-  void ConstructEquipment();
-
   /** Called for melee input */
   void Melee();
 

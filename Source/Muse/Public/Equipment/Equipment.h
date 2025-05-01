@@ -10,7 +10,7 @@
  * 
  */
 UCLASS(BlueprintType)
-class MUSE_API UEquipmentComponent : public USceneComponent
+class MUSE_API AEquipment : public AActor
 {
 	GENERATED_BODY()
 
@@ -25,7 +25,7 @@ private:
   TObjectPtr<USceneComponent> IKWeaponAttachPoint;
 
 public:
-  UEquipmentComponent();
+  AEquipment();
 
   UFUNCTION(BlueprintCallable, BlueprintPure)
   inline FTransform GetIKWeaponJointTransform() const { return IKWeaponAttachPoint->GetComponentTransform(); }

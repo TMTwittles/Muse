@@ -30,9 +30,39 @@ void UEquipmentManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
+void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSkeletalMesh, const FName InSocketName)
+{
+  if (SwordEquipmentData)
+  {
+    Sword = GetWorld()->SpawnActor<AEquipment>(SwordEquipmentData->GetEquipment(), FVector::Zero(), FRotator::ZeroRotator);
+    Sword->AttachToComponent(InSkeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
+    FEquipmentInstance SwordEquipmentInstance;
+    SwordEquipmentInstance.Data = SwordEquipmentData;
+    SwordEquipmentInstance.Equipment = Sword;
+    SetEquipment(EWeapon::SWORD, SwordEquipmentInstance);
+  }
+  else
+  {
+    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("No sword equipment has been set"));
+  }
+
+  if (RifleEquipmentData)
+  {
+    Rifle = GetWorld()->SpawnActor<AEquipment>(RifleEquipmentData->GetEquipment(), FVector::Zero(), FRotator::ZeroRotator);
+    Rifle->AttachToComponent(InSkeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
+    FEquipmentInstance RifleEquipmentInstance;
+    RifleEquipmentInstance.Data = RifleEquipmentData;
+    RifleEquipmentInstance.Equipment = Rifle;
+    SetEquipment(EWeapon::RIFLE, RifleEquipmentInstance);
+  }
+  else
+  {
+    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("No rifle equipment has been set"));
+  }
+}
+
 void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance)
 {
-  check(!MappedEquipment.Contains(WeaponType));
   MappedEquipment.Add(WeaponType);
   MappedEquipment[WeaponType] = InEquipmentInstance;
 }

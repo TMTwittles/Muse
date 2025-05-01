@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "EquipmentDataAsset.h"
+#include "Equipment.h"
 #include "EquipmentManagerComponent.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEquipmentManagerComponent, Log, All);
@@ -29,13 +30,13 @@ struct FEquipmentInstance
   GENERATED_USTRUCT_BODY()
 
   UPROPERTY()
-  UEquipmentComponent* Equipment;
+  AEquipment* Equipment;
 
   UPROPERTY()
   UEquipmentDataAsset* Data;
 
 public:
-  inline UEquipmentComponent* GetEquipment() const { return Equipment; }
+  inline AEquipment* GetEquipment() const { return Equipment; }
   inline const UEquipmentDataAsset* GetEquipmentData() const { return Data; }
 };
 
@@ -61,6 +62,18 @@ private:
   UPROPERTY()
   TMap<EWeapon, FEquipmentInstance> MappedEquipment;
 
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EquipmentData, meta=(AllowPrivateAccess="true"))
+  TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
+
+  UPROPERTY()
+  TObjectPtr<AEquipment> Sword;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EquipmentData, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UEquipmentDataAsset> RifleEquipmentData;
+
+  UPROPERTY()
+  TObjectPtr<AEquipment> Rifle;
+
   EWeapon ActiveWeapon;
   EEquipmentState ActiveEquipmentState;
   FEquipmentInstance* ActiveEquipmentInstance;
@@ -80,6 +93,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+  void ConstructEquipment(USkeletalMeshComponent* InSkeletalMesh, const FName InSocketName);
 
   void SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance);
 

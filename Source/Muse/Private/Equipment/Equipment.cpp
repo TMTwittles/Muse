@@ -2,10 +2,10 @@
 
 #include "Equipment/Equipment.h"
 
-UEquipmentComponent::UEquipmentComponent()
+AEquipment::AEquipment()
 {
   EquipmentRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root component"));
-  EquipmentRoot->SetupAttachment(this);
+  SetRootComponent(EquipmentRoot);
 
   WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon Mesh"));
   WeaponMesh->SetupAttachment(EquipmentRoot);
@@ -14,7 +14,7 @@ UEquipmentComponent::UEquipmentComponent()
   IKWeaponAttachPoint->SetupAttachment(WeaponMesh);
 }
 
-void UEquipmentComponent::SetWeaponMeshVisibility(const bool bMeshVisible)
+void AEquipment::SetWeaponMeshVisibility(const bool bMeshVisible)
 {
   WeaponMesh->SetVisibility(bMeshVisible);
 }

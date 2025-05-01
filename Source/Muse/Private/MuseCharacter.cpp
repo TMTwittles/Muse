@@ -59,7 +59,6 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 
   // Equipment
   EquipmentManager = CreateDefaultSubobject<UEquipmentManagerComponent>(TEXT("EquipmentManager"));
-  ConstructEquipment();
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -105,23 +104,7 @@ void AMuseCharacter::BeginPlay()
   //MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
   // Configure Equipment
-}
-
-void AMuseCharacter::ConstructEquipment()
-{
-  Sword = CreateDefaultSubobject<UEquipmentComponent>("Sword Equipment");
-  Sword->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
-  FEquipmentInstance SwordEquipmentInstance;
-  SwordEquipmentInstance.Data = SwordEquipmentData;
-  SwordEquipmentInstance.Equipment = Sword;
-  EquipmentManager->SetEquipment(EWeapon::SWORD, SwordEquipmentInstance);
-
-  Rifle = CreateDefaultSubobject<UEquipmentComponent>("Rifle Equipment");
-  Rifle->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
-  FEquipmentInstance RifleEquipmentInstance;
-  RifleEquipmentInstance.Data = RifleEquipmentData;
-  RifleEquipmentInstance.Equipment = Rifle;
-  EquipmentManager->SetEquipment(EWeapon::RIFLE, RifleEquipmentInstance);
+  EquipmentManager->ConstructEquipment(GetMesh(), FName("WeaponJoint_R"));
 }
 
 void AMuseCharacter::Melee()

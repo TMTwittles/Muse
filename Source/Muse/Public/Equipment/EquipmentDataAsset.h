@@ -18,13 +18,13 @@ class MUSE_API UEquipmentDataAsset : public UDataAsset
 
 public:
   UPROPERTY(EditAnywhere, Category = "DefaultData")
-  TObjectPtr<UEquipmentComponent> Equipment;
+  TSubclassOf<AEquipment> Equipment;
 
   UPROPERTY(EditAnywhere, Category = "DefaultData")
   TObjectPtr<UEquipmentAnimationDataAsset> AnimationData;
 
   UFUNCTION(BlueprintCallable, Category = "DefaultData")
-  inline UEquipmentComponent* GetEquipment() const { return Equipment; }
+  inline TSubclassOf<AEquipment> GetEquipment() { return Equipment; }
 
   UFUNCTION(BlueprintCallable, Category ="DefaultData")
   inline UEquipmentAnimationDataAsset* GetEquipmentAnimationData() const { return AnimationData; }
