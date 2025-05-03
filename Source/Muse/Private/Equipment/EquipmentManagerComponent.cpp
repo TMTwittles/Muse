@@ -34,7 +34,14 @@ void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSk
 {
   if (SwordEquipmentData)
   {
-    Sword = GetWorld()->SpawnActor<AEquipment>(SwordEquipmentData->GetEquipment(), FVector::Zero(), FRotator::ZeroRotator);
+    FActorSpawnParameters SwordSpawnParameters;
+    SwordSpawnParameters.Owner = GetOwner();
+    Sword = GetWorld()->SpawnActor<AEquipment>(
+      SwordEquipmentData->GetEquipment(),
+      FVector::Zero(),
+      FRotator::ZeroRotator,
+      SwordSpawnParameters);
+    Sword->SetWeaponMeshVisibility(false);
     Sword->AttachToComponent(InSkeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
     FEquipmentInstance SwordEquipmentInstance;
     SwordEquipmentInstance.Data = SwordEquipmentData;
@@ -48,7 +55,14 @@ void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSk
 
   if (RifleEquipmentData)
   {
-    Rifle = GetWorld()->SpawnActor<AEquipment>(RifleEquipmentData->GetEquipment(), FVector::Zero(), FRotator::ZeroRotator);
+    FActorSpawnParameters RifleSpawnParameters;
+    RifleSpawnParameters.Owner = GetOwner();
+    Rifle = GetWorld()->SpawnActor<AEquipment>(
+      RifleEquipmentData->GetEquipment(),
+      FVector::Zero(),
+      FRotator::ZeroRotator,
+      RifleSpawnParameters);
+    Rifle->SetWeaponMeshVisibility(false);
     Rifle->AttachToComponent(InSkeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
     FEquipmentInstance RifleEquipmentInstance;
     RifleEquipmentInstance.Data = RifleEquipmentData;
