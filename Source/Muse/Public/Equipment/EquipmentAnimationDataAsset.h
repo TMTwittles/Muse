@@ -21,6 +21,12 @@ public:
   UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|AnimSequences")
   TObjectPtr<UAnimSequence> EquipmentAimPose;
 
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|FullbodyEquipmentProperties")
+  bool bIsFullBody;
+
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|FullbodyEquipmentProperties")
+  float FullBodyBlendWeight;
+
   UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|RightHandedEquipmentProperties")
   bool bApplyRightHandedBlendWeight;
 
@@ -32,6 +38,9 @@ public:
 
   UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|LeftHandedEquipmentProperties")
   float LeftHandedBlendWeight;
+
+  UPROPERTY(EditAnywhere, Category = "DefaultEquipmentAnimationProperties|IKHandLocation", meta = (EditCondition="bApplyLeftHandedBlendWeight && bApplyRightHandedBlendWeight"))
+  FTransform EquipmentIKHandLocation;
 
   UFUNCTION(BlueprintCallable, BlueprintPure)
   inline bool ApplyRightHandedBlendWeight() const { return bApplyRightHandedBlendWeight; }
@@ -51,4 +60,12 @@ public:
   UFUNCTION(BlueprintCallable, BlueprintPure)
   inline UAnimSequence* GetEquipmentAimPose() const { return EquipmentAimPose; }
 
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline FTransform GetEquipmentIKHandLocation() const { return EquipmentIKHandLocation; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline bool IsFullBodyAnim() const { return bIsFullBody; }
+
+  UFUNCTION(BlueprintCallable, BlueprintPure)
+  inline float GetFullBodyBlendWeight() const { return FullBodyBlendWeight; }
 };

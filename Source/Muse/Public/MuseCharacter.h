@@ -12,6 +12,7 @@
 */
 
 class UEquipmentManagerComponent;
+class UEquipmentComponent;
 class UEquipmentDataAsset;
 
 class UMuseCharacterMovementComponent;
@@ -44,18 +45,6 @@ class MUSE_API AMuseCharacter : public ACharacter
   TObjectPtr<UMuseCharacterMovementComponent> MuseCharacterMovement;
 
   /** Equipment */
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UStaticMeshComponent> Sword;
-
-  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
-
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UStaticMeshComponent> Rifle;
-
-  UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
-  TObjectPtr<UEquipmentDataAsset> RifleEquipmentData;
-
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equipment, meta = (AllowPrivateAccess = "true"))
   TObjectPtr<UEquipmentManagerComponent> EquipmentManager;
 
@@ -136,10 +125,6 @@ protected:
 	virtual void BeginPlay();
 
 private:
-  /** Equipment */
-  void ConstructEquipment();
-  void ConfigureEquipment();
-
   /** Called for melee input */
   void Melee();
 

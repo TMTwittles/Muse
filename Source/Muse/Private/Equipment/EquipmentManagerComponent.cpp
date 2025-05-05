@@ -19,6 +19,7 @@ void UEquipmentManagerComponent::BeginPlay()
 	Super::BeginPlay();
   ResetActiveEquipment();
   SetEquipmentState(EEquipmentState::HOLSTERED);
+  
 }
 
 // Called every frame
@@ -29,14 +30,57 @@ void UEquipmentManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
-void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, const FEquipment& Equipment)
+void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSkeletalMesh, const FName& InSocketName)
 {
-  if (!MappedEquipment.Contains(WeaponType))
+  // TODO: Please forgive me for the lack of modularity in this current spawning implementation.
+
+  if (SwordEquipmentData)
   {
-    MappedEquipment.Add(WeaponType);
+    FActorSpawnParameters SwordSpawnParameters;
+    SwordSpawnParameters.Owner = GetOwner();
+    Sword = GetWorld()->SpawnActor<AEquipment>(
+      SwordEquipmentData->GetEquipment(),
+      FVector::Zero(),
+      FRotator::ZeroRotator,
+      SwordSpawnParameters);
+    Sword->SetWeaponMeshVisibility(false);
+    Sword->AttachToComponent(InSkeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
+    FEquipmentInstance SwordEquipmentInstance;
+    SwordEquipmentInstance.Data = SwordEquipmentData;
+    SwordEquipmentInstance.Equipment = Sword;
+    SetEquipment(EWeapon::SWORD, SwordEquipmentInstance);
   }
-  MappedEquipment[WeaponType].AnimationData = Equipment.AnimationData;
-  MappedEquipment[WeaponType].EquipmentMesh = Equipment.EquipmentMesh;
+  else
+  {
+    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("No sword equipment has been set"));
+  }
+
+  if (RifleEquipmentData)
+  {
+    FActorSpawnParameters RifleSpawnParameters;
+    RifleSpawnParameters.Owner = GetOwner();
+    Rifle = GetWorld()->SpawnActor<AEquipment>(
+      RifleEquipmentData->GetEquipment(),
+      FVector::Zero(),
+      FRotator::ZeroRotator,
+      RifleSpawnParameters);
+    Rifle->SetWeaponMeshVisibility(false);
+    Rifle->AttachToComponent(InSkeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
+    FEquipmentInstance RifleEquipmentInstance;
+    RifleEquipmentInstance.Data = RifleEquipmentData;
+    RifleEquipmentInstance.Equipment = Rifle;
+    SetEquipment(EWeapon::RIFLE, RifleEquipmentInstance);
+  }
+  else
+  {
+    UE_LOG(LogEquipmentManagerComponent, Warning, TEXT("No rifle equipment has been set"));
+  }
+}
+
+void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance)
+{
+  MappedEquipment.Add(WeaponType);
+  MappedEquipment[WeaponType] = InEquipmentInstance;
 }
 
 void UEquipmentManagerComponent::SetActiveEquipment(const EWeapon WeaponType)
@@ -50,17 +94,15 @@ void UEquipmentManagerComponent::SetActiveEquipment(const EWeapon WeaponType)
 
   if (WeaponType == EWeapon::NONE)
   {
-    ActiveEquipmentMesh = nullptr;
-    ActiveEquipmentAnimationData = nullptr;
+    ActiveEquipmentInstance = nullptr;
     SetEquipmentState(EEquipmentState::HOLSTERED);
     return;
   }
 
-  ActiveEquipmentMesh = MappedEquipment[WeaponType].EquipmentMesh;
-  ActiveEquipmentAnimationData = MappedEquipment[WeaponType].AnimationData;
-  ActiveEquipmentMesh->SetVisibility(true);
+  ActiveEquipmentInstance = &MappedEquipment[WeaponType];
+  ActiveEquipmentInstance->GetEquipment()->SetWeaponMeshVisibility(true);
   SetEquipmentState(EEquipmentState::EQUIPPED);
-  ActiveEquipmentChanged.Broadcast(ActiveEquipmentAnimationData);
+  ActiveEquipmentChanged.Broadcast(ActiveEquipmentInstance->GetEquipmentData()->AnimationData);
 }
 
 void UEquipmentManagerComponent::SetActiveEquipmentForDuration(const EWeapon InWeapon, const float EquipDuration)
@@ -90,11 +132,10 @@ void UEquipmentManagerComponent::SetUseFullBodyAnims(const bool bInUseFullBodyAn
 
 void UEquipmentManagerComponent::ResetActiveEquipment()
 {
-  if (ActiveEquipmentMesh != nullptr)
+  if (ActiveEquipmentInstance != nullptr)
   {
-    ActiveEquipmentMesh->SetVisibility(false);
+    ActiveEquipmentInstance->GetEquipment()->SetWeaponMeshVisibility(false);
   }
   ActiveWeapon = EWeapon::NONE;
-  ActiveEquipmentMesh = nullptr;
-  ActiveEquipmentAnimationData = nullptr;
+  ActiveEquipmentInstance = nullptr;
 }

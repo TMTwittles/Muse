@@ -15,6 +15,7 @@
 #include "StrafeAnimationHandlerComponent.h"
 #include "Equipment/EquipmentDataAsset.h"
 #include "Equipment/EquipmentManagerComponent.h"
+#include "Equipment/Equipment.h"
 #include "Melee/MeleeAttackComponent.h"
 #include "Ranged/RangedAttackComponent.h"
 #include "Gameplay/RotationComponent.h"
@@ -58,7 +59,6 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 
   // Equipment
   EquipmentManager = CreateDefaultSubobject<UEquipmentManagerComponent>(TEXT("EquipmentManager"));
-  ConstructEquipment();
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -104,30 +104,7 @@ void AMuseCharacter::BeginPlay()
   //MuseCharacterMovement->AddMovementMode(EMuseMoveMode::MMOVE_MELEE_SUCK_TO_TARGET);
 
   // Configure Equipment
-  ConfigureEquipment();
-}
-
-void AMuseCharacter::ConstructEquipment()
-{
-  Sword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordEquipment"));
-  Sword->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
-  Rifle = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleEquipment"));
-  Rifle->SetupAttachment(GetMesh(), FName("WeaponJoint_R"));
-}
-
-void AMuseCharacter::ConfigureEquipment()
-{
-  Sword->SetVisibility(false);
-  FEquipment SwordEquipment;
-  SwordEquipment.EquipmentMesh = Sword;
-  SwordEquipment.AnimationData = SwordEquipmentData->AnimationData;
-  EquipmentManager->SetEquipment(EWeapon::SWORD, SwordEquipment);
-
-  Rifle->SetVisibility(false);
-  FEquipment RifleEquipment;
-  RifleEquipment.EquipmentMesh = Rifle;
-  RifleEquipment.AnimationData = RifleEquipmentData->AnimationData;
-  EquipmentManager->SetEquipment(EWeapon::RIFLE, RifleEquipment);
+  EquipmentManager->ConstructEquipment(GetMesh(), FName("WeaponJoint_R"));
 }
 
 void AMuseCharacter::Melee()
