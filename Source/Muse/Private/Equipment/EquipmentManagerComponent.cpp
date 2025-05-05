@@ -30,8 +30,10 @@ void UEquipmentManagerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	// ...
 }
 
-void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSkeletalMesh, const FName InSocketName)
+void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSkeletalMesh, const FName& InSocketName)
 {
+  // TODO: Please forgive me for the lack of modularity in this current spawning implementation.
+
   if (SwordEquipmentData)
   {
     FActorSpawnParameters SwordSpawnParameters;

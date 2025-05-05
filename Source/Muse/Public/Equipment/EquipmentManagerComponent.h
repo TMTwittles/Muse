@@ -94,7 +94,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-  void ConstructEquipment(USkeletalMeshComponent* InSkeletalMesh, const FName InSocketName);
+  void ConstructEquipment(USkeletalMeshComponent* InSkeletalMesh, const FName& InSocketName);
 
   void SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance);
 
