@@ -20,14 +20,33 @@ enum class EStrafeDirection : uint8 {
 * House the range for strafe movement. Note, all values are in degrees and positive.
 * For example forward strafe direction would have a strafe direction of 0 with min range of 45 and max range of 315 degrees.
 */
-USTRUCT()
+USTRUCT(BlueprintType, Blueprintable)
 struct FStrafeMovementRange
 {
   GENERATED_USTRUCT_BODY()
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
   float StrafeDirectionDegrees;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
   float StrafeDirectionDegreesUnwind;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
   float StrafeRangeLeft;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
   float StrafeRangeRight;
+};
+
+/*
+* Simple struct to house strafe movement range construction, primarily used for config in anim blueprints.
+*/
+USTRUCT(BlueprintType, Blueprintable)
+struct FStrafeConfig
+{
+  GENERATED_USTRUCT_BODY()
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  bool bUseStrafeDirection;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  EStrafeDirection StrafeDirection;
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  FStrafeMovementRange MovementRange;
 };
 
 class UCharacterMovementComponent;
@@ -70,7 +89,7 @@ public:
   float GetStrafeDirectionDegrees(const EStrafeDirection InStrafeDirection) const;
   // Establishes a movement for the inserted direction, using a clock wise direction as the starting point with left and right range.
   UFUNCTION(BlueprintCallable)
-  void SetMovementRange(const EStrafeDirection InStrafeDirection, const float InClockwiseDirectionDegrees, const float InRangeDegreesLeft, const float InRangeDegreesRight);
+  void SetMovementRange(const EStrafeDirection InStrafeDirection, const FStrafeMovementRange& InMovementRange);
 private:
   void UpdateSignedMovementDirectionDegrees();
   float GetAngleRelativeToStrafeDirection(const EStrafeDirection InStrafeDirection, float InSignedMovementDirectionDegrees) const;

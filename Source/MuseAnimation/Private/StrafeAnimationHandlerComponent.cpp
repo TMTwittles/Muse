@@ -67,19 +67,24 @@ float UStrafeAnimationHandlerComponent::GetStrafeDirectionDegrees(const EStrafeD
   return MovementRanges[(int)InStrafeDirection].StrafeDirectionDegrees;
 }
 
-void UStrafeAnimationHandlerComponent::SetMovementRange(const EStrafeDirection InStrafeDirection, const float InClockwiseDirectionDegrees, const float InRangeDegreesLeft, const float InRangeDegreesRight)
+void UStrafeAnimationHandlerComponent::SetMovementRange(const EStrafeDirection InStrafeDirection, const FStrafeMovementRange& InMovementRange)
 {
+  if (InStrafeDirection == EStrafeDirection::NONE)
+  {
+    UE_LOG(LogMuseAnimation, Warning, TEXT("Passed NONE movement range."));
+    return;
+  }
   if (MovementRangesMap.Contains(InStrafeDirection))
   {
     UE_LOG(LogMuseAnimation, Warning, TEXT("Movement range for strafe direction %s already exists."), *UEnum::GetValueAsString(InStrafeDirection));
     return;
   }
-  if (InClockwiseDirectionDegrees < 0.0f)
+  if (InMovementRange.StrafeDirectionDegrees < 0.0f)
   {
-    UE_LOG(LogMuseAnimation, Warning, TEXT("Input direction for %s must be clockwise"), *UEnum::GetValueAsString(InStrafeDirection));
+    UE_LOG(LogMuseAnimation, Warning, TEXT("Strafe direction degrees for %s must be clockwise and greater than 0."), *UEnum::GetValueAsString(InStrafeDirection));
     return;
   }
-  MovementRangesMap.Add(InStrafeDirection, BuildStrafeMovementRange(InClockwiseDirectionDegrees, InRangeDegreesLeft, InRangeDegreesRight));
+  MovementRangesMap.Add(InStrafeDirection, InMovementRange);
 
   if (ActiveStrafeDirection == EStrafeDirection::NONE)
   {
