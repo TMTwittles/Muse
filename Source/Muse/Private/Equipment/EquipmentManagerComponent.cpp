@@ -38,6 +38,8 @@ void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSk
   {
     FActorSpawnParameters SwordSpawnParameters;
     SwordSpawnParameters.Owner = GetOwner();
+
+    // Construct sword object
     Sword = GetWorld()->SpawnActor<AEquipment>(
       SwordEquipmentData->GetEquipment(),
       FVector::Zero(),
@@ -45,9 +47,11 @@ void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSk
       SwordSpawnParameters);
     Sword->SetWeaponMeshVisibility(false);
     Sword->AttachToComponent(InSkeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
-    FEquipmentInstance SwordEquipmentInstance;
-    SwordEquipmentInstance.Data = SwordEquipmentData;
-    SwordEquipmentInstance.Equipment = Sword;
+
+    // Construct sword equipment instance
+    UEquipmentInstance* SwordEquipmentInstance = NewObject<UEquipmentInstance>();
+    SwordEquipmentInstance->Initialize(Sword, SwordEquipmentData);
+
     SetEquipment(EWeapon::SWORD, SwordEquipmentInstance);
   }
   else
@@ -59,6 +63,8 @@ void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSk
   {
     FActorSpawnParameters RifleSpawnParameters;
     RifleSpawnParameters.Owner = GetOwner();
+
+    // Construct rifle object
     Rifle = GetWorld()->SpawnActor<AEquipment>(
       RifleEquipmentData->GetEquipment(),
       FVector::Zero(),
@@ -66,9 +72,11 @@ void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSk
       RifleSpawnParameters);
     Rifle->SetWeaponMeshVisibility(false);
     Rifle->AttachToComponent(InSkeletalMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InSocketName);
-    FEquipmentInstance RifleEquipmentInstance;
-    RifleEquipmentInstance.Data = RifleEquipmentData;
-    RifleEquipmentInstance.Equipment = Rifle;
+
+    // Construct rifle equipment instance
+    UEquipmentInstance* RifleEquipmentInstance = NewObject<UEquipmentInstance>();
+    RifleEquipmentInstance->Initialize(Rifle, RifleEquipmentData);
+
     SetEquipment(EWeapon::RIFLE, RifleEquipmentInstance);
   }
   else
@@ -77,7 +85,7 @@ void UEquipmentManagerComponent::ConstructEquipment(USkeletalMeshComponent* InSk
   }
 }
 
-void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance)
+void UEquipmentManagerComponent::SetEquipment(const EWeapon WeaponType, UEquipmentInstance* InEquipmentInstance)
 {
   MappedEquipment.Add(WeaponType);
   MappedEquipment[WeaponType] = InEquipmentInstance;
@@ -99,10 +107,10 @@ void UEquipmentManagerComponent::SetActiveEquipment(const EWeapon WeaponType)
     return;
   }
 
-  ActiveEquipmentInstance = &MappedEquipment[WeaponType];
+  ActiveEquipmentInstance = MappedEquipment[WeaponType];
   ActiveEquipmentInstance->GetEquipment()->SetWeaponMeshVisibility(true);
   SetEquipmentState(EEquipmentState::EQUIPPED);
-  ActiveEquipmentChanged.Broadcast(ActiveEquipmentInstance->GetEquipmentData()->AnimationData);
+  ActiveEquipmentChanged.Broadcast(ActiveEquipmentInstance);
 }
 
 void UEquipmentManagerComponent::SetActiveEquipmentForDuration(const EWeapon InWeapon, const float EquipDuration)
