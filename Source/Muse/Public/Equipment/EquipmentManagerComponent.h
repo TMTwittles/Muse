@@ -3,8 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "EquipmentDataAsset.h"
-#include "Equipment.h"
+#include "EquipmentInstance.h"
 #include "EquipmentManagerComponent.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogEquipmentManagerComponent, Log, All);
@@ -24,43 +23,27 @@ enum class EEquipmentState : uint8
   EQUIPPED UMETA(DisplayName = "Equipped")
 };
 
-USTRUCT(BlueprintType)
-struct FEquipmentInstance
-{
-  GENERATED_USTRUCT_BODY()
-
-  UPROPERTY()
-  AEquipment* Equipment;
-
-  UPROPERTY()
-  UEquipmentDataAsset* Data;
-
-public:
-  inline AEquipment* GetEquipment() const { return Equipment; }
-  inline const UEquipmentDataAsset* GetEquipmentData() const { return Data; }
-};
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MUSE_API UEquipmentManagerComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-  DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FActiveEquipmentChanged, UEquipmentAnimationDataAsset*, NewEquipmentAnimationData);
+  DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FActiveEquipmentChanged, const UEquipmentInstance*, NewEquipmentAnimationData);
   UPROPERTY(BlueprintAssignable)
   FActiveEquipmentChanged ActiveEquipmentChanged;
 
-  DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipmentStateChanged, EEquipmentState, EquipmentActive);
+  DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipmentStateChanged, const EEquipmentState, EquipmentActive);
   UPROPERTY(BlueprintAssignable)
   FEquipmentStateChanged EquipmentStateChanged;
 
-  DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipmentAnimStateChanged, bool, bUseFullBodyAnims);
+  DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEquipmentAnimStateChanged, const bool, bUseFullBodyAnims);
   UPROPERTY(BlueprintAssignable)
   FEquipmentAnimStateChanged EquipmentAnimStateChanged;
 
 private:
   UPROPERTY()
-  TMap<EWeapon, FEquipmentInstance> MappedEquipment;
+  TMap<EWeapon, UEquipmentInstance*> MappedEquipment;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EquipmentData, meta=(AllowPrivateAccess="true"))
   TObjectPtr<UEquipmentDataAsset> SwordEquipmentData;
@@ -76,7 +59,7 @@ private:
 
   EWeapon ActiveWeapon;
   EEquipmentState ActiveEquipmentState;
-  FEquipmentInstance* ActiveEquipmentInstance;
+  UEquipmentInstance* ActiveEquipmentInstance;
 
   bool bTickCurrentEquipmentActiveDuration = false;
   float CurrentEquipmentActiveDuration = 0.0f;
@@ -96,7 +79,7 @@ public:
 
   void ConstructEquipment(USkeletalMeshComponent* InSkeletalMesh, const FName& InSocketName);
 
-  void SetEquipment(const EWeapon WeaponType, const FEquipmentInstance& InEquipmentInstance);
+  void SetEquipment(const EWeapon WeaponType, UEquipmentInstance* InEquipmentInstance);
 
   UFUNCTION(BlueprintCallable)
   void SetActiveEquipment(const EWeapon WeaponType);
