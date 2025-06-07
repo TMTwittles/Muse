@@ -2,6 +2,7 @@
 
 #include "MuseCharacter.h"
 #include "Engine/LocalPlayer.h"
+#include "Camera/CharacterCameraController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -69,7 +70,11 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm'
+
+  // Create character camera controller.
+  CharacterCameraController = CreateDefaultSubobject<UCharacterCameraController>(TEXT("CharacterCameraController"));
+  CharacterCameraController->Configure(CameraBoom);
 
   // Melee
   MeleeAttack = CreateDefaultSubobject<UMeleeAttackComponent>(TEXT("MeleeAttack"));

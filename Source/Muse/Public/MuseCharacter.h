@@ -7,10 +7,11 @@
 #include "MuseCharacter.generated.h"
 
 /*
-* TODO: Changed dependencies to not use forward declarations if in same module. Perform
+* TODO: Change Muse dependencies to not use forward declarations if in same module. Perform
 * this once modules have been better consolidated. In this case creating a gameplay module to store alot of this code.
 */
 
+/** MUSE DEPENDENCIES START */
 class UEquipmentManagerComponent;
 class UEquipmentComponent;
 class UEquipmentDataAsset;
@@ -21,6 +22,14 @@ class UStrafeAnimationHandlerComponent;
 
 class URotationComponent;
 
+class UMeleeAttackComponent;
+class UMeleeComboDataAsset;
+
+class URangedAttackComponent;
+
+class UCharacterCameraController;
+ /** MUSE DEPENDENCIES END */
+
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -28,10 +37,6 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 
-class UMeleeAttackComponent;
-class UMeleeComboDataAsset;
-
-class URangedAttackComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -59,6 +64,10 @@ class MUSE_API AMuseCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> FollowCamera;
+
+  /** Camera */
+  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UCharacterCameraController> CharacterCameraController;
 
   /** Melee */
   UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Melee, meta = (AllowPrivateAccess = "true"))
