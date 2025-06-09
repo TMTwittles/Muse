@@ -6,8 +6,6 @@
 #include "CameraMode.h"
 #include "CharacterCameraController.generated.h"
 
-class USpringArmComponent;
-
 UENUM()
 enum class ECameraMode : uint8
 {
@@ -23,9 +21,6 @@ class MUSE_API UCharacterCameraController : public UActorComponent
 
   UPROPERTY()
   bool bHasBuiltCameraModes = false;
-
-  UPROPERTY()
-  TObjectPtr<USpringArmComponent> CameraSpringArm;
   
   UPROPERTY()
   TMap<ECameraMode, TObjectPtr<UCameraMode>> CameraModeMap;
@@ -36,7 +31,6 @@ class MUSE_API UCharacterCameraController : public UActorComponent
 public:	
 	// Sets default values for this component's properties
   UCharacterCameraController();
-  void Configure(USpringArmComponent* InCameraSpringArm);
 
 protected:
 	// Called when the game starts
@@ -48,10 +42,10 @@ public:
   void SwitchCameraModes(ECameraMode NewCameraMode);
 
 private:
-  void BuildCameraModes();
+  bool TryBuildCameraModes();
 
   template<class TCameraMode>
-  void BuildCameraMode(const ECameraMode InNewCameraMode);
+  bool TryBuildCameraMode(const ECameraMode InNewCameraMode);
 
   inline const bool ValidActiveCameraMode() const { return CameraModeMap.Contains(ActiveCameraMode) && CameraModeMap[ActiveCameraMode] != nullptr; }
 };

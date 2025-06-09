@@ -6,6 +6,8 @@
 #include "UObject/NoExportTypes.h"
 #include "CameraMode.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogCameraMode, Log, All);
+
 class USpringArmComponent;
 
 /**
@@ -16,16 +18,17 @@ class MUSE_API UCameraMode : public UObject
 {
 	GENERATED_BODY()
 
-  TObjectPtr<USpringArmComponent> SpringArmComponent;
-
 protected:
+  UPROPERTY()
   bool bShouldTick = false;
+
+  UPROPERTY()
+  TObjectPtr<USpringArmComponent> CameraSpringArm;
 
 public:
   UCameraMode();
   virtual void OnEnterCameraMode();
   virtual void TickCameraMode(const float DeltaTime);
-  void Configure(USpringArmComponent* InSpringArmComponent);
-
+  virtual bool TryConfigure(const AActor& InOwner);
   inline const bool ShouldTick() const { return bShouldTick; }
 };

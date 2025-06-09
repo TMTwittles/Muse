@@ -74,7 +74,6 @@ AMuseCharacter::AMuseCharacter(const FObjectInitializer& ObjectInitializer)
 
   // Create character camera controller.
   CharacterCameraController = CreateDefaultSubobject<UCharacterCameraController>(TEXT("CharacterCameraController"));
-  CharacterCameraController->Configure(CameraBoom);
 
   // Melee
   MeleeAttack = CreateDefaultSubobject<UMeleeAttackComponent>(TEXT("MeleeAttack"));
@@ -125,11 +124,15 @@ void AMuseCharacter::FireRanged()
 
 void AMuseCharacter::StartAimRanged()
 {
+  CharacterCameraController->SwitchCameraModes(ECameraMode::AIM);
   RangedAttack->EnterAim();
 }
 
 void AMuseCharacter::ExitAimRanged()
 {
+  // TODO: It might be better to consider a stack or fall back approach where upon exiting
+  // we enter into the previous camera mode. 
+  CharacterCameraController->SwitchCameraModes(ECameraMode::DEFAULT);
   RangedAttack->ExitAim();
 }
 

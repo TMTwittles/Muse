@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Camera/CharacterCameraController.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Camera/DefaultCameraMode.h"
 #include "Camera/AimCameraMode.h"
 
@@ -12,19 +11,13 @@ UCharacterCameraController::UCharacterCameraController()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UCharacterCameraController::Configure(USpringArmComponent* InCameraSpringArm)
-{
-  CameraSpringArm = InCameraSpringArm;
-}
-
 // Called when the game starts
 void UCharacterCameraController::BeginPlay()
 {
 	Super::BeginPlay();
 
   // Build camera modes.
-  BuildCameraModes();
-  bHasBuiltCameraModes = true;
+  bHasBuiltCameraModes = TryBuildCameraModes();
 }
 
 // Called every frame
@@ -45,24 +38,36 @@ void UCharacterCameraController::TickComponent(float DeltaTime, ELevelTick TickT
 
 void UCharacterCameraController::SwitchCameraModes(ECameraMode NewCameraMode)
 {
-
+  if (ActiveCameraMode == NewCameraMode)
+  {
+    return;
+  }
+  ActiveCameraMode = NewCameraMode;
+  CameraModeMap[ActiveCameraMode]->OnEnterCameraMode();
 }
 
-void UCharacterCameraController::BuildCameraModes()
+bool UCharacterCameraController::TryBuildCameraModes()
 {
-  check(CameraSpringArm != nullptr);
-
-  BuildCameraMode<UDefaultCameraMode>(ECameraMode::DEFAULT);
-  BuildCameraMode<UAimCameraMode>(ECameraMode::AIM);
+  TryBuildCameraMode<UDefaultCameraMode>(ECameraMode::DEFAULT);
+  TryBuildCameraMode<UAimCameraMode>(ECameraMode::AIM);
   SwitchCameraModes(ECameraMode::DEFAULT);
+  return true;
 }
 
 template<class TCameraMode>
-void UCharacterCameraController::BuildCameraMode(const ECameraMode InNewCameraMode)
+bool UCharacterCameraController::TryBuildCameraMode(const ECameraMode InNewCameraMode)
 {
   check(CameraModeMap.Contains(InNewCameraMode) == false);
+
+  TObjectPtr<TCameraMode> NewCameraMode = NewObject<TCameraMode>();
+  if (!NewCameraMode->TryConfigure(*GetOwner()))
+  {
+    NewCameraMode->ConditionalBeginDestroy();
+    return false;
+  }
+
   CameraModeMap.Add(InNewCameraMode);
-  CameraModeMap[InNewCameraMode] = NewObject<TCameraMode>();
-  CameraModeMap[InNewCameraMode]->Configure(CameraSpringArm);
+  CameraModeMap[InNewCameraMode] = NewCameraMode;
+  return true;
 }
 

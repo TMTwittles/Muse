@@ -2,6 +2,8 @@
 #include "Camera/CameraMode.h"
 #include "GameFramework/SpringArmComponent.h"
 
+DEFINE_LOG_CATEGORY(LogCameraMode);
+
 UCameraMode::UCameraMode()
 {
 }
@@ -16,7 +18,13 @@ void UCameraMode::TickCameraMode(const float DeltaTime)
   check(bShouldTick);
 }
 
-void UCameraMode::Configure(USpringArmComponent* InSpringArmComponent)
+bool UCameraMode::TryConfigure(const AActor& InOwner)
 {
-  SpringArmComponent = InSpringArmComponent;
+  CameraSpringArm = InOwner.GetComponentByClass<USpringArmComponent>();
+  if (!CameraSpringArm)
+  {
+    UE_LOG(LogCameraMode, Warning, TEXT("Unable to locate camera spring arm in owner: %s"), *InOwner.GetName());
+    return false;
+  }
+  return true;
 }
