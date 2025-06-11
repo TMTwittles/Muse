@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+
 #include "CameraMode.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCameraMode, Log, All);
-
-class USpringArmComponent;
 
 /**
  * 
@@ -25,10 +26,13 @@ protected:
   UPROPERTY()
   TObjectPtr<USpringArmComponent> CameraSpringArm;
 
+  UPROPERTY()
+  TObjectPtr<UCameraComponent> CameraComponent;
+
 public:
   UCameraMode();
   virtual void OnEnterCameraMode();
   virtual void TickCameraMode(const float DeltaTime);
-  virtual bool TryConfigure(const AActor& InOwner);
+  virtual bool TryConfigure(AActor* InOwner);
   inline const bool ShouldTick() const { return bShouldTick; }
 };
