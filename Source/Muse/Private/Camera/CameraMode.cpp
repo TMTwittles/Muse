@@ -17,19 +17,25 @@ void UCameraMode::TickCameraMode(const float DeltaTime)
   check(bShouldTick);
 }
 
-bool UCameraMode::TryConfigure(AActor& InOwner)
+bool UCameraMode::TryConfigure(AActor* InOwner)
 {
-  CameraSpringArm = InOwner.GetComponentByClass<USpringArmComponent>();
-  if (!CameraSpringArm)
+  if (InOwner == nullptr)
   {
-    UE_LOG(LogCameraMode, Warning, TEXT("Unable to locate camera spring arm in owner: %s"), *InOwner.GetName());
+    UE_LOG(LogCameraMode, Warning, TEXT("Trying to configure camera mode with null owner"));
     return false;
   }
 
-  CameraComponent = InOwner.GetComponentByClass<UCameraComponent>();
+  CameraSpringArm = InOwner->GetComponentByClass<USpringArmComponent>();
+  if (!CameraSpringArm)
+  {
+    UE_LOG(LogCameraMode, Warning, TEXT("Unable to locate camera spring arm in owner: %s"), *InOwner->GetName());
+    return false;
+  }
+
+  CameraComponent = InOwner->GetComponentByClass<UCameraComponent>();
   if (!CameraComponent)
   {
-    UE_LOG(LogCameraMode, Warning, TEXT("Unable to locate camera component in owner: %s"), *InOwner.GetName());
+    UE_LOG(LogCameraMode, Warning, TEXT("Unable to locate camera component in owner: %s"), *InOwner->GetName());
     return false;
   }
   return true;

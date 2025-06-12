@@ -60,7 +60,7 @@ bool UCharacterCameraController::TryBuildCameraMode(const ECameraMode InNewCamer
   check(CameraModeMap.Contains(InNewCameraMode) == false);
 
   TObjectPtr<TCameraMode> NewCameraMode = NewObject<TCameraMode>();
-  if (!NewCameraMode->TryConfigure(*GetOwner()))
+  if (!NewCameraMode->TryConfigure(GetOwner()))
   {
     NewCameraMode->ConditionalBeginDestroy();
     return false;
