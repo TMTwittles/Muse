@@ -3,3 +3,7 @@
 
 #include "Camera/DefaultCameraMode.h"
 
+void UDefaultCameraMode::OnEnterCameraMode()
+{
+  CameraSpringArm->bUsePawnControlRotation = true;
+}

@@ -4,18 +4,27 @@
 void UAimCameraMode::OnEnterCameraMode()
 {
   CameraSpringArm->bUsePawnControlRotation = false;
+}
+
+void UAimCameraMode::TickCameraMode(const float DeltaTime)
+{
+  APawn* Pawn = Cast<APawn>(OwningActor);
+  FQuat ControlRotation = FQuat::Identity;
+  if (Pawn && Pawn->GetController())
+  {
+    ControlRotation = Pawn->GetController()->GetControlRotation().Quaternion();
+  }
 
   // Calculate rotation required to have camera face the aim target location.
-  const FVector CameraForwardVector = CameraComponent->GetForwardVector();
+  const FVector CameraForwardVector = CameraComponent->GetComponentLocation();
   const FVector AimTargetLocation = OwningActor->GetActorLocation() + FVector::UpVector * 500.0f;
   const FVector CameraToAimTargetLocation = AimTargetLocation - CameraForwardVector;
 
   const float LookAtRotation = FMath::Acos(FVector::DotProduct(CameraToAimTargetLocation.GetSafeNormal(), AimTargetLocation.GetSafeNormal()));
   const FVector CameraRightVector = FVector::CrossProduct(CameraToAimTargetLocation.GetSafeNormal(), CameraForwardVector.GetSafeNormal());
   FQuat LookAtRotationQuat = FQuat(CameraRightVector, LookAtRotation);
-  FQuat NewCameraRotation = CameraSpringArm->GetRelativeRotation().Quaternion() * LookAtRotationQuat;
-  CameraSpringArm->SetRelativeRotation(NewCameraRotation);
-  
+  FQuat NewCameraRotation = ControlRotation * LookAtRotationQuat;
+  CameraSpringArm->SetWorldRotation(NewCameraRotation);
 }
 
 bool UAimCameraMode::TryConfigure(AActor* InOwner)
@@ -25,5 +34,6 @@ bool UAimCameraMode::TryConfigure(AActor* InOwner)
     return false;
   }
   OwningActor = InOwner;
+  bTickCameraMode = true;
   return true;
 }

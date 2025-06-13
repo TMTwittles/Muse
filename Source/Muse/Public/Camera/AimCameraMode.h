@@ -19,5 +19,6 @@ class MUSE_API UAimCameraMode : public UCameraMode
 
 public:
   virtual void OnEnterCameraMode() override;
+  virtual void TickCameraMode(const float DeltaTime) override;
   virtual bool TryConfigure(AActor* InOwner);
 };

@@ -14,7 +14,7 @@ void UCameraMode::OnEnterCameraMode()
 
 void UCameraMode::TickCameraMode(const float DeltaTime)
 {
-  check(bShouldTick);
+  check(bTickCameraMode);
 }
 
 bool UCameraMode::TryConfigure(AActor* InOwner)

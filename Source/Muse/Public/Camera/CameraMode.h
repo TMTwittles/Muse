@@ -21,7 +21,7 @@ class MUSE_API UCameraMode : public UObject
 
 protected:
   UPROPERTY()
-  bool bShouldTick = false;
+  bool bTickCameraMode = false;
 
   UPROPERTY()
   TObjectPtr<USpringArmComponent> CameraSpringArm;
@@ -34,5 +34,5 @@ public:
   virtual void OnEnterCameraMode();
   virtual void TickCameraMode(const float DeltaTime);
   virtual bool TryConfigure(AActor* InOwner);
-  inline const bool ShouldTick() const { return bShouldTick; }
+  inline const bool ShouldTick() const { return bTickCameraMode; }
 };

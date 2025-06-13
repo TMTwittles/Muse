@@ -23,7 +23,7 @@ void UCharacterCameraController::BeginPlay()
 // Called every frame
 void UCharacterCameraController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-  if (bHasBuiltCameraModes)
+  if (!bHasBuiltCameraModes)
   {
     return;
   }

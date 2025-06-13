@@ -13,5 +13,8 @@ UCLASS()
 class MUSE_API UDefaultCameraMode : public UCameraMode
 {
 	GENERATED_BODY()
+
+public:
+  virtual void OnEnterCameraMode() override;
 	
 };
