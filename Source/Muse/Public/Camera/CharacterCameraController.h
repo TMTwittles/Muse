@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "CameraMode.h"
+#include "MuseFreeCamera.h"
 #include "CharacterCameraController.generated.h"
 
 UENUM()
@@ -22,11 +23,17 @@ class MUSE_API UCharacterCameraController : public UActorComponent
   UPROPERTY()
   bool bHasBuiltCameraModes = false;
   
-  UPROPERTY()
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
   TMap<ECameraMode, TObjectPtr<UCameraMode>> CameraModeMap;
 
-  UPROPERTY()
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
   ECameraMode ActiveCameraMode;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+  TSubclassOf<AMuseFreeCamera> FreeCameraClass;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<AMuseFreeCamera> SpawnedFreeCamera;
 
 public:	
 	// Sets default values for this component's properties

@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "Camera/CameraComponent.h"
-#include "GameFramework/SpringArmComponent.h"
+#include "CharacterCameraController.h"
 
 #include "CameraMode.generated.h"
 
@@ -19,20 +18,23 @@ class MUSE_API UCameraMode : public UObject
 {
 	GENERATED_BODY()
 
+
+
 protected:
   UPROPERTY()
   bool bTickCameraMode = false;
 
   UPROPERTY()
-  TObjectPtr<USpringArmComponent> CameraSpringArm;
+  TObjectPtr<AActor> OwningActor;
 
   UPROPERTY()
-  TObjectPtr<UCameraComponent> CameraComponent;
+  TObjectPtr<UCharacterCameraController> CameraController;
 
 public:
   UCameraMode();
   virtual void OnEnterCameraMode();
   virtual void TickCameraMode(const float DeltaTime);
-  virtual bool TryConfigure(AActor* InOwner);
+  bool TryConfigure(UCharacterCameraController* InCameraController);
+  virtual bool PostConfigure() = 0;
   inline const bool ShouldTick() const { return bTickCameraMode; }
 };

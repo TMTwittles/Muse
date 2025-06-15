@@ -9,12 +9,19 @@ UCharacterCameraController::UCharacterCameraController()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+
+  
 }
 
 // Called when the game starts
 void UCharacterCameraController::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+
+  // Spawn free camera
+  SpawnedFreeCamera = GetOwner()->GetWorld()->SpawnActor<AMuseFreeCamera>(FreeCameraClass);
 
   // Build camera modes.
   bHasBuiltCameraModes = TryBuildCameraModes();
@@ -60,7 +67,7 @@ bool UCharacterCameraController::TryBuildCameraMode(const ECameraMode InNewCamer
   check(CameraModeMap.Contains(InNewCameraMode) == false);
 
   TObjectPtr<TCameraMode> NewCameraMode = NewObject<TCameraMode>();
-  if (!NewCameraMode->TryConfigure(GetOwner()))
+  if (!NewCameraMode->TryConfigure(this))
   {
     NewCameraMode->ConditionalBeginDestroy();
     return false;
