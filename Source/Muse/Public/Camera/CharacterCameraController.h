@@ -5,6 +5,7 @@
 #include "Components/ActorComponent.h"
 #include "CameraMode.h"
 #include "MuseFreeCamera.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "CharacterCameraController.generated.h"
 
 UENUM()
@@ -23,17 +24,20 @@ class MUSE_API UCharacterCameraController : public UActorComponent
   UPROPERTY()
   bool bHasBuiltCameraModes = false;
   
-  UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Category="Camera Modes")
   TMap<ECameraMode, TObjectPtr<UCameraMode>> CameraModeMap;
 
-  UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+  UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Category = "Camera Modes")
   ECameraMode ActiveCameraMode;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Camera Modes")
   TSubclassOf<AMuseFreeCamera> FreeCameraClass;
 
-  UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Camera Object Dependencies")
   TObjectPtr<AMuseFreeCamera> SpawnedFreeCamera;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Camera Object Dependencies")
+  TObjectPtr<USpringArmComponent> CameraSpringArm;
 
 public:	
 	// Sets default values for this component's properties
@@ -47,6 +51,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
   void SwitchCameraModes(ECameraMode NewCameraMode);
+  FORCEINLINE void ModifySpringArmOrientation(const bool bRotateToControlRotation) { CameraSpringArm->bUsePawnControlRotation = bRotateToControlRotation; }
 
 private:
   bool TryBuildCameraModes();
@@ -54,5 +59,5 @@ private:
   template<class TCameraMode>
   bool TryBuildCameraMode(const ECameraMode InNewCameraMode);
 
-  inline const bool ValidActiveCameraMode() const { return CameraModeMap.Contains(ActiveCameraMode) && CameraModeMap[ActiveCameraMode] != nullptr; }
+  FORCEINLINE bool ValidActiveCameraMode() const { return CameraModeMap.Contains(ActiveCameraMode) && CameraModeMap[ActiveCameraMode] != nullptr; }
 };

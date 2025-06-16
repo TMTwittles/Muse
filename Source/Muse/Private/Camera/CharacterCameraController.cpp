@@ -18,7 +18,7 @@ void UCharacterCameraController::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+  CameraSpringArm = GetOwner()->GetComponentByClass<USpringArmComponent>();
 
   // Spawn free camera
   SpawnedFreeCamera = GetOwner()->GetWorld()->SpawnActor<AMuseFreeCamera>(FreeCameraClass);

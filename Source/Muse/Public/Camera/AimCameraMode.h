@@ -14,11 +14,12 @@ class MUSE_API UAimCameraMode : public UCameraMode
 {
 	GENERATED_BODY()
 
+
   UPROPERTY()
   TObjectPtr<AActor> OwningActor;
-
 public:
   virtual void OnEnterCameraMode() override;
   virtual void TickCameraMode(const float DeltaTime) override;
-  virtual bool TryConfigure(AActor* InOwner);
+  // Inherited via UCameraMode
+  bool PostConfigure() override;
 };
