@@ -6,6 +6,8 @@
 #include "CameraMode.h"
 #include "CharacterCameraController.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogCharacterCameraController, Log, All)
+
 UENUM()
 enum class ECameraMode : uint8
 {
@@ -53,6 +55,7 @@ public:
   FORCEINLINE void ModifySpringArmOrientation(const bool bRotateToControlRotation) { CameraSpringArm->bUsePawnControlRotation = bRotateToControlRotation; }
 
 private:
+  bool TryConfigurePostBeginPlay();
   bool TryBuildCameraModes();
 
   template<class TCameraMode>

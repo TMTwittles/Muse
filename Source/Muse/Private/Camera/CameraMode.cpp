@@ -7,6 +7,10 @@ UCameraMode::UCameraMode()
 {
 }
 
+void UCameraMode::OnExitCameraMode()
+{
+}
+
 void UCameraMode::OnEnterCameraMode()
 {
 

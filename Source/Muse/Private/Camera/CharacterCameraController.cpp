@@ -3,6 +3,8 @@
 #include "Camera/DefaultCameraMode.h"
 #include "Camera/AimCameraMode.h"
 
+DEFINE_LOG_CATEGORY(LogCharacterCameraController)
+
 // Sets default values for this component's properties
 UCharacterCameraController::UCharacterCameraController()
 {
@@ -16,13 +18,7 @@ void UCharacterCameraController::BeginPlay()
 {
 	Super::BeginPlay();
 
-  CameraSpringArm = GetOwner()->GetComponentByClass<USpringArmComponent>();
-
-  // Spawn free camera
-  SpawnedFreeCamera = GetOwner()->GetWorld()->SpawnActor<AMuseFreeCamera>(FreeCameraClass);
-
-  // Build camera modes.
-  bHasBuiltCameraModes = TryBuildCameraModes();
+  TryConfigurePostBeginPlay();
 }
 
 // Called every frame
@@ -47,8 +43,41 @@ void UCharacterCameraController::SwitchCameraModes(ECameraMode NewCameraMode)
   {
     return;
   }
+  CameraModeMap[ActiveCameraMode]->OnExitCameraMode();
   ActiveCameraMode = NewCameraMode;
   CameraModeMap[ActiveCameraMode]->OnEnterCameraMode();
+}
+
+bool UCharacterCameraController::TryConfigurePostBeginPlay()
+{
+  CameraSpringArm = GetOwner()->GetComponentByClass<USpringArmComponent>();
+  if (!CameraSpringArm)
+  {
+    UE_LOG(LogCharacterCameraController, Warning, TEXT("No spring arm located in owner. This will be used by non-free cam camera modes."));
+    return false;
+  }
+
+  // Spawn free camera
+  FActorSpawnParameters FreeCameraSpawnParams;
+  FreeCameraSpawnParams.Name = FName(*FString::Printf(TEXT("%s_FreeCamera"), *GetOwner()->GetName()));
+  FreeCameraSpawnParams.Owner = GetOwner();
+  SpawnedFreeCamera = GetOwner()->GetWorld()->SpawnActor<AMuseFreeCamera>(FreeCameraClass, FreeCameraSpawnParams);
+  if (!SpawnedFreeCamera)
+  {
+    UE_LOG(LogCharacterCameraController, Warning, TEXT("Unable to spawn free camera, please ensure valid class has been set in settings."));
+    return false;
+  }
+
+  // Build camera modes.
+  bHasBuiltCameraModes = TryBuildCameraModes();
+  if (!bHasBuiltCameraModes)
+  {
+    UE_LOG(LogCharacterCameraController, Warning, TEXT("Unable to successfully build camera modes."));
+    return false;
+  }
+
+
+  return true;
 }
 
 bool UCharacterCameraController::TryBuildCameraModes()
@@ -58,9 +87,12 @@ bool UCharacterCameraController::TryBuildCameraModes()
   Container.OwningActor = GetOwner();
   Container.SpawnedFreeCamera = SpawnedFreeCamera;
 
+  // TODO: Add error checking here. 
   TryBuildCameraMode<UDefaultCameraMode>(Container, ECameraMode::DEFAULT);
   TryBuildCameraMode<UAimCameraMode>(Container, ECameraMode::AIM);
+
   SwitchCameraModes(ECameraMode::DEFAULT);
+
   return true;
 }
 

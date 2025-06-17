@@ -1,11 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Camera/AimCameraMode.h"
 
+void UAimCameraMode::OnExitCameraMode()
+{
+  // TODO: Make a method that will switch to the last used camera before this.
+  SwitchToDefaultCamera();
+}
+
 void UAimCameraMode::OnEnterCameraMode()
 {
-  //CameraController->SwitchToFreeCamera();
-
-  //CameraController->ModifySpringArmOrientation(false);
+  SwitchToFreeCamera();
 }
 
 void UAimCameraMode::TickCameraMode(const float DeltaTime)

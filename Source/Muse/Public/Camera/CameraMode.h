@@ -36,6 +36,7 @@ protected:
 public:
 
   UCameraMode();
+  virtual void OnExitCameraMode();
   virtual void OnEnterCameraMode();
   virtual void TickCameraMode(const float DeltaTime);
   bool TryConfigure(const CameraModeConfigureContainer& InContainer);

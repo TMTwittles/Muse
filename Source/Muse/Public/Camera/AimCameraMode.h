@@ -15,6 +15,7 @@ class MUSE_API UAimCameraMode : public UCameraMode
 	GENERATED_BODY()
 
 public:
+  virtual void OnExitCameraMode() override;
   virtual void OnEnterCameraMode() override;
   virtual void TickCameraMode(const float DeltaTime) override;
 };
