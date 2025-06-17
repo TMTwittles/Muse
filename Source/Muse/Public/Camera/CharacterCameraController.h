@@ -4,8 +4,6 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "CameraMode.h"
-#include "MuseFreeCamera.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "CharacterCameraController.generated.h"
 
 UENUM()
@@ -51,13 +49,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
   void SwitchCameraModes(ECameraMode NewCameraMode);
+
   FORCEINLINE void ModifySpringArmOrientation(const bool bRotateToControlRotation) { CameraSpringArm->bUsePawnControlRotation = bRotateToControlRotation; }
 
 private:
   bool TryBuildCameraModes();
 
   template<class TCameraMode>
-  bool TryBuildCameraMode(const ECameraMode InNewCameraMode);
+  bool TryBuildCameraMode(const CameraModeConfigureContainer& InContainer, const ECameraMode InNewCameraMode);
 
   FORCEINLINE bool ValidActiveCameraMode() const { return CameraModeMap.Contains(ActiveCameraMode) && CameraModeMap[ActiveCameraMode] != nullptr; }
 };

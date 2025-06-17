@@ -5,5 +5,5 @@
 
 void UDefaultCameraMode::OnEnterCameraMode()
 {
-  CameraSpringArm->bUsePawnControlRotation = true;
+
 }

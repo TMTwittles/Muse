@@ -6,10 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "MuseFreeCamera.generated.h"
 
-UCLASS()
+class UCameraComponent;
+
+UCLASS(Blueprintable, BlueprintType)
 class MUSE_API AMuseFreeCamera : public AActor
 {
 	GENERATED_BODY()
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+  TObjectPtr<UCameraComponent> Camera;
 	
 public:	
 	// Sets default values for this actor's properties

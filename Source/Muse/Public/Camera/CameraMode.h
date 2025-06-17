@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "CharacterCameraController.h"
-
+#include "CameraModeConfigureContainer.h"
 #include "CameraMode.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCameraMode, Log, All);
@@ -18,8 +17,6 @@ class MUSE_API UCameraMode : public UObject
 {
 	GENERATED_BODY()
 
-
-
 protected:
   UPROPERTY()
   bool bTickCameraMode = false;
@@ -28,13 +25,20 @@ protected:
   TObjectPtr<AActor> OwningActor;
 
   UPROPERTY()
-  TObjectPtr<UCharacterCameraController> CameraController;
+  TObjectPtr<AMuseFreeCamera> SpawnedFreeCamera;
+
+  UPROPERTY()
+  TObjectPtr<USpringArmComponent> DefaultCameraSpringArm;
+
+  void SwitchToFreeCamera();
+  void SwitchToDefaultCamera();
 
 public:
+
   UCameraMode();
   virtual void OnEnterCameraMode();
   virtual void TickCameraMode(const float DeltaTime);
-  bool TryConfigure(UCharacterCameraController* InCameraController);
-  virtual bool PostConfigure() = 0;
+  bool TryConfigure(const CameraModeConfigureContainer& InContainer);
+  virtual bool PostConfigure();
   inline const bool ShouldTick() const { return bTickCameraMode; }
 };

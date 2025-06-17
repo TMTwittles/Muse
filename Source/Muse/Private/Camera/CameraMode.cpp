@@ -17,10 +17,34 @@ void UCameraMode::TickCameraMode(const float DeltaTime)
   check(bTickCameraMode);
 }
 
-bool UCameraMode::TryConfigure(UCharacterCameraController* InCameraController)
+bool UCameraMode::TryConfigure(const CameraModeConfigureContainer& InContainer)
 {
-  CameraController = InCameraController;
-  OwningActor = InCameraController->GetOwner();
+  DefaultCameraSpringArm = InContainer.DefaultCameraSpringArm;
+  SpawnedFreeCamera = InContainer.SpawnedFreeCamera;
+  OwningActor = InContainer.OwningActor;
   PostConfigure();
   return true;
+}
+
+bool UCameraMode::PostConfigure()
+{
+  return false;
+}
+
+void UCameraMode::SwitchToFreeCamera()
+{
+  APlayerController* PC = OwningActor->GetWorld()->GetFirstPlayerController();
+  if (PC && SpawnedFreeCamera)
+  {
+    PC->SetViewTargetWithBlend(SpawnedFreeCamera, 1.0f);
+  }
+}
+
+void UCameraMode::SwitchToDefaultCamera()
+{
+  APlayerController* PC = OwningActor->GetWorld()->GetFirstPlayerController();
+  if (PC && OwningActor)
+  {
+    PC->SetViewTargetWithBlend(OwningActor, 1.0f);
+  }
 }
