@@ -24,7 +24,7 @@ void UCameraMode::TickCameraMode(const float DeltaTime)
 bool UCameraMode::TryConfigure(const CameraModeConfigureContainer& InContainer)
 {
   DefaultCameraSpringArm = InContainer.DefaultCameraSpringArm;
-  SpawnedFreeCamera = InContainer.SpawnedFreeCamera;
+  FreeCamera = InContainer.SpawnedFreeCamera;
   OwningActor = InContainer.OwningActor;
   PostConfigure();
   return true;
@@ -38,9 +38,9 @@ bool UCameraMode::PostConfigure()
 void UCameraMode::SwitchToFreeCamera()
 {
   APlayerController* PC = OwningActor->GetWorld()->GetFirstPlayerController();
-  if (PC && SpawnedFreeCamera)
+  if (PC && FreeCamera)
   {
-    PC->SetViewTargetWithBlend(SpawnedFreeCamera, 1.0f);
+    PC->SetViewTargetWithBlend(FreeCamera, 1.0f);
   }
 }
 

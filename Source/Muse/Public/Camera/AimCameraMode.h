@@ -18,4 +18,5 @@ public:
   virtual void OnExitCameraMode() override;
   virtual void OnEnterCameraMode() override;
   virtual void TickCameraMode(const float DeltaTime) override;
+  virtual bool PostConfigure() override;
 };

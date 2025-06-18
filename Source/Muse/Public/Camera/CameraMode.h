@@ -25,7 +25,7 @@ protected:
   TObjectPtr<AActor> OwningActor;
 
   UPROPERTY()
-  TObjectPtr<AMuseFreeCamera> SpawnedFreeCamera;
+  TObjectPtr<AMuseFreeCamera> FreeCamera;
 
   UPROPERTY()
   TObjectPtr<USpringArmComponent> DefaultCameraSpringArm;
