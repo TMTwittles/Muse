@@ -27,5 +27,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+  FORCEINLINE UCameraComponent& GetCameraComponent() const { return *Camera; }
 
 };
