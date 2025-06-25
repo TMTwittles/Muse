@@ -7,7 +7,10 @@
 #include "Equipment/EquipmentManagerComponent.h"
 #include "MuseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MusePlayerController.h"
 #include "RangedAttackComponent.generated.h"
+
+class UCameraComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogRangedAttackComponent, Log, All);
 
@@ -31,6 +34,11 @@ class MUSE_API URangedAttackComponent : public UActorComponent
   UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
   UCharacterMovementComponent* OwningMovementComponent;
 
+  UPROPERTY()
+  AMusePlayerController* MusePlayerController;
+  UPROPERTY()
+  UCameraComponent* ActivePlayerCamera;
+
 public:	
 	// Sets default values for this component's properties
 	URangedAttackComponent();
@@ -42,6 +50,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+  void ConfigureActiveCamera();
+  void UpdateActiveCamera();
 
   UFUNCTION(BlueprintCallable)
   void EnterAim();
