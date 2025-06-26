@@ -51,8 +51,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+  UFUNCTION()
   void ConfigureActiveCamera();
-  void UpdateActiveCamera();
+  UFUNCTION()
+  void UpdateActiveCamera(AActor* NewViewTarget);
 
   UFUNCTION(BlueprintCallable)
   void EnterAim();

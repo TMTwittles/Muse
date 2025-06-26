@@ -47,12 +47,12 @@ void URangedAttackComponent::ConfigureActiveCamera()
   MusePlayerController = Cast<AMusePlayerController>(GetOwner()->GetWorld()->GetFirstPlayerController());
   check(MusePlayerController);
   MusePlayerController->OnViewTargetChanged.AddDynamic(this, &URangedAttackComponent::UpdateActiveCamera);
-  UpdateActiveCamera();
+  UpdateActiveCamera(MusePlayerController->GetViewTarget());
 }
 
-void URangedAttackComponent::UpdateActiveCamera()
+void URangedAttackComponent::UpdateActiveCamera(AActor* NewViewTarget)
 {
-  ActivePlayerCamera = MusePlayerController->GetViewTarget()->GetComponentByClass<UCameraComponent>();
+  ActivePlayerCamera = NewViewTarget->GetComponentByClass<UCameraComponent>();
   check(ActivePlayerCamera);
 }
 
@@ -77,10 +77,15 @@ void URangedAttackComponent::FireWeapon()
 
 void URangedAttackComponent::TickAimComponent(const float DeltaTime)
 {
-  FVector AimDirection = ActivePlayerCamera->GetForwardVector();
-  FVector CharacterForward = OwningCharacter->GetActorForwardVector();
-  float PitchSignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, -GetOwner()->GetActorRightVector());
-  float YawSignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, GetOwner()->GetActorUpVector());
-  GetOwner()->GetComponentByClass<URotationComponent>()->SmoothRotateToVector(AimDirection, 0.1f);
+  FVector TargetAimLocation = ActivePlayerCamera->GetComponentLocation() + ActivePlayerCamera->GetForwardVector() * 1750.0f;
+  FVector AimDirection = TargetAimLocation - GetOwner()->GetActorLocation();
+
+  //float PitchSignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, -GetOwner()->GetActorRightVector());
+  //float YawSignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, GetOwner()->GetActorUpVector());
+  //GetOwner()->GetComponentByClass<URotationComponent>()->SmoothRotateToVector(AimDirection, 0.1f);
+
+  FRotator AimDirectionRotation = AimDirection.Rotation();
+  AimDirectionRotation.Pitch = 0.0f;
+  GetOwner()->SetActorRotation(AimDirectionRotation);
 }
 

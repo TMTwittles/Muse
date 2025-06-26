@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "MusePlayerController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FViewTargetChanged);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FViewTargetChanged, AActor*, NewViewTarget);
 
 /**
  * 

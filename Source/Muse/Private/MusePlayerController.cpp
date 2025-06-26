@@ -4,5 +4,8 @@
 void AMusePlayerController::SetViewTargetWithBlend(AActor* NewViewTarget, float BlendTime, EViewTargetBlendFunction BlendFunc, float BlendExp, bool bLockOutgoing)
 {
   Super::SetViewTargetWithBlend(NewViewTarget, BlendTime, BlendFunc, BlendExp, bLockOutgoing);
-  OnViewTargetChanged.Broadcast();
+
+  // TODO: This is not the proper way to do this, should override the player camera manager and appropriately broadcast new view target from there,
+  // with extra respect to the client, blend times, etc.
+  OnViewTargetChanged.Broadcast(NewViewTarget);
 }
