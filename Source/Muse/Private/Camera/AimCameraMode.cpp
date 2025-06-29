@@ -16,35 +16,35 @@ void UAimCameraMode::OnEnterCameraMode()
 void UAimCameraMode::TickCameraMode(const float DeltaTime)
 {
   APawn* Pawn = Cast<APawn>(OwningActor);
-  FQuat ControlRotation = FQuat::Identity;
+  FQuat ControlRotationQuat = FQuat::Identity;
+
   if (Pawn && Pawn->GetController())
   {
-    ControlRotation = Pawn->GetController()->GetControlRotation().Quaternion();
+    ControlRotationQuat = Pawn->GetController()->GetControlRotation().Quaternion();
   }
 
-  // Calculate rotation required to have camera face the aim target location.
-  const float DistanceFromPlayer = 600.0f;
-  const FVector DesiredCameraPosition = OwningActor->GetActorLocation() + -ControlRotation.GetForwardVector() * DistanceFromPlayer;
-  const FVector AimTargetLocation = OwningActor->GetActorLocation();
-  const FVector CameraToAimTargetLocation = AimTargetLocation - DesiredCameraPosition;
-  const float LookAtRotationAngle = FMath::Acos(FVector::DotProduct(ControlRotation.GetForwardVector().GetSafeNormal(), CameraToAimTargetLocation.GetSafeNormal()));
-  const FQuat LookAtRotationQuat = FQuat(FVector::RightVector, -LookAtRotationAngle);
-
   // Set target screen positions (In range 0.0f - 1.0f)
-  const float TargetScreenPosX = 0.75f;
+  const float TargetScreenPosX = 0.65f;
   const float TargetScreenPosY = 0.5f;
   // Calculate screen offsets, moving target screen positions to range (-0.5f, 0.5f);
   const float ScreenOffsetX = (TargetScreenPosX - 0.5f);
   const float ScreenOffsetY = (TargetScreenPosY - 0.5f);
+
+ 
   const float FovY = FreeCamera->GetCameraComponent().FieldOfView;
   const float FovX = FreeCamera->GetCameraComponent().AspectRatio * FovY;
   const float AngleYaw = FMath::DegreesToRadians(ScreenOffsetX * FovX);
-  const float AnglePitch = FMath::DegreesToRadians(- ScreenOffsetY * FovY);
+  const float AnglePitch = FMath::DegreesToRadians(ScreenOffsetY * FovY);
   const FQuat ScreenPitchRot = FQuat(FVector::RightVector, AnglePitch);
   const FQuat ScreenYawRot = FQuat(FVector::UpVector, AngleYaw);
   
-  FQuat NewCameraRotation = ControlRotation * ScreenYawRot * ScreenPitchRot * LookAtRotationQuat;
+  FQuat NewCameraRotation = ScreenYawRot * ScreenPitchRot * ControlRotationQuat;
+
   FreeCamera->SetActorRotation(NewCameraRotation);
+
+  // TODO: Change this to be data oriented. 
+  const float DistanceFromPlayer = 600.0f;
+  const FVector DesiredCameraPosition = OwningActor->GetActorLocation() + -ControlRotationQuat.GetForwardVector() * DistanceFromPlayer;
   FreeCamera->SetActorLocation(DesiredCameraPosition);
 }
 
