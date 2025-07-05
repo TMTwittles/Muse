@@ -60,14 +60,12 @@ void URangedAttackComponent::EnterAim()
 {
   bIsAiming = true;
   OwningMovementComponent->bOrientRotationToMovement = false;
-  //OwningMovementComponent->bUseControllerDesiredRotation = true;
 }
 
 void URangedAttackComponent::ExitAim()
 {
   bIsAiming = false;
   OwningMovementComponent->bOrientRotationToMovement = true;
-  //OwningMovementComponent->bUseControllerDesiredRotation = false;
 }
 
 void URangedAttackComponent::FireWeapon()

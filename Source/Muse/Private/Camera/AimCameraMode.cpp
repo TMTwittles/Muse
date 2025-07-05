@@ -40,10 +40,11 @@ void UAimCameraMode::TickCameraMode(const float DeltaTime)
   
   FQuat NewCameraRotation = ScreenYawRot * ScreenPitchRot * ControlRotationQuat;
 
+  // TODO: Add functionality for smoothing this rotation. 
   FreeCamera->SetActorRotation(NewCameraRotation);
 
   // TODO: Change this to be data oriented. 
-  const float DistanceFromPlayer = 600.0f;
+  const float DistanceFromPlayer = 700.0f;
   const FVector DesiredCameraPosition = OwningActor->GetActorLocation() + -ControlRotationQuat.GetForwardVector() * DistanceFromPlayer;
   FreeCamera->SetActorLocation(DesiredCameraPosition);
 }
