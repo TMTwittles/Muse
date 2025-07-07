@@ -78,10 +78,13 @@ void URangedAttackComponent::TickAimComponent(const float DeltaTime)
   FVector TargetAimLocation = ActivePlayerCamera->GetComponentLocation() + ActivePlayerCamera->GetForwardVector() * 1750.0f;
   FVector AimDirection = TargetAimLocation - GetOwner()->GetActorLocation();
 
+  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 100.0f, FColor::Red);
+  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + AimDirection * 100.0f, FColor::Green);
+  
   //float PitchSignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, -GetOwner()->GetActorRightVector());
   //float YawSignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, GetOwner()->GetActorUpVector());
   //GetOwner()->GetComponentByClass<URotationComponent>()->SmoothRotateToVector(AimDirection, 0.1f);
-
+  // TODO: Add code for smoothing out. 
   FRotator AimDirectionRotation = AimDirection.Rotation();
   AimDirectionRotation.Pitch = 0.0f;
   GetOwner()->SetActorRotation(AimDirectionRotation);
