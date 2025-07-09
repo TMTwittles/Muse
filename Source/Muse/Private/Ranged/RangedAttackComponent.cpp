@@ -75,18 +75,17 @@ void URangedAttackComponent::FireWeapon()
 
 void URangedAttackComponent::TickAimComponent(const float DeltaTime)
 {
+  // Rotate horizontal angle to face aim direction of camera. TODO: Add functionality for smooth rotating to pitch.
   FVector TargetAimLocation = ActivePlayerCamera->GetComponentLocation() + ActivePlayerCamera->GetForwardVector() * 1750.0f;
   FVector AimDirection = TargetAimLocation - GetOwner()->GetActorLocation();
-
-  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 100.0f, FColor::Red);
-  DrawDebugLine(GetWorld(), GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation() + AimDirection * 100.0f, FColor::Green);
-  
-  //float PitchSignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, -GetOwner()->GetActorRightVector());
-  //float YawSignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, GetOwner()->GetActorUpVector());
-  //GetOwner()->GetComponentByClass<URotationComponent>()->SmoothRotateToVector(AimDirection, 0.1f);
-  // TODO: Add code for smoothing out. 
   FRotator AimDirectionRotation = AimDirection.Rotation();
+  // We only rotate horizontally to aim direction.
   AimDirectionRotation.Pitch = 0.0f;
   GetOwner()->SetActorRotation(AimDirectionRotation);
+
+  // Calculate pitch, used by anim control aim offsets
+  FRotator ControlRotationPitchOnly = MusePlayerController->GetControlRotation();
+  ControlRotationPitchOnly.Yaw = 0.0f;
+  AimPitch = -FMath::RadiansToDegrees(UMuseGameplayStatics::GetSignedAngle(GetOwner()->GetActorForwardVector(), ControlRotationPitchOnly.RotateVector(GetOwner()->GetActorForwardVector()), GetOwner()->GetActorRightVector()));
 }
 
