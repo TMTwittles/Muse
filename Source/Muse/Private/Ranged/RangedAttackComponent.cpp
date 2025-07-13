@@ -82,10 +82,7 @@ void URangedAttackComponent::TickAimComponent(const float DeltaTime)
   // We only rotate horizontally to aim direction.
   AimDirectionRotation.Pitch = 0.0f;
   GetOwner()->SetActorRotation(AimDirectionRotation);
-
-  // Calculate pitch, used by anim control aim offsets
-  FRotator ControlRotationPitchOnly = MusePlayerController->GetControlRotation();
-  ControlRotationPitchOnly.Yaw = 0.0f;
-  AimPitch = -FMath::RadiansToDegrees(UMuseGameplayStatics::GetSignedAngle(GetOwner()->GetActorForwardVector(), ControlRotationPitchOnly.RotateVector(GetOwner()->GetActorForwardVector()), GetOwner()->GetActorRightVector()));
+  // Calculate the aim pitch angle, this is primarily used by animation. 
+  AimPitch = -FMath::RadiansToDegrees(UMuseGameplayStatics::GetSignedAngle(GetOwner()->GetActorForwardVector(), AimDirection.GetSafeNormal(), GetOwner()->GetActorRightVector()));
 }
 
