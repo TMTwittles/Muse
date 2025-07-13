@@ -27,6 +27,9 @@ void URangedAttackComponent::BeginPlay()
   check(OwningMovementComponent);
   EquipmentManagerComponent = GetOwner()->GetComponentByClass<UEquipmentManagerComponent>();
   check(EquipmentManagerComponent);
+  CameraController = GetOwner()->GetComponentByClass<UCharacterCameraController>();
+  check(CameraController);
+  //AimCameraMode = CameraController->
   ConfigureActiveCamera();
 }
 

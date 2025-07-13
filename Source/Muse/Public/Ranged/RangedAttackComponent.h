@@ -8,6 +8,8 @@
 #include "MuseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MusePlayerController.h"
+#include "Camera/CharacterCameraController.h"
+#include "Camera/AimCameraMode.h"
 #include "RangedAttackComponent.generated.h"
 
 class UCameraComponent;
@@ -27,6 +29,12 @@ class MUSE_API URangedAttackComponent : public UActorComponent
 
   UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
   TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
+
+  UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+  TObjectPtr<UCharacterCameraController> CameraController;
+
+  UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UAimCameraMode> AimCameraMode;
 
   UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
   AMuseCharacter* OwningCharacter;

@@ -61,5 +61,8 @@ private:
   template<class TCameraMode>
   bool TryBuildCameraMode(const CameraModeConfigureContainer& InContainer, const ECameraMode InNewCameraMode);
 
+  template<class TCameraMode>
+  bool TryGetCameraMode(const ECameraMode InCameraMode, TCameraMode* OutCameraMode);
+
   FORCEINLINE bool ValidActiveCameraMode() const { return CameraModeMap.Contains(ActiveCameraMode) && CameraModeMap[ActiveCameraMode] != nullptr; }
 };

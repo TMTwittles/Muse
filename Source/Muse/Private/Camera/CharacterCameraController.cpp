@@ -113,3 +113,13 @@ bool UCharacterCameraController::TryBuildCameraMode(const CameraModeConfigureCon
   return true;
 }
 
+template<class TCameraMode>
+bool UCharacterCameraController::TryGetCameraMode(const ECameraMode InCameraMode, TCameraMode* OutCameraMode)
+{
+  if (CameraModeMap.Contains(InCameraMode) && CameraModeMap[InCameraMode].IsA<TCameraMode>())
+  {
+    OutCameraMode = Cast<TCameraMode>(CameraModeMap[InCameraMode]);
+  }
+  return OutCameraMode != nullptr;
+}
+
