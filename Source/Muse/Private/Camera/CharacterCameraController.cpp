@@ -75,7 +75,7 @@ bool UCharacterCameraController::TryConfigurePostBeginPlay()
     UE_LOG(LogCharacterCameraController, Warning, TEXT("Unable to successfully build camera modes."));
     return false;
   }
-
+  OnCameraModesBuilt.Broadcast();
 
   return true;
 }
@@ -96,6 +96,15 @@ bool UCharacterCameraController::TryBuildCameraModes()
   return true;
 }
 
+bool UCharacterCameraController::TryGetCameraMode(const ECameraMode InCameraMode, UCameraMode* OutCameraMode)
+{
+  if (CameraModeMap.Contains(InCameraMode) && CameraModeMap[InCameraMode] != nullptr)
+  {
+    OutCameraMode = CameraModeMap[InCameraMode];
+  }
+  return OutCameraMode != nullptr;
+}
+
 template<class TCameraMode>
 bool UCharacterCameraController::TryBuildCameraMode(const CameraModeConfigureContainer& InContainer, const ECameraMode InNewCameraMode)
 {
@@ -111,15 +120,5 @@ bool UCharacterCameraController::TryBuildCameraMode(const CameraModeConfigureCon
   CameraModeMap.Add(InNewCameraMode);
   CameraModeMap[InNewCameraMode] = NewCameraMode;
   return true;
-}
-
-template<class TCameraMode>
-bool UCharacterCameraController::TryGetCameraMode(const ECameraMode InCameraMode, TCameraMode* OutCameraMode)
-{
-  if (CameraModeMap.Contains(InCameraMode) && CameraModeMap[InCameraMode].IsA<TCameraMode>())
-  {
-    OutCameraMode = Cast<TCameraMode>(CameraModeMap[InCameraMode]);
-  }
-  return OutCameraMode != nullptr;
 }
 

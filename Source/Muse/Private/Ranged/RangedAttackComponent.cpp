@@ -29,7 +29,16 @@ void URangedAttackComponent::BeginPlay()
   check(EquipmentManagerComponent);
   CameraController = GetOwner()->GetComponentByClass<UCharacterCameraController>();
   check(CameraController);
-  //AimCameraMode = CameraController->
+
+  if (!CameraController->HasBuiltCameraModes())
+  {
+    CameraController->OnCameraModesBuilt.AddDynamic(this, &URangedAttackComponent::BindAimCameraMode);
+  }
+  else
+  {
+    CameraController->TryGetCameraMode(ECameraMode::AIM, AimCameraMode);
+    check(AimCameraMode);
+  }
   ConfigureActiveCamera();
 }
 
@@ -74,6 +83,13 @@ void URangedAttackComponent::ExitAim()
 void URangedAttackComponent::FireWeapon()
 {
   EquipmentManagerComponent->SetActiveEquipment(EWeapon::RIFLE);
+}
+
+void URangedAttackComponent::BindAimCameraMode()
+{
+  CameraController->OnCameraModesBuilt.RemoveDynamic(this, &URangedAttackComponent::BindAimCameraMode);
+  CameraController->TryGetCameraMode(ECameraMode::AIM, AimCameraMode);
+  check(AimCameraMode);
 }
 
 void URangedAttackComponent::TickAimComponent(const float DeltaTime)

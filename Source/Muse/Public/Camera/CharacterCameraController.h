@@ -8,6 +8,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCharacterCameraController, Log, All)
 
+DECLARE_DYNAMIC_DELEGATE(FCameraModesBuilt);
+
 UENUM()
 enum class ECameraMode : uint8
 {
@@ -39,7 +41,11 @@ class MUSE_API UCharacterCameraController : public UActorComponent
   UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Camera Object Dependencies")
   TObjectPtr<USpringArmComponent> CameraSpringArm;
 
-public:	
+public:
+  UPROPERTY()
+  FCameraModesBuilt OnCameraModesBuilt;
+
+public:
 	// Sets default values for this component's properties
   UCharacterCameraController();
 
@@ -52,7 +58,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
   void SwitchCameraModes(ECameraMode NewCameraMode);
 
+  bool TryGetCameraMode(const ECameraMode InCameraMode, UCameraMode* OutCameraMode);
+
   FORCEINLINE void ModifySpringArmOrientation(const bool bRotateToControlRotation) { CameraSpringArm->bUsePawnControlRotation = bRotateToControlRotation; }
+  FORCEINLINE bool HasBuiltCameraModes() { return bHasBuiltCameraModes; }
 
 private:
   bool TryConfigurePostBeginPlay();
@@ -60,9 +69,6 @@ private:
 
   template<class TCameraMode>
   bool TryBuildCameraMode(const CameraModeConfigureContainer& InContainer, const ECameraMode InNewCameraMode);
-
-  template<class TCameraMode>
-  bool TryGetCameraMode(const ECameraMode InCameraMode, TCameraMode* OutCameraMode);
 
   FORCEINLINE bool ValidActiveCameraMode() const { return CameraModeMap.Contains(ActiveCameraMode) && CameraModeMap[ActiveCameraMode] != nullptr; }
 };
