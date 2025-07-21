@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Ranged/RangedAttackComponent.h"
 #include "Statics/MuseGameplayStatics.h"
+#include "Gameplay/RotationComponent.h"
+#include "Camera/CameraComponent.h"
 
 DEFINE_LOG_CATEGORY(LogRangedAttackComponent);
 
@@ -25,6 +27,7 @@ void URangedAttackComponent::BeginPlay()
   check(OwningMovementComponent);
   EquipmentManagerComponent = GetOwner()->GetComponentByClass<UEquipmentManagerComponent>();
   check(EquipmentManagerComponent);
+  ConfigureActiveCamera();
 }
 
 
@@ -39,21 +42,30 @@ void URangedAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
   }
 }
 
+void URangedAttackComponent::ConfigureActiveCamera()
+{
+  MusePlayerController = Cast<AMusePlayerController>(GetOwner()->GetWorld()->GetFirstPlayerController());
+  check(MusePlayerController);
+  MusePlayerController->OnViewTargetChanged.AddDynamic(this, &URangedAttackComponent::UpdateActiveCamera);
+  UpdateActiveCamera(MusePlayerController->GetViewTarget());
+}
+
+void URangedAttackComponent::UpdateActiveCamera(AActor* NewViewTarget)
+{
+  ActivePlayerCamera = NewViewTarget->GetComponentByClass<UCameraComponent>();
+  check(ActivePlayerCamera);
+}
+
 void URangedAttackComponent::EnterAim()
 {
   bIsAiming = true;
-  //EquipmentManagerComponent->SetActiveEquipment(EWeapon::RIFLE);
-  //EquipmentManagerComponent->SetUseFullBodyAnims(true);
   OwningMovementComponent->bOrientRotationToMovement = false;
-  //OwningMovementComponent->bUseControllerDesiredRotation = true;
 }
 
 void URangedAttackComponent::ExitAim()
 {
   bIsAiming = false;
-  //EquipmentManagerComponent->SetUseFullBodyAnims(false);
   OwningMovementComponent->bOrientRotationToMovement = true;
-  //OwningMovementComponent->bUseControllerDesiredRotation = false;
 }
 
 void URangedAttackComponent::FireWeapon()
@@ -63,10 +75,14 @@ void URangedAttackComponent::FireWeapon()
 
 void URangedAttackComponent::TickAimComponent(const float DeltaTime)
 {
-  FVector AimDirection = OwningCharacter->GetControlRotation().Vector();
-  FVector CharacterForward = OwningCharacter->GetActorForwardVector();
-  float SignedAngle = UMuseGameplayStatics::GetSignedAngle(CharacterForward, AimDirection, -GetOwner()->GetActorRightVector());
-  AimPitch = FMath::RadiansToDegrees(SignedAngle);
-  AimPitch = 0.0f;
+  // Rotate horizontal angle to face aim direction of camera. TODO: Add functionality for smooth rotating to pitch.
+  FVector TargetAimLocation = ActivePlayerCamera->GetComponentLocation() + ActivePlayerCamera->GetForwardVector() * 1750.0f;
+  FVector AimDirection = TargetAimLocation - GetOwner()->GetActorLocation();
+  FRotator AimDirectionRotation = AimDirection.Rotation();
+  // We only rotate horizontally to aim direction.
+  AimDirectionRotation.Pitch = 0.0f;
+  GetOwner()->SetActorRotation(AimDirectionRotation);
+  // Calculate the aim pitch angle, this is primarily used by animation. 
+  AimPitch = -FMath::RadiansToDegrees(UMuseGameplayStatics::GetSignedAngle(GetOwner()->GetActorForwardVector(), AimDirection.GetSafeNormal(), GetOwner()->GetActorRightVector()));
 }
 

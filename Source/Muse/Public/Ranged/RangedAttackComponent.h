@@ -7,7 +7,12 @@
 #include "Equipment/EquipmentManagerComponent.h"
 #include "MuseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MusePlayerController.h"
+#include "Camera/CharacterCameraController.h"
+#include "Camera/AimCameraMode.h"
 #include "RangedAttackComponent.generated.h"
+
+class UCameraComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogRangedAttackComponent, Log, All);
 
@@ -25,11 +30,22 @@ class MUSE_API URangedAttackComponent : public UActorComponent
   UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
   TObjectPtr<UEquipmentManagerComponent> EquipmentManagerComponent;
 
+  UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
+  TObjectPtr<UCharacterCameraController> CameraController;
+
+  UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+  TObjectPtr<UAimCameraMode> AimCameraMode;
+
   UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
   AMuseCharacter* OwningCharacter;
 
   UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
   UCharacterMovementComponent* OwningMovementComponent;
+
+  UPROPERTY()
+  AMusePlayerController* MusePlayerController;
+  UPROPERTY()
+  UCameraComponent* ActivePlayerCamera;
 
 public:	
 	// Sets default values for this component's properties
@@ -42,6 +58,11 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+  UFUNCTION()
+  void ConfigureActiveCamera();
+  UFUNCTION()
+  void UpdateActiveCamera(AActor* NewViewTarget);
 
   UFUNCTION(BlueprintCallable)
   void EnterAim();
