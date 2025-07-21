@@ -8,8 +8,6 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCharacterCameraController, Log, All)
 
-DECLARE_DYNAMIC_DELEGATE(FCameraModesBuilt);
-
 UENUM()
 enum class ECameraMode : uint8
 {
@@ -40,10 +38,6 @@ class MUSE_API UCharacterCameraController : public UActorComponent
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Camera Object Dependencies")
   TObjectPtr<USpringArmComponent> CameraSpringArm;
-
-public:
-  UPROPERTY()
-  FCameraModesBuilt OnCameraModesBuilt;
 
 public:
 	// Sets default values for this component's properties

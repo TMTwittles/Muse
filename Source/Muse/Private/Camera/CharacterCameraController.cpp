@@ -75,7 +75,6 @@ bool UCharacterCameraController::TryConfigurePostBeginPlay()
     UE_LOG(LogCharacterCameraController, Warning, TEXT("Unable to successfully build camera modes."));
     return false;
   }
-  OnCameraModesBuilt.Broadcast();
 
   return true;
 }

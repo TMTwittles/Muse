@@ -21,5 +21,9 @@ public:
   FViewTargetChanged OnViewTargetChanged;
 
   virtual void SetViewTargetWithBlend(AActor* NewViewTarget, float BlendTime, EViewTargetBlendFunction BlendFunc, float BlendExp, bool bLockOutgoing) override;
+  virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+  virtual void OnUnPossess() override;
 
+  FORCEINLINE void BroadcastOnViewTargetChanged(AActor* InNewViewTargetActor) { if (OnViewTargetChanged.IsBound()) { OnViewTargetChanged.Broadcast(InNewViewTargetActor); } }
+  FORCEINLINE void ClearOnViewTargetChanged() { if (OnViewTargetChanged.IsBound()) {OnViewTargetChanged.Clear(); }}
 };

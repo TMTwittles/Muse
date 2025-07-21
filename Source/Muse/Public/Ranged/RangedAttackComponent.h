@@ -78,6 +78,5 @@ public:
   inline float GetAimPitch() { return AimPitch; }
 
 private:
-  void BindAimCameraMode();
   void TickAimComponent(const float DeltaTime);
 };
